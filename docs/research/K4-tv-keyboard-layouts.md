@@ -1,0 +1,17 @@
+# K4 — TV keyboard layouts (remote / gamepad)
+ 
+Tags: [C] read on the maker's own page. [S] secondary source. NOT FOUND = the maker's pages don't say. Nothing here is decided.
+ 
+| Platform | Layout | Extra keys | Link |
+|---|---|---|---|
+| Google TV / Android TV (Gboard) | NOT FOUND. Text says only that Gboard picks a layout per input type: email, password, text, numeric [C]. Pictures: [text](https://developer.android.com/static/training/tv/images/atv-keyboard-text.png), [email](https://developer.android.com/static/training/tv/images/atv-keyboard-email.png), [numeric](https://developer.android.com/static/training/tv/images/atv-keyboard-numeric.png) | Speech-to-text through Gboard [C]. Remote's mic button = voice search [C]. Old ADT-1 dev kit, gamepad: A select, X delete, Y space, right stick caps, left stick symbols [C]. Space/delete on a remote: NOT FOUND. | [Android dev docs](https://developer.android.com/training/tv/get-started/onscreen-keyboard), [Help](https://support.google.com/androidtv/answer/6121377), [ADT-1 FAQ](https://developer.android.com/tv/adt-1) |
+| Roku | NOT FOUND. Layout is fixed per node, stored in a built-in JSON "Key Definition File" (sections, grids, rows). DynamicKeyboard matches the legacy Keyboard node [C]. No picture. | Voice entry (English, Spanish) [C]. Space/delete/symbols: NOT FOUND. | [DynamicKeyboardBase](https://developer.roku.com/dev/docs/dynamic-keyboard-base), [Key Definition File](https://developer.roku.com/docs/references/scenegraph/dynamic-voice-keyboard-nodes/key-definition-file.md) |
+| Apple TV (tvOS) | Linear keyboard with the Siri Remote. Grid keyboard screen with other devices [C]. No keyboard picture. | Play/Pause cycles lowercase, uppercase, numbers, symbols. Language button. Hold to get accents [C]. Dictation: hold Siri button [C]. Space/delete: NOT FOUND. | [HIG](https://developer.apple.com/design/human-interface-guidelines/virtual-keyboards), [Enter text](https://support.apple.com/guide/tv/enter-text-atvb2ae48ba6/tvos), [Dictate](https://support.apple.com/guide/tv/talk-to-your-apple-tv-atvb6fda2a53/15.0/tvos/15.0) |
+| Xbox console | NOT FOUND. No Microsoft/Xbox page found. Windows (not console) Gamepad layout: keys vertically aligned for controller navigation [C]. | Windows Gamepad layout: X backspace, Y space [C]. Console keys: NOT FOUND. | [Windows Insider blog](https://blogs.windows.com/windows-insider/2024/08/30/announcing-windows-11-insider-preview-build-22635-4145-beta-channel/) |
+| PlayStation 5 | NOT FOUND. Only the PS TV/Vita manual was found (not PS5). It gives no arrangement; keys vary by language [C]. Picture (PS TV): [screenshot](https://manuals.playstation.net/document/imgpsvitatv/basic_osk_01.jpg) | PS TV/Vita: Delete (Square), Return/Search/Send/Go, cursor (L1/R1), uppercase, numbers/symbols, language switch [C]. Space and voice: not mentioned. PS5: NOT FOUND. | [PS TV manual](https://manuals.playstation.net/document/en/pstv/basic/osk.html) |
+| Steam Big Picture | NOT FOUND. Docs confirm a gamepad-only text dialog and a floating keyboard that sends key presses to the game [C]. No picture. | NOT FOUND. | [ISteamUtils](https://partner.steamgames.com/doc/api/isteamutils) |
+ 
+## Couldn't confirm
+- The actual key arrangement (QWERTY vs alphabet grid) for Google TV, Roku, Apple TV, Xbox, PS5 and Steam. No maker page states it, and I couldn't view the images. Needs a real device or screenshots.
+- Anything about the Xbox console and PS5 keyboards from Microsoft or Sony.
+ 
