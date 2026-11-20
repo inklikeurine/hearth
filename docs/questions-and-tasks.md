@@ -102,11 +102,12 @@ Under 400 words. Save to the Hearth project as P2-ending-sessions.md
 ```
 TASK: On Fedora 45, from the man pages of pam_unix, pam_faillock and authselect, and Fedora's
 own docs:
-1. How does pam_unix store a password hash, and which hash method does Fedora use by default
+1. Does Fedora 45 support pins for user login?
+2. How does pam_unix store a password hash, and which hash method does Fedora use by default
    (yescrypt or other)?
-2. pam_faillock: what do deny=, unlock_time= and fail_interval= do, and what are Fedora's
+3. pam_faillock: what do deny=, unlock_time= and fail_interval= do, and what are Fedora's
    defaults?
-3. Is there a minimum password length enforced by default on Fedora (pam_pwquality), which
+4. Is there a minimum password length enforced by default on Fedora (pam_pwquality), which
    would block a 4-digit PIN? Name the setting.
 
 Table: | Setting | What it does | Fedora default | Link |
