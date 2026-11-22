@@ -16,8 +16,12 @@
 
 | Topic | Agreed |
 |---|---|
-| Starting point | Fork Plasma Bigscreen's UI and drop Plasma: no plasmashell, no desktop session underneath |
-| Licence | Shell goes GPL (forced by forking Bigscreen) |
+| Starting point | Hearth writes its own shell in Qt 6 QML, with no plasmashell and no desktop session underneath. It borrows parts from Plasma Bigscreen with credit: the input handler, the link redirector, design ideas ([Borrow from Bigscreen](decisions/0012-borrow-from-bigscreen-write-shell-fresh.md)) |
+| Licence | GPL-3.0-or-later (2026-11-22). Fits the borrowed Bigscreen input handler and the keyboard parts in section 6.4. GPL-2.0-only code, such as Bigscreen's link redirector, stays a separate program or is rewritten |
+| Home screen and overlays | The lead's wants, listed in section 18: one full-screen app at a time; the installed apps in rows the user arranges, with the next row peeking in; a rows-and-columns setting; overlays; particle effects on the home screen only; a user-set background; a status overlay with burn-in protection |
+| System menu | Hearth owns the menu the Menu button opens. Apps add their items through a Menu Contribution API, in 1.0. A public SDK for app makers comes after 1.0 (section 19) |
+| Accessibility | Heavy features move to 2.0.0: screen reader, zoom, colour filters, dialogue boost, a separate simple layout. Cheap ones stay in 1.0 ([Heavy accessibility in 2.0](decisions/0013-heavy-accessibility-in-2-0.md)) |
+| Compositor test | labwc is tested first. The compositor itself is still open (section 5.4) |
 | Hardware floor | 4 GB RAM, x86-64, graphics with VP9 hardware decode: Intel 7th gen (Kaby Lake) or newer, AMD Raven Ridge-class APUs (2018) or newer, NVIDIA. Raspberry Pi 4 is a design goal only |
 | Optional hardware | On-board Wi-Fi, Bluetooth, USB infrared receivers, gamepads and HDMI-CEC are recommended and supported by default, never assumed present. Every core path (install, setup, recovery, settings, updates) works without them; features that need one appear only when it's there, or say what's missing ([Optional hardware](decisions/0008-optional-hardware-supported-never-assumed.md)) |
 | OS image and updates | mkosi builds the image; systemd-sysupdate updates it (A/B: the new version installs beside the old, rollback if it fails to boot) |
@@ -54,7 +58,7 @@
 
 ## 3. Open
 
-- Compositor, the program that draws windows. gamescope is likely out (section 5.4). It must let Hearth's on-screen keyboard type into every app.
+- Compositor, the program that draws windows. labwc is tested first. gamescope is likely out; cage and Weston are out (section 5.4). It must let Hearth's on-screen keyboard type into every app.
 - On-screen keyboard details, including word suggestions. Waits for the compositor.
 - Bundled apps, image or Flatpak. Firefox goes in the image. Are Moonlight and the Jellyfin client Hearth's own parts, or ordinary Flatpaks? Decides part of the codec plan (section 5.3).
 - Kernel lockdown default: on, off, or on except on boxes that need an outside driver (section 5.6).
@@ -84,7 +88,7 @@ bifrost, the lead's earlier personal setup, was read for lessons only; Hearth in
 
 mkosi builds from Fedora, Debian, Arch, openSUSE and others, so the base is a separate choice. Reasons for Fedora 45:
 
-- Bigscreen's code needs Qt 6.11 or newer; Fedora ships it, Debian 13 doesn't.
+- It ships Qt 6.11 for the shell; Debian 13 has an older Qt.
 - Its systemd is new enough for systemd-sysupdate's D-Bus interface (added in systemd 257), which Settings → Updates would use.
 - The dev container is already Fedora.
 - `systemd-sysinstall`, the installer tool, needs systemd 261 or newer. Fedora 45 ships 261.2, Fedora 44 ships 259.8 ([Installer](decisions/0005-installer-boot-profile-sysinstall.md)).
@@ -129,17 +133,28 @@ The lead asked whether codecs we can't ship can be layered in. They can. On a sy
 
 ### 5.4 Compositor
 
-gamescope is probably out: it needs Vulkan, which a lot of potato-class graphics lack or only half-support. Bigscreen's code expects KWin and uses layer-shell, which both candidates below support.
+**Agreed:** labwc is tested first (2026-11-22). The compositor itself isn't chosen.
+
+gamescope is probably out: it needs Vulkan, which a lot of potato-class graphics lack or only half-support.
+
+What Hearth needs from the compositor: one full-screen app at a time; Hearth's menu, volume and other overlays drawn on top of it; switching apps and returning home; and our on-screen keyboard typing into every app. Overlays drawn by a separate program use wlr-layer-shell, a protocol that lets a program draw panels and overlays above other windows. labwc and KWin support it ([E1](research/E1-compositor-overlays.md)); Weston and Qt Wayland Compositor don't ([E6](research/E6-qt-wayland-compositor.md)).
 
 | Candidate | For | Against |
 |---|---|---|
-| KWin on its own (no plasmashell) | Bigscreen already targets it; colour-blindness filter and zoom built in (accessibility) | Heavier; pulls in more of KDE |
-| labwc (small wlroots compositor) | Light; simple | We'd write focus switching and overlays ourselves |
+| KWin on its own (no plasmashell) | Screen reader, zoom and colour-blindness filter built in (2.0 features now); HDR | Heavier; pulls in Plasma libraries ([E4](research/E4-compositor-footprint.md)) |
+| labwc (small wlroots compositor) | Light; overlays, app switching and keyboard protocols all through standard protocols ([E1](research/E1-compositor-overlays.md), [E2](research/E2-compositor-input-protocols.md)) | No screen reader or colour filters; refuses AI-made contributions and bug reports |
 | Hearth as its own compositor (Qt Wayland Compositor) | Every app's window, Firefox included, becomes an item in Hearth's QML scene: animate it, scale it into a tile, layer overlays, with no change to the app. One process instead of two | Hearth takes on the whole compositor job: display output and modes, HDR, input devices, keyboard input into apps, screen-reader support. Protocol support unconfirmed |
 
-cage is out (checked in its source, 2026-11-19): one full-screen app at a time, no layer-shell for overlays, and no input-method or text-input support, so the on-screen keyboard could only send fake key presses. Research prompts for KWin vs labwc: series E in the lead's log.
+cage is out (checked in its source, 2026-11-19): one full-screen app at a time, no layer-shell for overlays, and no input-method or text-input support, so the on-screen keyboard could only send fake key presses.
 
-Spike: run the forked shell on KWin and on labwc, on the OptiPlex and on a 4 GB box; measure RAM, and check app hand-off and return home.
+Weston with its kiosk-shell is out (checked in Weston's source, main branch, 2026-11-22):
+- It speaks only text-input v1 and input-method v1 ([protocol list](https://gitlab.freedesktop.org/wayland/weston/-/blob/main/protocol/meson.build), [text-backend.c](https://gitlab.freedesktop.org/wayland/weston/-/blob/main/frontend/text-backend.c)). Firefox, Moonlight (SDL3) and GTK4 apps take on-screen-keyboard text only through text-input v3 ([K2](research/K2-apps-text-input.md)). That's the same gap that ruled out cage. Adding v3 to Weston has sat as an open merge request for years ([MR 781](https://gitlab.freedesktop.org/wayland/weston/-/merge_requests/781), secondary).
+- kiosk-shell makes every window full screen and has only background, normal and hidden layers: no overlay a system menu could use ([kiosk-shell.c](https://gitlab.freedesktop.org/wayland/weston/-/blob/main/kiosk-shell/kiosk-shell.c)). In Weston a "shell" is a C plugin inside the compositor, not a QML app like Bigscreen's "shell", so a custom Weston shell means writing compositor code in C.
+- For it: light, packaged in Fedora 45 (15.0.1), supports HDR colour management.
+
+With heavy accessibility moved to 2.0.0 ([Heavy accessibility in 2.0](decisions/0013-heavy-accessibility-in-2-0.md)), KWin's screen-reader, zoom and colour-filter lead matters for 2.0, not 1.0. labwc does everything 1.0 needs through standard protocols ([E1](research/E1-compositor-overlays.md), [E2](research/E2-compositor-input-protocols.md)), so the shell could later move to another compositor that speaks the same protocols. Against labwc: no screen-reader support, and it refuses AI-made contributions, bug reports included ([E5](research/E5-compositor-upkeep.md)), so Hearth takes it as it is.
+
+Spike, labwc first, on the OptiPlex and on a 4 GB box: a bare Hearth home screen; launch Firefox full screen; draw a menu over it; type into it with a test keyboard over input-method v2; go back home. Measure RAM.
 
 ### 5.5 RAM budget on a 4 GB box
 
@@ -241,6 +256,29 @@ What Hearth would do instead:
 
 Settings → Remotes → pick the remote → a drawing of a generic remote with the button highlighted → "press the button you want for Back". One map for everything, no per-app overrides, and a "reset to defaults" option. Works with a remote, a phone or a keyboard.
 
+### 6.4 On-screen keyboard: parts to borrow (proposed)
+
+*Claude's proposal, 2026-11-22. Nothing here is decided. Checked in each project's own repo that day.*
+
+No single keyboard does what Hearth's must: remote and gamepad first, several key arrangements, themeable, typing into every app. Several do one part each.
+
+On labwc, our keyboard would use three protocols: input-method v2 (the compositor tells the keyboard a text box is focused, and the keyboard sends text back), text-input v3 (the same thing on the app's side), and virtual-keyboard v1 (for keys with no text: Enter, arrows, Backspace). labwc has all three ([E2](research/E2-compositor-input-protocols.md)).
+
+| Keyboard | What to borrow | Licence | Notes |
+|---|---|---|---|
+| [plasma-keyboard](https://github.com/KDE/plasma-keyboard) (KDE, Qt 6 QML; what Bigscreen uses) | Layouts as packages (dozens of languages), D-pad navigation, word candidates, text composers for complex scripts | GPL, mostly GPL-2.0-only OR GPL-3.0-only; some files Qt's GPL-3.0-only ([K3](research/K3-existing-keyboards.md)) | Speaks input-method v1, which only KWin offers. Its compositor link would be replaced with v2 for labwc |
+| [Qt Virtual Keyboard](https://github.com/qt/qtvirtualkeyboard) | QML layouts and styles, arrow-key navigation, word-prediction plug-ins | GPL-3.0-only or commercial | Runs inside one Qt app, not system-wide, so it'd need wrapping. plasma-keyboard has solved a similar wrapping problem |
+| [Stevia](https://gitlab.gnome.org/World/Phosh/stevia) (Phosh's keyboard, GTK4) | How to drive input-method v2, virtual-keyboard and layer-shell on a wlroots-based compositor, the same set labwc offers. Word completion (presage) and correction (hunspell) | GPL-3.0-or-later | Active: v0.59.0, 2026-11-14. Touch-first |
+| [wvkbd](https://github.com/jjsullivan5196/wvkbd) | The smallest C example of the same protocols | GPL-3.0 | Touch and pointer only |
+| [Squeekboard](https://gitlab.gnome.org/World/Phosh/squeekboard) | Same protocols plus text-input v3 | GPL-3.0 | Marked unmaintained. Reference only |
+| [Kodi](https://github.com/xbmc/xbmc/tree/master/system/keyboardlayouts) | 31 remote-friendly keyboard layout files (XML), one per language | GPL (Kodi's) | Data, not code |
+| [gamepad-osk](https://github.com/0x90shell/gamepad-osk) | Ideas for a controller-driven keyboard (Go, SDL3, layer-shell) | MIT | Small, new, looking for Wayland testers (secondary) |
+
+- Gamepad wheel (Steam's old Daisywheel): no maintained open-source one found for Linux. Hearth designs its own.
+- Proposed combination: a Qt QML keyboard that matches the shell and its theme, built from plasma-keyboard's layouts and navigation, talking input-method v2 the way Stevia does.
+- Password fields: text-input v3 marks them (purpose `password`, hint `sensitive_data`), so the keyboard turns word suggestions off there ([K1](research/K1-wayland-keyboard-protocols.md)).
+- Licences: GPL-3.0-only and GPL-3.0-or-later code mix, and so do the "GPL-2.0-only OR GPL-3.0-only" files if we take them as GPL-3. GPL-2.0-only code doesn't mix with them.
+
 ## 7. Phone
 
 **Agreed:** KDE Connect as the base. Its mobile app is weak but works; improve it only if KDE's AI policy allows (section 16).
@@ -321,7 +359,7 @@ Revisit if the Back-key spike shows Firefox still takes keys we need, or one Fir
 
 ## 9. Theming
 
-Theming is built in from the start, because adding it later means finding every hard-coded colour. The forked Bigscreen code moves onto theme tokens before any new features.
+Theming is built in from the start, because adding it later means finding every hard-coded colour. The shell uses theme tokens from its first screen.
 
 | Layer | What users change | Where | Ships in |
 |---|---|---|---|
@@ -460,18 +498,26 @@ A primary feature.
 
 ## 14. Accessibility
 
-| Need | What Hearth does | Built on |
-|---|---|---|
-| Blind and low-vision users | Screen reader for every Hearth screen, switchable from the first boot screen (hold Back for 5 seconds, as many TVs do) | Qt accessibility → AT-SPI → Orca |
-| Low vision | Text size, high-contrast themes, zoom | Theme tokens; compositor zoom |
-| Colour blindness | Colour filters; never colour as the only signal | Compositor filter; design rule |
-| Deaf and hard of hearing | Captions on by default if chosen once; caption size and colour | mpv for Jellyfin; sites' own captions in web apps |
-| Hearing | Mono audio, dialogue boost, balance | PipeWire filters |
-| Motor | Slower key repeat, ignore accidental double presses, longer hold times | Hearth input service |
-| Motion sensitivity | Reduce animations | Theme token |
-| Cognitive | Simple mode: fewer rows, bigger tiles, no autoplay | Layout option |
+**Agreed:** heavy features move to 2.0.0, split as in the Release column ([Heavy accessibility in 2.0](decisions/0013-heavy-accessibility-in-2-0.md)).
 
-Rule: every new screen is checked with the screen reader and the high-contrast theme before it's done.
+| Need | What Hearth does | Built on | Release |
+|---|---|---|---|
+| Blind and low-vision users | Screen reader for every Hearth screen, switchable from the first boot screen (hold Back for 5 seconds, as many TVs do) | Qt accessibility → AT-SPI → Orca | 2.0.0 |
+| Low vision | Text size, high-contrast themes | Theme tokens | 1.0 |
+| Low vision | Zoom | Compositor zoom | 2.0.0 |
+| Colour blindness | Never colour as the only signal | Design rule | 1.0 |
+| Colour blindness | Colour filters | Compositor filter | 2.0.0 |
+| Deaf and hard of hearing | Captions on by default if chosen once; caption size and colour | mpv for Jellyfin; sites' own captions in web apps | 1.0 |
+| Hearing | Mono audio, balance | PipeWire | 1.0 |
+| Hearing | Dialogue boost | PipeWire filter | 2.0.0 |
+| Motor | Slower key repeat, ignore accidental double presses, longer hold times | Hearth input service | 1.0 |
+| Motion sensitivity | Reduce animations; no more than three flashes a second | Theme token; design rule | 1.0 |
+| Cognitive | Fewer rows, bigger tiles, no autoplay | Rows-and-columns setting (section 18) | 1.0 |
+| Cognitive | A separate simple layout | Layout option | 2.0.0 |
+
+Rules for 1.0:
+- Every new screen is checked with the high-contrast theme before it's done.
+- Every control gets an accessible name and role (Qt's `Accessible.name` and `Accessible.role`), so the 2.0 screen reader doesn't reopen every screen. (Claude's proposal.)
 
 ## 15. What it looks like when it breaks
 
@@ -515,8 +561,66 @@ Rule: every new screen is checked with the screen reader and the high-contrast t
     - To decide in the review: which hosted tools, if any, are acceptable, and which checks run locally. Needs the architecture first so the tools fit the stack (QML, C++, mkosi configs).
   - Playwright installs Chromium by default, which conflicts with the no-Chromium development rule.
   - Review tooling for QML and C++ wasn't researched (qmllint, Qt Quick Test and clang-tidy are guesses).
-  - Automated cleanup passes on forked Bigscreen code will cause merge conflicts with upstream.
 - Docs plan: user docs and contributor docs kept separate, organised with the Diátaxis framework (tutorials, how-to guides, reference, explanation).
+
+## 18. Home screen and overlays
+
+### The lead's wants (2026-11-22)
+
+- One full-screen app at a time.
+- Slick animations.
+- A row or two of icons. The icons are the installed apps, which the user arranges; they aren't sorted into categories. One row shows at a time, with a little of the next row visible below it (if there is one), to invite scrolling down.
+- A user setting for how many rows and columns are visible.
+- Overlays: volume, festive celebrations, particle effects. Celebrations and particle effects appear on the home screen only.
+- A user-set background.
+- On the home screen, a status overlay: system clock, battery percentage (if the box has a battery), the current profile, a notification bell, internet connection state, and a profile switcher / power button.
+
+### Agreed (2026-11-22), from Claude's proposals
+
+- The clock and other fixed elements get burn-in protection: they dim or shift a few pixels over time, and a screensaver starts when the screen sits idle.
+- Internet status shows the network state (wired, Wi-Fi, none). "No internet" shows only when something actually fails, such as lookups to the upstream DNS. No new connection is added to check. How to detect a failure is to be checked (AdGuard Home's own status is the first candidate).
+
+### Claude's notes (proposed, not decided)
+
+- **Arranging apps with a remote:** focus an app, press Menu, choose "Move", move it with the arrows, press Select to drop it. Long-press "jiggle" modes (Apple TV) aren't reliable here, because NEC-protocol infrared remotes can't tell a held button from repeated presses (section 6).
+- **App order:** each profile keeps its own order, since each profile is its own Unix user. Newly installed apps go at the end. Web apps count as installed apps. A kid profile shows only its allowed apps (section 13).
+
+- **Row peek:** Samsung asks for a scroll hint when a list runs past one page ([B2](research/B2-tv-focus-navigation.md)). The peek does that job.
+- **Rows-and-columns setting:** also gives the "fewer rows, bigger tiles" part of simple mode (section 14).
+- **Animations:** none of the four TV guides gives durations or easing ([B4](research/B4-tv-motion.md)). Starting point: Material 3's standard easing, `cubic-bezier(0.2, 0, 0, 1)`, around 200 ms, tuned on the box. Animation speed is already a theme token. Reduced motion swaps slides and zooms for fades, as Apple's guide says, and turns particles off.
+- **Particle effects:** Qt Quick has a particle module ([QtQuick.Particles](https://doc.qt.io/qt-6/qml-qtquick-particles-particle.html)). Limits:
+  - No more than three flashes a second ([WCAG 2.3.1](research/A3-wcag22-numbers.md)). Fireworks are the classic failure.
+  - Anything drawn over a playing full-screen app makes the compositor combine the two every frame, instead of sending the video straight to the screen. That costs graphics power on floor hardware (from memory; measure in the spike). The lead's call: celebrations and particles on the home screen only. The volume overlay is brief, so it's fine over apps.
+- **Background:** theme packs already carry wallpapers (section 9). Photos sent from the phone (section 7) could be used too. Proposal: still images only in 1.0, since animated backgrounds cost RAM and graphics power.
+- **Status overlay:**
+  - Clock: a fixed element, the kind OLED makers warn can burn in ([A6](research/A6-oled-burn-in.md)). Protection agreed above. Screensaver delay to be set; Samsung's TVs start theirs after 2 minutes.
+  - Battery: shown only when a battery exists (section 2, optional hardware).
+  - Internet state: agreed above. The reason: the "Wi-Fi sign-in page" check is off by default (section 2), and that check is how the box would tell "the internet works" apart from "connected to the network".
+  - Profile switcher: switching ends the current session ([One Unix user per profile](decisions/0002-one-unix-user-per-profile.md)).
+  - Power: sleep, restart, power off. What a kid profile may do here depends on the parental-controls question in the lead's log.
+  - Bell: reads Hearth's own notification service (section 2).
+  - Placement: inside the TV-safe margin. The guides give 54–60 px top and bottom and 80–96 px at the sides at 1920×1080 ([B3](research/B3-tv-layout-safe-area.md)).
+
+## 19. System menu (Menu Contribution API)
+
+**Agreed (2026-11-22):** in 1.0, used by Hearth's own screens and by web apps. A public SDK for app makers after 1.0.
+
+The lead's design notes are in [App Menu Contribution API](research/2026-11-20-app-menu-contribution-api.md). In short:
+- Pressing Menu opens one overlay drawn by Hearth: a system section always, and an app section when the app in front has contributed items.
+- Apps send structured data only: no HTML, QML, scripts or graphics. Hearth owns presentation, navigation, focus and permissions.
+- The app's name and icon come from its installed manifest, not from what it sends.
+- Hearth enforces limits: menu depth, number of items, label length, update rate, payload size.
+- The app reports state and requests changes. Hearth decides whether to honour a request.
+- The API doesn't depend on any UI toolkit or compositor.
+
+### What to borrow (Claude's proposal)
+
+- **MPRIS**, Linux's standard D-Bus interface for "what's playing, play, pause, seek". Firefox reports web-page playback through it on Linux, since Firefox 75 ([bug 1353652](https://bugzilla.mozilla.org/show_bug.cgi?id=1353652), [Mozilla help](https://support.mozilla.org/kb/control-audio-or-video-playback-your-headset-or-keyboard)). Every media app gets play and pause in the menu without supporting Hearth's API. That covers open question 1 in the note for media apps.
+- **GTK's exported actions (GAction over D-Bus)** for request-versus-confirmed state: an app publishes actions with a state, the host asks for a change, and the app reports the new state (from memory; to check).
+- **[Qt Application Manager](https://doc.qt.io/QtApplicationManager/)**: Qt's framework in which a "System UI" owns the screen and each app is described by an installed manifest ([info.yaml](https://doc.qt.io/QtApplicationManager/manifest.html)). It's the closest existing match to these notes. GPL-3.0-only or commercial, not packaged in Fedora 45. For ideas, not as a base.
+- **Web apps:** the page never talks to the menu. The Hearth extension contributes items, per site, over native messaging (section 6.1), because web pages are untrusted (section 12.2).
+- **Parental controls:** the OS decides which items each profile sees (section 13).
+- **Trusted identity:** the Flatpak app ID and its `.desktop` file, or the web-app definition (section 8.1).
 
 ## Sources
 
