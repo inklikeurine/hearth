@@ -11,7 +11,7 @@ The plan was to fork Plasma Bigscreen's interface and remove Plasma. Read on 202
 - The settings pages are tied to Plasma. The design doc already planned to rebuild them (section 10).
 - `webapp-viewer` is built on Qt WebEngine, which is Chromium.
 - The input handler types fake keys through a portal that KWin provides, and the compositor may not be KWin (section 5.4).
-- Upkeep is thin: one volunteer revived Bigscreen in 2025 and has gone back to Plasma Mobile ([E5](../research/E5-compositor-upkeep.md)).
+- Upkeep is thin: one volunteer revived Bigscreen in 2025 and has gone back to Plasma Mobile ([compositor upkeep](../research/E5-compositor-upkeep.md)).
 
 ## Decision
 

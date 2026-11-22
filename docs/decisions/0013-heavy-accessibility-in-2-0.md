@@ -30,7 +30,7 @@ Also **Claude's proposal**: every control gets an accessible name and role (Qt's
 ## Consequences
 
 - Dropped from 1.0: the rule "every new screen is checked with the screen reader". The high-contrast check stays.
-- KWin's main advantage over labwc was screen-reader support ([E3](../research/E3-compositor-a11y-hdr.md)). That now matters for 2.0, not 1.0.
+- KWin's main advantage over labwc was screen-reader support ([compositor accessibility and HDR](../research/E3-compositor-a11y-hdr.md)). That now matters for 2.0, not 1.0.
 - The compositor used in 1.0 must gain screen-reader support by 2.0, or Hearth changes compositor then.
 
 ## Turned down
