@@ -22,7 +22,7 @@ A [distrobox](https://distrobox.it/) is a container that feels like a second Lin
 | Group | Packages | Version |
 |---|---|---|
 | Compositor under test | labwc, plus wlrctl (switch windows from the command line), wlr-randr, wayland-info, wtype, wev, foot (a terminal) | labwc 0.20.2 |
-| Shell toolkit | Qt 6 (base, QML, Wayland, SVG, shader tools, Qt tools), layer-shell-qt (turns a Qt window into an overlay) | Qt 6.11.2, layer-shell-qt 6.8.3 |
+| Shell toolkit | Qt 6 (base, QML, Wayland, SVG, shader tools, Qt tools), layer-shell-qt (turns a Qt window into an overlay), wlr-protocols-devel (the window-switching protocol's definition) | Qt 6.11.2, layer-shell-qt 6.8.3 |
 | Building | cmake, ninja, gcc-c++, pkgconf, git | cmake 4.3.0 |
 | Checkers | qmllint and qmlformat (from Qt), clang-tidy and clang-format (clang-tools-extra), gitleaks (secret scanner) | clang-tools-extra 23.1.5, gitleaks 8.30.1 |
 | Apps the spike tests against | Firefox, Stevia (a ready-made on-screen keyboard), KDE Connect | Firefox 160.0, Stevia 0.57.0, KDE Connect 26.08.3 |
