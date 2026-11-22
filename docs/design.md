@@ -296,6 +296,8 @@ The lead keeps fighting Firefox over these keys in Leanback for Dropout. The sam
 
 Spike: native messaging latency (it must feel instant), and whether Firefox swallows any key before an extension sees it.
 
+**Result (2026-11-22, headless, [shell spike results](research/2026-11-22-shell-spike-results.md)):** it works. labwc caught the remote's Back before Firefox; the shell sent it over native messaging to a test extension, which closed the page's menu, went back a page, and left the app, in that order. Firefox stayed full screen and the pages never saw Back or Escape. Slowest round trip: 7–8 ms. The spike installs the extension as a temporary add-on, because Fedora's Firefox installs only Mozilla-signed extensions for good; the product ships it signed (section 8.2).
+
 Confirmed by the lead's testing for Leanback for Dropout ([Leanback's Firefox findings](research/2026-11-22-leanback-firefox-learnings.md)):
 - A page can't stop Firefox's Back. Cancelling `BrowserBack` doesn't stop the history-back (tested with the Dev Probe). So Hearth has to take the remote's Back before Firefox sees it, as step 1 says.
 - What an air mouse's buttons arrive as in Firefox: Back as `BrowserBack` (some remotes send Escape), Home as `BrowserHome`, Menu as `ContextMenu`, which opens Firefox's own context menu unless something stops it.
@@ -729,7 +731,7 @@ Rules for 1.0:
   - what YouTube, Twitch and Dropout send
 - Feature review, a lighter Firefox kiosk: cut RAM and startup time per web app. Fewer content processes, the security cost of turning down site isolation (Fission), unneeded features off (Pocket, sync, studies, PDF viewer, spell check and so on), faster start and close, how long a closed web app stays warm, and whether each web app needs uBlock Origin now that AdGuard Home blocks ad domains for the whole box (section 13.1). Measure one YouTube web app on a 4 GB box before and after. Inputs: the Gecko research task (route 4) in [the lead's log](questions-and-tasks.md), and the RAM budget (section 5.5).
 - Software that fills the gaps: where the lead's preferences (no Chromium, local only) leave holes, list candidate software and the trade-offs. Open to negotiation.
-- Spike results: compositor (5.4), native-messaging Back key (6.1), KDE Connect typing into web apps (7), per-profile DNS (13.1).
+- Spike results: compositor (5.4; shell spike, headless, so far), native-messaging Back key (6.1; done headless: [shell spike results](research/2026-11-22-shell-spike-results.md)), KDE Connect typing into web apps (7), per-profile DNS (13.1).
 - Agentic review plan (goal 6). The first research pass ([agentic review notes](research/2026-11-19-agentic-code-review-notes.md)) made no decisions; its sources were mostly blogs, none opened in full. Checked since ([agentic review checks](research/2026-11-19-agentic-review-checks.md)): Claude Code's limits (an allow-list, a git guard hook) aren't set up yet; branch protection is refused on a private repo with a free account; code checkers wait for code; mkosi pins Fedora with `Snapshot=`. Points for the review:
   - Rules files are advice; hooks, CI checks and branch protection enforce.
   - AI tools invent package names, and attackers register them. Every new dependency needs approval, and versions are pinned.
