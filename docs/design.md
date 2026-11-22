@@ -200,12 +200,14 @@ Spike code lives on the local-only `spikes` branch; results are written up in `d
 
 #### A working shell first (agreed 2026-11-22)
 
-The lead: a working shell before setting up any hardware. It's spike code on the local `spikes` branch (the lead's choice over starting the real shell), built and run in the dev box with labwc in a window on the lead's desktop. Approved dependencies: Qt 6.11, layer-shell-qt 6.8, labwc 0.20, Firefox 160, all Fedora 45 packages.
+The lead: a working shell before setting up any hardware. It's spike code on the local `spikes` branch (the lead's choice over starting the real shell), built and run in the dev box with labwc in a window on the lead's desktop. Approved dependencies: Qt 6.11, layer-shell-qt 6.8, labwc 0.20, Firefox 160, and `wlr-protocols-devel` (added 2026-11-22), all Fedora 45 packages.
 
 Version 0, as Claude proposed and the lead agreed:
 - In: a home screen with the installed apps plus YouTube, Twitch and Dropout as Firefox web apps, in rows with the next row peeking in; arrow keys, Enter, Back and Home from a keyboard or the air mouse; apps open full screen and Home comes back; the Menu key opens Hearth's overlay over the running app ("go home", "close app"); a clock and a placeholder profile name; theme tokens from the first line, one dark theme, text sizes from the research.
 - Out: settings pages, profiles and the picker, remote mapping, the on-screen keyboard, notifications, the phone, particles, the OS image.
 - It covers spike checks 1–3, 5 and 12 above.
+
+Built 2026-11-22; a headless test passed all 19 of its checks. Claude made the home screen an overlay (a layer-shell surface above every app) rather than a desktop the apps sit on, because only the overlay worked with the approved parts: going back to a running app on a desktop needs the window-switching protocol (foreign-toplevel), and its definition file wasn't installed. Fedora 45 packages it (`wlr-protocols-devel`, MIT licence). **Agreed (2026-11-22):** the home screen is a desktop the apps sit on, not an overlay (the lead: "rebuild as a desktop"). `wlr-protocols-devel` is approved as a dependency for the window-switching protocol.
 
 ### 5.5 RAM budget on a 4 GB box
 
@@ -294,6 +296,13 @@ The lead keeps fighting Firefox over these keys in Leanback for Dropout. The sam
 
 Spike: native messaging latency (it must feel instant), and whether Firefox swallows any key before an extension sees it.
 
+Confirmed by the lead's testing for Leanback for Dropout ([Leanback's Firefox findings](research/2026-11-22-leanback-firefox-learnings.md)):
+- A page can't stop Firefox's Back. Cancelling `BrowserBack` doesn't stop the history-back (tested with the Dev Probe). So Hearth has to take the remote's Back before Firefox sees it, as step 1 says.
+- What an air mouse's buttons arrive as in Firefox: Back as `BrowserBack` (some remotes send Escape), Home as `BrowserHome`, Menu as `ContextMenu`, which opens Firefox's own context menu unless something stops it.
+- Esc takes a page out of its full screen, so Leanback makes video fill the window with CSS instead. Hearth never sends Esc to Firefox (step 2).
+- Game controllers reach Firefox only through the Gamepad API, not as key presses, so the input service turns them into actions itself (section 6.2).
+- A drifting air-mouse pointer must never move the selection. **Proposed:** a rule for every Hearth screen: focus never follows the pointer.
+
 ### 6.2 Key capture compared with Bigscreen
 
 What Bigscreen does (read from its `inputhandler` source):
@@ -351,7 +360,7 @@ On labwc, our keyboard would use three protocols: input-method v2 (the composito
   - Confirming the arrangements themselves needs screenshots or the devices. The four layouts agreed in section 2 come from the lead.
 - Proposed combination: a Qt QML keyboard that matches the shell and its theme, built from plasma-keyboard's layouts and navigation, talking input-method v2 the way Stevia does.
 - Password fields: text-input v3 marks them (purpose `password`, hint `sensitive_data`), so the keyboard turns word suggestions off there ([Wayland keyboard protocols](research/K1-wayland-keyboard-protocols.md)).
-- Web apps with their own keyboard: on bifrost, Plasma's on-screen keyboard opened over Leanback for Dropout's own one ([bifrost: test boxes and TVs](research/2026-11-22-bifrost-optiplex-and-tv.md)). **Proposed:** Hearth's TV-navigation extension can tell the keyboard to stay closed for a site that brings its own. One more item for the Hearth API for web apps (section 8.6).
+- Web apps with their own keyboard: on bifrost, Plasma's on-screen keyboard opened over Leanback for Dropout's own one ([bifrost: test boxes and TVs](research/2026-11-22-bifrost-optiplex-and-tv.md)). Leanback's fix is the web's own: its text boxes are marked `inputmode="none"` (and `ime-mode: disabled`), meaning "no system keyboard here" ([Leanback's Firefox findings](research/2026-11-22-leanback-firefox-learnings.md)). **Proposed:** Hearth's keyboard honours that mark. To test: whether Firefox passes it on to a keyboard working through text-input v3; Plasma's used an older protocol.
 - Licences: GPL-3.0-only and GPL-3.0-or-later code mix, and so do the "GPL-2.0-only OR GPL-3.0-only" files if we take them as GPL-3. GPL-2.0-only code doesn't mix with them.
 
 ### 6.5 TV control without HDMI-CEC (idea, not scheduled)
@@ -394,6 +403,8 @@ Pairing: section 12.3.
 ### 8.1 User-built web apps
 
 A web-app definition is a small file: name, icon, URL, user agent (spoofed if a site only gives its TV interface to TVs), extensions, adapter (normally the TV-navigation extension), and which profiles may use it. Settings → Apps → "Add a web app" builds one with the remote. The built-in ones (YouTube, YouTube Music, Twitch, Dropout) use the same format.
+
+YouTube's TV interface (`youtube.com/tv`) works in desktop Firefox; no user-agent spoofing is needed for it (the lead, from experience, 2026-11-22).
 
 ### 8.2 Extensions and their update path
 
@@ -442,6 +453,18 @@ Revisit if the Back-key spike shows Firefox still takes keys we need, or one Fir
   - Middle route: stock Firefox changed from outside with policies, prefs, its own style sheet and AutoConfig. Checked 2026-11-19: this goes far enough that a fork isn't needed. AutoConfig with its sandbox off gives a startup script full browser rights, so it can rebind the browser's keys and change its interface without a rebuild. It can break on Firefox updates, which the pinned, tested image catches ([Firefox outside customising](research/2026-11-19-firefox-outside-customising.md)). It can't make the page an item inside Hearth's Qt scene. Open question: Firefox, or Bigscreen's Qt WebEngine (Chromium), which can.
 - A Hearth API for web apps: a small script our extension adds to every web app for consistent Back handling, theme colours, focus style and overlay requests. LG webOS ships a similar JavaScript library for its web apps. Works with the kiosk route.
 - Native screens from service APIs: Hearth draws the browse screens and the page only plays video. Easy for Jellyfin, partial for Twitch, hard for YouTube (Google key, quotas, terms), not possible for Dropout.
+
+### 8.7 What Leanback for Dropout learned about Firefox
+
+From the lead's own extension ([Leanback's Firefox findings](research/2026-11-22-leanback-firefox-learnings.md)), for Hearth's web-app profiles and its TV-navigation extension:
+
+- Autoplay with sound can only be allowed by the profile (`media.autoplay.default = 0`) or a policy; no extension can grant it. Hearth's web-app profiles already set it.
+- Firefox claims H.264 support even when it can't decode it. Leanback checks by decoding one tiny frame: a concrete way to do "test codecs by playing them" (section 4).
+- A page can't close its own window; the extension's background script can, and closing the last tab in kiosk mode ends Firefox. That's how "close the web app" and Back on a site's home can work.
+- Set each kiosk profile's home page to its site, so a stray Home key that reaches Firefox does no harm.
+- Hardware decoding in a kiosk profile: `media.ffmpeg.vaapi.enabled = true`.
+- One kiosk profile takes about 0.5–1 GiB of RAM (not measured), in line with section 5.5.
+- Remotes that send many quick presses instead of one held press: treat a press within 0.15 s of the same button's release as a hold; OK, Back and Menu never repeat. Input for the Hearth input service (section 6).
 
 ## 9. Theming
 
@@ -781,6 +804,7 @@ The lead's design notes are in [App Menu Contribution API](research/2026-11-20-a
 - **Parental controls:** the OS decides which items each profile sees (section 13).
 - **Trusted identity:** the Flatpak app ID and its `.desktop` file, or the web-app definition (section 8.1).
 - **A first outside app for the SDK after 1.0** (the lead's idea, 2026-11-22): Moonfin, the Jellyfin client the lead is considering (section 3), as a good candidate to add menu integration to. What bifrost recorded about Moonfin is in [bifrost: test boxes and TVs](research/2026-11-22-bifrost-optiplex-and-tv.md): not on Flathub, an unsigned `.flatpak` bundle with no update source, no full-screen setting, a TV mode. Nothing checked for Hearth yet.
+- **Sites that use the Menu key** (Claude's note): Leanback for Dropout opens its own settings on the remote's Menu button. Once Hearth owns Menu, a site's or extension's menu has to arrive as items in the menu's app section, through the TV-navigation extension, instead.
 
 ## Sources
 
