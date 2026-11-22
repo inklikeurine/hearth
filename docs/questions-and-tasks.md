@@ -20,7 +20,7 @@ CONTEXT: I'm the solo lead of Hearth, an open-source TV interface ("10-foot UI")
 - Goal: a smart-TV replacement that runs like an appliance, as reliable as a basic fridge.
 - Hardware floor: 4 GB RAM, x86-64, graphics with VP9 hardware decode: Intel 7th gen or newer, AMD Raven Ridge-class APUs (2018) or newer, NVIDIA supported. Raspberry Pi 4 is a design goal only.
 - Optional hardware: on-board Wi-Fi, Bluetooth, USB infrared receivers, gamepads and HDMI-CEC are recommended and supported by default, but never assumed present; old laptops, desktops and mini-PCs often lack them.
-- Platform: a fork of KDE Plasma Bigscreen's QML interface with Plasma removed (Qt 6, GPL). OS image built with mkosi on Fedora 45, installed from an "Installer" boot profile running systemd-sysinstall, updated with systemd-sysupdate (A/B, read-only system, automatic rollback). Fedora's stock kernel, Secure Boot off by default in 1.0; drivers Fedora doesn't ship (NVIDIA, some Wi-Fi) are pulled at setup time for the hardware found.
+- Platform: Hearth's own Qt 6 QML shell (GPL-3.0-or-later), borrowing parts from KDE Plasma Bigscreen (no Plasma underneath). One full-screen app at a time; Hearth draws the overlays and the Menu-button system menu, and apps add menu items through a Hearth API. Compositor not chosen; labwc is tested first. Heavy accessibility features (screen reader, zoom, colour filters) come in 2.0.0. OS image built with mkosi on Fedora 45, installed from an "Installer" boot profile running systemd-sysinstall, updated with systemd-sysupdate (A/B, read-only system, automatic rollback). Fedora's stock kernel, Secure Boot off by default in 1.0; drivers Fedora doesn't ship (NVIDIA, some Wi-Fi) are pulled at setup time for the hardware found.
 - Hearth's own parts live in the OS image, never as Flatpaks; any other app can be a Flatpak.
 - Each profile is its own Unix user (one active session at a time, optional PIN); logins are kept in oo7, the secret store.
 - Apps: Jellyfin, Moonlight, and Firefox kiosk "web apps" (YouTube TV interface, Twitch, Dropout) with our own TV-navigation extension. One global key map for every app.
@@ -43,7 +43,7 @@ RULES FOR YOUR ANSWER
 | Question | Why it matters | Where it's discussed |
 |---|---|---|
 | Moonlight and the Jellyfin client: in the image, or Flatpaks? (Firefox: in the image) | Decides part of the codec plan and how they update | Design doc, sections 3 and 5.3 |
-| KWin on its own, labwc (a small wlroots compositor), or Hearth as its own compositor (Qt Wayland Compositor, which makes every app's window an item in Hearth's scene)? cage is out | RAM, accessibility features, how fake keys get typed, whether our on-screen keyboard can type into every app | Design doc, sections 5.4 and 6.2 |
+| KWin on its own, labwc (a small wlroots compositor), or Hearth as its own compositor (Qt Wayland Compositor, which makes every app's window an item in Hearth's scene)? labwc is tested first (agreed). cage and Weston are out | RAM, overlays, how fake keys get typed, whether our on-screen keyboard can type into every app, screen reader by 2.0 | Design doc, sections 5.4 and 6.2 |
 | Kernel lockdown default: off, on, or on except where an outside driver is needed (proposed)? | Lockdown would block drivers pulled at setup time | Design doc, section 5.6 |
 | NVIDIA floor: Pascal (GTX 10) or Turing (GTX 16 / RTX 20)? | Depends on which cards NVIDIA's current driver still supports | Design doc, section 5.6 |
 | Boot-time target | Shapes the image and startup work | Design doc, section 3 |
