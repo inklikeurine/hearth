@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Runs before every commit. Refuses the commit if the staged changes:
+#   1. put spike code (spikes/) on any branch except the local-only "spikes" branch
+#   2. contain something that looks like a secret (keys, tokens)
+#   3. contain the committer's own email address or home-folder path
+# Turn the hooks on once per clone:  git config core.hooksPath .githooks
+# Never skip them with --no-verify (AGENTS.md, "Code and repo safety").
+
+set -u
+fail=0
+say() { printf 'pre-commit: %s\n' "$*" >&2; }
+
+branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo '')"
+
+# 1. Spike code stays on the spikes branch
+if [ "$branch" != "spikes" ]; then
+  spike_files="$(git diff --cached --name-only --diff-filter=ACMR -- 'spikes/')"
+  if [ -n "$spike_files" ]; then
+    say "spike code can only be committed on the local-only 'spikes' branch:"
+    printf '  %s\n' $spike_files >&2
+    fail=1
+  fi
+fi
+
+# Lines this commit adds (file names included, so messages can point at them)
+added="$(git diff --cached -U0 --no-color --diff-filter=ACMR | grep -E '^\+' | grep -vE '^\+\+\+ ')"
+
+# 2. Secrets: common key and token shapes
+secret_patterns=(
+  '-----BEGIN [A-Z ]*PRIVATE KEY-----'
+  'gh[pousr]_[A-Za-z0-9]{36,}'
+  'github_pat_[A-Za-z0-9_]{22,}'
+  'AKIA[0-9A-Z]{16}'
+  'xox[abposr]-[A-Za-z0-9-]{10,}'
+  'AIza[0-9A-Za-z_-]{35}'
+  'sk-ant-[A-Za-z0-9_-]{20,}'
+  'sk-[A-Za-z0-9]{40,}'
+)
+for p in "${secret_patterns[@]}"; do
+  if printf '%s\n' "$added" | grep -Eq -- "$p"; then
+    say "staged changes contain something shaped like a secret (pattern: $p)"
+    fail=1
+  fi
+done
+
+# gitleaks, when it can be found: on PATH, or inside the hearth-f45 dev box
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks git --pre-commit --staged --redact --no-banner --log-level warn . >&2 || { say "gitleaks found a possible secret"; fail=1; }
+elif command -v distrobox >/dev/null 2>&1 && podman container exists hearth-f45 2>/dev/null; then
+  distrobox enter hearth-f45 -- gitleaks git --pre-commit --staged --redact --no-banner --log-level warn "$PWD" >&2 \
+    || { say "gitleaks found a possible secret"; fail=1; }
+else
+  say "note: gitleaks not found; only the built-in secret patterns were checked"
+fi
+
+# 3. Personal info: the committer's email and home-folder path
+email="$(git config user.email || true)"
+case "$email" in
+  ''|*@users.noreply.github.com) ;;
+  *)
+    if printf '%s\n' "$added" | grep -Fqi -- "$email"; then
+      say "staged changes contain your git email address; remove it before committing"
+      fail=1
+    fi
+    ;;
+esac
+if [ -n "${HOME:-}" ] && [ "$HOME" != "/" ]; then
+  # Match "$HOME/" so that "/home/<name>" inside longer words doesn't trip it
+  if printf '%s\n' "$added" | grep -Fq -- "$HOME/"; then
+    say "staged changes contain your home-folder path ($HOME/); use a relative path or \$HOME"
+    fail=1
+  fi
+fi
+
+if [ "$fail" -ne 0 ]; then
+  say "commit refused. Fix the lines above and commit again."
+fi
+exit "$fail"
