@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Runs before every push. Refuses to:
+#   1. push the local-only "spikes" branch anywhere
+#   2. delete main on the remote
+#   3. rewrite main's history on the remote (a force push)
+# Turn the hooks on once per clone:  git config core.hooksPath .githooks
+
+set -u
+zero="0000000000000000000000000000000000000000"
+fail=0
+say() { printf 'pre-push: %s\n' "$*" >&2; }
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  case "$local_ref $remote_ref" in
+    *refs/heads/spikes*)
+      say "the spikes branch is local only and is never pushed"
+      fail=1
+      continue
+      ;;
+  esac
+  if [ "$remote_ref" = "refs/heads/main" ]; then
+    if [ "$local_sha" = "$zero" ]; then
+      say "deleting main on the remote is not allowed"
+      fail=1
+    elif [ "$remote_sha" != "$zero" ] && ! git merge-base --is-ancestor "$remote_sha" "$local_sha" 2>/dev/null; then
+      say "this push would rewrite main's history (force push); not allowed"
+      fail=1
+    fi
+  fi
+done
+
+exit "$fail"

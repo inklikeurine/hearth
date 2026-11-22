@@ -2,7 +2,7 @@
 
 An open-source TV interface ("10-foot UI") for cheap Linux home-theatre PCs. A smart-TV replacement that runs like an appliance: easy to install and keep running, driven by a remote or a phone, local only, secure.
 
-Status: design phase. Nothing is built yet.
+Status: design phase. No product code yet; the first test (labwc as the compositor) is being set up.
 
 | Read | For |
 |---|---|
@@ -11,8 +11,9 @@ Status: design phase. Nothing is built yet.
 | [docs/questions-and-tasks.md](docs/questions-and-tasks.md) | Open questions, research prompts, tasks |
 | [docs/research/](docs/research/) | Research results |
 | [docs/tested-with-hearth.md](docs/tested-with-hearth.md) | How apps get tested and rated for Hearth |
+| [docs/dev-environment.md](docs/dev-environment.md) | The development box and the repo's guards |
 | [AGENTS.md](AGENTS.md) | Working rules for AI-assisted work |
 
 ## Licence
 
-The code's licence isn't chosen yet. The artwork in [wallpapers/](wallpapers/) is original work by The Hearth dev team, licensed for non-commercial use only under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) ([details](wallpapers/LICENSE)).
+Hearth's code is licensed under the GNU General Public License, version 3 or (at your option) any later version: `GPL-3.0-or-later` ([LICENSE](LICENSE)). Files borrowed from other projects keep their own licence and say where they came from. The artwork in [wallpapers/](wallpapers/) is original work by The Hearth dev team, licensed for non-commercial use only under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) ([details](wallpapers/LICENSE)).

@@ -1,11 +1,12 @@
 # Hearth: working rules for AI-assisted work
 
-Hearth is an open-source TV interface ("10-foot UI") for cheap Linux home-theatre PCs, meant to replace a smart TV and run like an appliance. Phase: design. No product code.
+Hearth is an open-source TV interface ("10-foot UI") for cheap Linux home-theatre PCs, meant to replace a smart TV and run like an appliance. Phase: design. No product code; spikes only, on the local `spikes` branch.
 
 - Plan, agreed lines, open questions: [docs/design.md](docs/design.md)
 - Decisions in force: [docs/decisions/](docs/decisions/)
 - Open questions, research prompts, tasks: [docs/questions-and-tasks.md](docs/questions-and-tasks.md)
 - Research results: [docs/research/](docs/research/)
+- Development box and repo guards: [docs/dev-environment.md](docs/dev-environment.md)
 
 ## Sources you may use
 
@@ -68,3 +69,13 @@ The files in this repo are the only source for Hearth's plans and decisions. Do 
 - A record states what the lead decided, why, and what was turned down. Claude's proposals inside it are labelled as such.
 - To change a decision, write a new record saying why it changed and what was turned down, and delete the old file in the same commit.
 - "Agreed" lines in the design doc are the lead's decisions that don't have a record yet.
+
+## Code and repo safety
+
+*Set up by Claude on 2026-11-22 at the lead's request ("make the repo safe for code"), for the lead's review. How each guard works: [docs/dev-environment.md](docs/dev-environment.md).*
+
+- Spike code lives only on the local `spikes` branch and is never pushed (the lead's decision, 2026-11-22). Product code waits until the lead says to start.
+- Every new dependency (package, library, browser extension, downloaded file) needs the lead's approval first, and is pinned to an exact version, with a checksum where one exists. AI tools invent package names that attackers then register.
+- New code files start with `SPDX-License-Identifier: GPL-3.0-or-later`. Borrowed files keep their own licence line and credit their source.
+- Never skip the git hooks (`--no-verify`), point `core.hooksPath` anywhere but `.githooks`, or force-push `main`. The hooks and `.claude/hooks/git-guard.sh` enforce this; rules in this file are only advice.
+- Changes to `.githooks/` or `.claude/` need the lead's OK.
