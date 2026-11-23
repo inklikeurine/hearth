@@ -25,6 +25,11 @@ New:
 - The admin PIN can reset a kid profile's PIN. This replaces 0003's "there is no admin override" for kid profiles.
 - The admin PIN's setup flow is tagged for the onboarding / first-install flow, designed later.
 
+Added the same day, answering what this record first left open (the lead, 2026-11-22):
+- The admin PIN can reset any profile's PIN, adult or kid ("both").
+- The admin PIN *can* guard settings, adding apps, and creating and deleting profiles: each is a switch the admin sets, with sensible defaults ("it CAN, settable by user with sensible defaults"). Claude's proposed defaults, not decided: once an admin PIN exists, all three are guarded; the admin can switch any of them off.
+- A forgotten admin PIN is recovered only by a system reset ("system reset. don't forget it"). The setup flow says so plainly when the PIN is set. Claude reads "system reset" as a full factory reset; whether the recovery menu's lighter "reset settings" is enough is to be settled with that menu (section 15).
+
 ## Consequences
 
 Easier:
@@ -37,14 +42,14 @@ Harder:
 
 - Hearth needs admin machinery after all. The polkit research found a way: an admin is a Unix group plus Hearth's own polkit rules in the read-only image, checked by Hearth's system services ([polkit rules](../research/P5-polkit-admin.md)). Not built or tested.
 - Resetting another user's PIN is a privileged job, so it goes through the narrowly scoped helper that creating and deleting profiles already need ([One Unix user per profile](0002-one-unix-user-per-profile.md)). How a PIN guards a Unix user is still open (design doc, section 13.2), and the reset depends on that answer.
-- A forgotten admin PIN has no recovery yet, and it guards the controls, so the setup flow has to cover it.
+- A forgotten admin PIN costs a system reset, so the setup flow has to make that clear, and a reset that wipes profiles loses their data.
+- An admin who can reset any PIN can open any profile, adults' included.
 
 ## Not decided
 
-- Whether the admin PIN belongs to an admin profile (that profile's own PIN, required once parental controls are on) or is a separate box-wide PIN.
-- Whether the admin PIN can reset an adult profile's PIN, or only a kid's.
-- What else the admin PIN guards beyond section 13's rows: settings, adding apps, creating and deleting profiles.
-- Recovering a forgotten admin PIN.
+- Whether the admin PIN belongs to an admin profile (that profile's own PIN, required once parental controls are on) or is a separate box-wide PIN. Deferred (the lead, 2026-11-22).
+- The default for each admin-guarded switch (Claude's proposal above).
+- Whether "system reset" for a forgotten admin PIN means a full factory reset or only resetting settings.
 - Whether authenticating with a paired device (the phone, for example) is feasible and safe for any recovery (carried over from 0003).
 - Whether a locked profile can be deleted without wiping the box (carried over from 0003).
 - How a PIN guards a profile: Hearth checks it itself, or it's set as the Unix password (open, "later", design doc, section 13.2).
