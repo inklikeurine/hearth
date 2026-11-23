@@ -1,6 +1,6 @@
 # Shell spike: results so far
 
-*Claude, 2026-11-22. The spike code is on the local-only `spikes` branch (`spikes/shell/`, its README has the details). Everything below ran headless: labwc with no screen in the dev box, keys pressed with wtype, windows checked with wlrctl, pictures saved by the shell. The latest run passed 76 of 76 checks, twice in a row. The lead has run an earlier build in a window; nobody has watched the keyboard on a screen yet.*
+*Claude, 2026-11-22. The spike code is on the local-only `spikes` branch (`spikes/shell/`, its README has the details). Everything below ran headless: labwc with no screen in the dev box, keys pressed with wtype, windows checked with wlrctl, pictures saved by the shell. The latest run passed 78 of 78 checks, twice in a row. The lead has run an earlier build in a window; nobody has watched the keyboard on a screen yet.*
 
 *Tags: [T] = seen in the spike's own test runs; [C] = read in source or installed files; [M] = Claude's memory, unchecked.*
 
@@ -76,7 +76,9 @@ Built after the lead agreed (design doc, section 6.2) [T, headless, two runs]:
 - labwc's key bindings send Esc and Backspace, from any device, to the shell, as they already did Back, Home and Menu. Esc is Back. Backspace on the home screen and on a page with no text box focused meant Back (it went back a page); in a text box it deleted. The pages never saw Back, Esc or Backspace.
 - With the on-screen keyboard shown, a real keyboard typed "cats" straight into the box. Enter right after typing reached the page as Enter; after an arrow, Enter pressed the highlighted key instead (Claude's rule, since a remote's OK and a keyboard's Enter are the same key).
 - **labwc's key bindings catch every keyboard's keys, our own virtual keyboard's included.** The on-screen keyboard's ⌫ sent Backspace through its virtual keyboard, the binding caught it, and the shell sent it again: a loop. Deleting now goes through input-method v2's "delete text before the cursor" request, which isn't a key press. Enter still goes as a key, since nothing binds it.
-- Each binding starts a small `hearth-shell --send` program, so every Backspace in a text box costs a program start. Fine for a spike; the real shell needs a faster path. Holding Backspace probably deletes only once (not tested).
+- **labwc repeats a bound key while it's held**, 25 times a second after 600 ms (its defaults, from its manual [C]; the repeating seen in the test [T]). A held Backspace emptied a 20-letter box in 2 seconds. A held Back on page 2 closed the site's menu, went back a page, left the app and then ran Back on the home screen. Now Back, Esc, Home and Menu fire once, on release (`onRelease="yes"`), and a held Back only closed the menu [T]. Backspace stays on press, so it repeats in a text box; held outside one, it still repeats as Back. (Claude's proposal; the lead hasn't confirmed it.)
+- **Repeat inside the on-screen keyboard is the keyboard's job:** the grab passes one press and the repeat rate. The test keyboard now repeats a held arrow at labwc's rate [T].
+- **Each binding starts a program.** The Qt shell took about 30 ms to start and pass a command, against a 40 ms gap between repeats; slower boxes would fall behind (estimate). `hearth-send`, a few lines of C, does it in about 3 ms [T, dev computer].
 - Ctrl and Alt shortcuts are dropped while the on-screen keyboard is shown.
 - No new dependency, and no access to input devices was needed. The permission rule from the earlier plan wasn't installed.
 

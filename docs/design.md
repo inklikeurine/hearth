@@ -344,6 +344,8 @@ What Hearth would do instead:
 
 Built and tested headless in the shell spike the same day ([shell spike results](research/2026-11-22-shell-spike-results.md)).
 
+**Proposed (Claude, 2026-11-22), held keys:** labwc repeats a held bound key 25 times a second, so a held Back walked out of an app in the spike. Back, Esc, Home and Menu fire once, when the key is let go; Backspace in a text box and arrows in the on-screen keyboard repeat. Built in the spike to test; not decided. Long-press actions (hold Home for a pass-through toggle, section 6.2) would need the press and release timed, which the on-release binding doesn't give; NEC infrared remotes can't hold anyway (section 6).
+
 Found 2026-11-22 (Claude, from the lead's WeChip air mouse on the dev computer, read from `/sys/class/input`) [T]:
 - The air mouse is one USB receiver (`248a:8367`, "Telink Wireless Receiver") showing up as four input devices: a mouse (2 buttons), "Consumer Control" (149 keys declared, including Back, Home, Menu, Select, arrows, volume, play/pause), "System Control" (power, sleep, wake) and a keyboard (146 keys declared: letters, space, Backspace, arrows, Compose).
 - So a remote can't be told from a keyboard by the keys it declares. Hearth needs a list of known remotes by USB ID, or to ask at setup ("is this a remote?"). Claude's proposal, not decided: handle keys rather than whole devices. Remote keys (arrows, Select, Back, Home, Menu, media) become actions; letters and the rest pass through as typing, so a remote with a keyboard on its back still types.
