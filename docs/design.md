@@ -33,14 +33,14 @@
 | Remotes | USB air-mouse remotes, USB infrared receivers and Bluetooth remotes are first-class and all ship with default key maps; HDMI-CEC is a bonus. None is assumed present |
 | Phone | KDE Connect as the base |
 | Phone features, in priority order | 1 typing and voice typing · 2 private listening · 3 photos and files · 4 cast a link · 5 screen mirroring (revisit later) |
-| Theming | High priority, built in from the start. Hearth-owned theme tokens (Kirigami route C), preview-first Appearance, day/night toggle (off by default, fixed times), no fonts in theme packs (open-source fonts ship in the image) ([Theming](decisions/0009-theming-presets-and-packs.md)) |
+| Theming | High priority, built in from the start. Hearth's own controls and theme tokens, no Kirigami; preview-first Appearance; day/night toggle (off by default, fixed times); no fonts in theme packs (open-source fonts ship in the image; Atkinson Hyperlegible Next by default) ([Theming](decisions/0016-theming-own-tokens-no-kirigami.md)) |
 | Parental controls and profiles | Primary consideration |
 | Borrowing | Borrow freely from open-source projects |
 | Upstream etiquette | Follow each upstream project's AI policy; if it has none, assume they don't want our input (section 16) |
 | No Chromium: scope | Our development doesn't build on or ship Chromium or Electron. Users may install Chromium-based apps |
 | Notifications | Hearth ships its own notification service |
 | KWallet | Not used |
-| Profiles | One Unix user per profile; one active session at a time, and a new login ends the old session. Any profile, the default one included, can have a PIN: off by default, set and removed by the profile itself, recovered only by a hint where possible ([Profile PINs](decisions/0003-profile-pins-opt-in-self-managed.md)). Keyring set up when a profile is created. Default profile made in the install flow. Boot shows the profile picker unless there is exactly one profile and it has no PIN ([Boot shows the profile picker](decisions/0004-boot-shows-profile-picker.md)). Recorded in [One Unix user per profile](decisions/0002-one-unix-user-per-profile.md); research results in section 13.2 |
+| Profiles | One Unix user per profile; one active session at a time, and a new login ends the old session. Any profile, the default one included, can have a PIN: off by default, set and removed by the profile itself, recovered by a hint where possible. Parental controls require an admin PIN, asked for once they're first used; it can reset a kid profile's PIN ([Profile PINs and the admin PIN](decisions/0017-profile-pins-and-admin-pin.md)). Keyring set up when a profile is created. Default profile made in the install flow. Boot shows the profile picker unless there is exactly one profile and it has no PIN ([Boot shows the profile picker](decisions/0004-boot-shows-profile-picker.md)). Recorded in [One Unix user per profile](decisions/0002-one-unix-user-per-profile.md); research results in section 13.2 |
 | Secret store | oo7, daemon and Flatpak portal ([Secret store: oo7](decisions/0001-keyring-oo7.md)). Each profile's keyring unlocks from a random password sealed with `systemd-creds`, made at profile creation ([Boot shows the profile picker](decisions/0004-boot-shows-profile-picker.md)) |
 | On-box ad and tracker blocker | AdGuard Home. For now, Hearth pulls it from AdGuard's own releases and pins it (2026-11-22, section 13.1) |
 | Dependency allowlist | Generate a reviewed list of the network calls our dependencies need (section 11) |
@@ -57,10 +57,16 @@
 | On-screen keyboard: reach | Types into every app, including Flatpaks the user installs, not only Hearth's screens and web apps |
 | On-screen keyboard: design | Designed from scratch once the compositor is chosen. Supports the common layouts: QWERTY grid (Android TV), alphabet grid (Roku), single row (Apple TV), gamepad wheel (Steam's old Daisywheel). The keyboard is themeable (section 9) |
 | Languages | English only until 1.0.0. Support for other languages is scoped early so 1.0 doesn't block it |
+| Product code | Starts only after all open questions are settled (2026-11-22) |
+| Web-app engine | Firefox, probably for good; may be revisited once the work is deeper in. Claude flags it when web-app integrations become important (2026-11-22) |
+| Fonts | Default: Atkinson Hyperlegible Next, with Noto Sans for wider coverage. A settings page to change fonts, designed with the settings app (2026-11-22, from Claude's recommendation) |
+| On-screen keyboard: word suggestions | Yes (2026-11-22) |
+| Error codes | Every error code is human readable (2026-11-22) |
+| Parental controls: admin PIN | Parental controls require an admin PIN, asked for once they're first used (a kid profile or a restriction); it can reset a kid profile's PIN. Its setup flow is tagged for the onboarding / first-install flow, designed later (2026-11-22, [Profile PINs and the admin PIN](decisions/0017-profile-pins-and-admin-pin.md)) |
 
 ## 3. Open
 
-- On-screen keyboard details, including word suggestions. The compositor is chosen (labwc), so this is open now; the shell spike's test keyboard shows what labwc allows (section 6.4).
+- On-screen keyboard details beyond word suggestions (agreed: yes). The compositor is chosen (labwc); the shell spike's test keyboard shows what labwc allows (section 6.4).
 - Bundled apps, image or Flatpak: later (the lead, 2026-11-22). Firefox goes in the image. Are Moonlight and a Jellyfin client Hearth's own parts, or ordinary Flatpaks? The lead names Moonfin as the Jellyfin client to look at. Neither Moonlight nor Moonfin is in Fedora 45's own repos (package list; RPM Fusion not checked), so "in the image" would mean Hearth packages and patches them itself. Decides part of the codec plan (section 5.3).
 - Kernel lockdown default: on, off, or on except on boxes that need an outside driver (section 5.6).
 - NVIDIA floor: which generations count as supported, given NVIDIA's driver support (section 5.6).
@@ -292,8 +298,8 @@ The lead keeps fighting Firefox over these keys in Leanback for Dropout. The sam
 
 **Proposed:** apps never see the raw key.
 
-1. Hearth's input service turns every remote button into a Hearth action (Back, Home, Select, Up, …) before any app gets it.
-2. For web apps, the action goes to the Hearth TV-navigation extension over Firefox's native messaging (a supported channel from a local program to an extension), not as a fake keypress. The extension decides: close the site's menu, go back a page, or leave the app. Firefox never sees Esc, so full screen isn't affected.
+1. Hearth's input service turns every remote button into a Hearth action (Back, Home, Select, Up, …) before any app gets it. (Replaced for keyboards and remotes on 2026-11-22: labwc's key bindings catch Back, Home, Menu, Esc and Backspace from every device, section 6.2.)
+2. For web apps, the action goes to Hearth's Firefox extension (`hearth-firefox-bridge`, agreed below) over Firefox's native messaging (a supported channel from a local program to an extension), not as a fake keypress. The extension decides: close the site's menu, go back a page, or leave the app. Firefox never sees Esc, so full screen isn't affected.
 3. For native apps, an app adapter turns the global actions into whatever that app understands (one needs Esc to go back, another Backspace). Users never see or edit adapters. Adapters come from the app's Tested with Hearth entry.
 4. Home always goes home; it's never passed to an app.
 
@@ -327,7 +333,7 @@ What Hearth would do instead:
 | Catch | Controllers and CEC only; keyboard-like remotes pass straight through | Every remote-like device, grabbed exclusively, so apps never see its raw keys. Full keyboards still type normally, minus a few keys Hearth reserves (Home) |
 | Translate | Button → fixed keyboard key | Button → Hearth action (Back, Home, Select, …) using the device's map plus the user's remaps |
 | Deliver to the home screen | Fake keys | Actions sent straight to the shell |
-| Deliver to web apps | Fake keys; Firefox and the site both react | Actions sent to the TV-navigation extension over native messaging; Firefox never sees Esc or Backspace |
+| Deliver to web apps | Fake keys; Firefox and the site both react | Actions sent to `hearth-firefox-bridge` over native messaging; Firefox never sees Esc or Backspace |
 | Deliver to native apps | Same fake keys for every app; each app reads them its own way | The global action goes through the app's adapter, so Back always means back, even if one app needs Esc for it and another Backspace |
 | Games and Moonlight | Auto-suppress | Pass-through mode; Hearth keeps only Home (held) |
 | Phone typing (KDE Connect) | Separate path | Routed through the same service, so the phone follows the same rules |
@@ -428,7 +434,7 @@ Pairing: section 12.3.
 
 ### 8.1 User-built web apps
 
-A web-app definition is a small file: name, icon, URL, user agent (spoofed if a site only gives its TV interface to TVs), extensions, adapter (normally the TV-navigation extension), and which profiles may use it. Settings → Apps → "Add a web app" builds one with the remote. The built-in ones (YouTube, YouTube Music, Twitch, Dropout) use the same format.
+A web-app definition is a small file: name, icon, URL, user agent (spoofed if a site only gives its TV interface to TVs), extensions, adapter (normally `hearth-firefox-bridge`), and which profiles may use it. Settings → Apps → "Add a web app" builds one with the remote. The built-in ones (YouTube, YouTube Music, Twitch, Dropout) use the same format.
 
 YouTube's TV interface (`youtube.com/tv`) works in desktop Firefox; no user-agent spoofing is needed for it (the lead, from experience, 2026-11-22).
 
@@ -484,13 +490,13 @@ Revisit if one Firefox web app doesn't fit the 4 GB RAM budget. A WPE-based laun
 - Our own lightweight Gecko browser keeps Firefox extension support but brings security upkeep:
   - Forking Firefox (LibreWolf, Zen) means rebuilding on every Firefox release: every four weeks, sooner for security fixes.
   - Embedding Gecko in QML has one known example, Sailfish OS, whose small team has spent years catching up to Firefox versions Mozilla had already dropped.
-  - Middle route: stock Firefox changed from outside with policies, prefs, its own style sheet and AutoConfig. Checked 2026-11-19: this goes far enough that a fork isn't needed. AutoConfig with its sandbox off gives a startup script full browser rights, so it can rebind the browser's keys and change its interface without a rebuild. It can break on Firefox updates, which the pinned, tested image catches ([Firefox outside customising](research/2026-11-19-firefox-outside-customising.md)). It can't make the page an item inside Hearth's Qt scene. Open question: Firefox, or Bigscreen's Qt WebEngine (Chromium), which can.
+  - Middle route: stock Firefox changed from outside with policies, prefs, its own style sheet and AutoConfig. Checked 2026-11-19: this goes far enough that a fork isn't needed. AutoConfig with its sandbox off gives a startup script full browser rights, so it can rebind the browser's keys and change its interface without a rebuild. It can break on Firefox updates, which the pinned, tested image catches ([Firefox outside customising](research/2026-11-19-firefox-outside-customising.md)). It can't make the page an item inside Hearth's Qt scene; Bigscreen's Qt WebEngine (Chromium) can. **Agreed (2026-11-22):** Firefox, probably for good, to be revisited if needed once the work is deeper in; Claude flags it when web-app integrations become important (section 2).
 - A Hearth API for web apps: a small script our extension adds to every web app for consistent Back handling, theme colours, focus style and overlay requests. LG webOS ships a similar JavaScript library for its web apps. Works with the kiosk route.
 - Native screens from service APIs: Hearth draws the browse screens and the page only plays video. Easy for Jellyfin, partial for Twitch, hard for YouTube (Google key, quotas, terms), not possible for Dropout.
 
 ### 8.7 What Leanback for Dropout learned about Firefox
 
-From the lead's own extension ([Leanback's Firefox findings](research/2026-11-22-leanback-firefox-learnings.md)), for Hearth's web-app profiles and its TV-navigation extension:
+From the lead's own extension ([Leanback's Firefox findings](research/2026-11-22-leanback-firefox-learnings.md)), for Hearth's web-app profiles and `hearth-firefox-bridge`:
 
 - Autoplay with sound can only be allowed by the profile (`media.autoplay.default = 0`) or a policy; no extension can grant it. Hearth's web-app profiles already set it.
 - Firefox claims H.264 support even when it can't decode it. Leanback checks by decoding one tiny frame: a concrete way to do "test codecs by playing them" (section 4).
@@ -513,7 +519,7 @@ Theming is built in from the start, because adding it later means finding every 
 - Theme packs are data only, never code, so a downloaded theme can't run anything.
 - Accessibility themes (high contrast, large text) are ordinary themes. An automatic test checks every built-in theme against WCAG AA contrast rules.
 - Web apps take the focus highlight and overlay colours from the theme; the sites themselves are unchanged.
-- Kirigami (KDE's QML toolkit): [Theming](decisions/0009-theming-presets-and-packs.md) was written when the shell was a Bigscreen fork, so it planned a small bridge for leftover Kirigami controls. With a fresh shell ([Borrow from Bigscreen](decisions/0012-borrow-from-bigscreen-write-shell-fresh.md)), Hearth's own tokens drive everything and the bridge is needed only if Hearth uses Kirigami controls at all. Whether it does is open (lead's log).
+- Kirigami (KDE's QML toolkit): not used (2026-11-22, [Theming](decisions/0016-theming-own-tokens-no-kirigami.md)). Hearth's own controls and tokens drive every screen, as in the shell spike.
 
 ### 9.1 What other platforms offer (research results)
 
@@ -521,7 +527,7 @@ From the makers' support pages for Apple TV, Google TV, LG, Samsung, Roku, Xbox,
 
 | Setting | Who offers it | Hearth |
 |---|---|---|
-| Light / dark / automatic | Apple (automatic by time of day); Xbox (light, dark, or scheduled by set times or sunrise and sunset). LG: no option | Day/night toggle at fixed times ([Theming](decisions/0009-theming-presets-and-packs.md)) |
+| Light / dark / automatic | Apple (automatic by time of day); Xbox (light, dark, or scheduled by set times or sunrise and sunset). LG: no option | Day/night toggle at fixed times ([Theming](decisions/0016-theming-own-tokens-no-kirigami.md)) |
 | Text size, bold text | Apple, Google (slider), PlayStation, Steam (UI scaling), Samsung ("Zoom Menu and Text"). Roku says it has none | Text-size token, 1.0 |
 | High contrast | Apple, Google (experimental), LG, Samsung (black background, white or yellow text), Xbox, PlayStation, Steam | High-contrast themes, 1.0 |
 | Reduce motion | Apple, PlayStation, Steam | Animation-speed token, 1.0 |
@@ -653,7 +659,7 @@ A primary feature.
 | Movie and TV ratings | Each Hearth profile maps to its own Jellyfin user, which has a maximum rating |
 | YouTube restricted mode, SafeSearch | Forced through DNS (YouTube and Google support this officially) |
 | Website limits in web apps | Firefox's website-filter policy, per profile |
-| Screen time | Daily limit and bedtime hours; 5-minute warning; admin PIN to extend |
+| Screen time | Daily limit and bedtime hours; 5-minute warning; admin PIN to extend (admin PIN agreed 2026-11-22, section 2) |
 | Leaving a kid profile | Needs the admin PIN |
 | Activity summary | Kept on the box only; visible to the admin profile |
 | Limit | Someone with the box in hand can boot another system. The guide covers setting a BIOS password |
@@ -702,7 +708,7 @@ How it would run (proposed, not decided):
 
 ### 13.2 How profiles run (research results)
 
-Decided already: one Unix user per profile, one session at a time, optional PIN, a picker at boot unless there's one profile with no PIN ([One Unix user per profile](decisions/0002-one-unix-user-per-profile.md), [Profile PINs](decisions/0003-profile-pins-opt-in-self-managed.md), [Boot shows the profile picker](decisions/0004-boot-shows-profile-picker.md)).
+Decided already: one Unix user per profile, one session at a time, optional PIN, a picker at boot unless there's one profile with no PIN ([One Unix user per profile](decisions/0002-one-unix-user-per-profile.md), [Profile PINs](decisions/0017-profile-pins-and-admin-pin.md), [Boot shows the profile picker](decisions/0004-boot-shows-profile-picker.md)).
 
 - **Starting a session** ([greetd sessions](research/P1-greetd-sessions.md)): greetd is a small login service (in Fedora 45). Its greeter, the picker screen, runs as its own `greeter` user and hands greetd the chosen user name. greetd checks the password through PAM, Linux's login-check system, and starts the session as that user. `initial_session` logs one user in automatically once per boot, which fits the one-profile, no-PIN case. The new session gets the screen and input through logind. Unconfirmed: whether Fedora's greetd login config registers the session with logind (`pam_systemd`); check in a test image.
   - Claude's note: under greetd, the picker is a separate small program run before any profile's session, not part of the shell.
@@ -739,7 +745,7 @@ Rules for 1.0:
 **Agreed** principle: solo projects forget the broken state, so Hearth designs it first.
 
 - Every failure has a screen: one sentence, what to do next, an error code and a QR code.
-- Error codes are readable, not numbers: `HEARTH-UPDATE-012`, `HEARTH-WIFI-003`.
+- Error codes are readable, not numbers: `HEARTH-UPDATE-012`, `HEARTH-WIFI-003`. **Agreed (2026-11-22):** every error code is human readable.
 - The QR code carries only the error code and the Hearth version, no personal data. Scanning it opens that error's help page on the phone, where "Report this" opens a pre-filled bug report from the phone. The box sends nothing (section 11).
 - Diagnostics bundle: the user can save a cleaned-up log bundle to USB or send it to their phone, by choice each time.
 - Recovery menu: opens after three failed boots, or by holding a remote button at power-on. Options: start the previous version, safe mode (shell with no apps), reset settings, factory reset, show diagnostics.
@@ -840,7 +846,7 @@ The lead's design notes are in [App Menu Contribution API](research/2026-11-20-a
 - **Parental controls:** the OS decides which items each profile sees (section 13).
 - **Trusted identity:** the Flatpak app ID and its `.desktop` file, or the web-app definition (section 8.1).
 - **A first outside app for the SDK after 1.0** (the lead's idea, 2026-11-22): Moonfin, the Jellyfin client the lead is considering (section 3), as a good candidate to add menu integration to. What bifrost recorded about Moonfin is in [bifrost: test boxes and TVs](research/2026-11-22-bifrost-optiplex-and-tv.md): not on Flathub, an unsigned `.flatpak` bundle with no update source, no full-screen setting, a TV mode. Nothing checked for Hearth yet.
-- **Sites that use the Menu key** (Claude's note): Leanback for Dropout opens its own settings on the remote's Menu button. Once Hearth owns Menu, a site's or extension's menu has to arrive as items in the menu's app section, through the TV-navigation extension, instead.
+- **Sites that use the Menu key** (Claude's note): Leanback for Dropout opens its own settings on the remote's Menu button. Once Hearth owns Menu, a site's or extension's menu has to arrive as items in the menu's app section, through `hearth-firefox-bridge`, instead.
 
 ## Sources
 

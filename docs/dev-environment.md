@@ -25,7 +25,7 @@ A [distrobox](https://distrobox.it/) is a container that feels like a second Lin
 | Shell toolkit | Qt 6 (base, QML, Wayland, SVG, shader tools, Qt tools), layer-shell-qt (turns a Qt window into an overlay), wlr-protocols-devel (the window-switching protocol's definition) | Qt 6.11.2, layer-shell-qt 6.8.3 |
 | Building | cmake, ninja, gcc-c++, pkgconf, git | cmake 4.3.0 |
 | Checkers | qmllint and qmlformat (from Qt), clang-tidy and clang-format (clang-tools-extra), gitleaks (secret scanner) | clang-tools-extra 23.1.5, gitleaks 8.30.1 |
-| Apps the spike tests against | Firefox, Stevia (a ready-made on-screen keyboard), KDE Connect | Firefox 160.0, Stevia 0.57.0, KDE Connect 26.08.3 |
+| Apps the spike tests against | Firefox, Stevia (a ready-made on-screen keyboard; it doesn't run on labwc, so the spike has its own test keyboard), KDE Connect | Firefox 160.0, Stevia 0.57.0, KDE Connect 26.08.3 |
 | Basics the container image lacks | Mesa graphics drivers, Fedora's core sans fonts | |
 
 Not in the box yet: mkosi (building OS images from inside a container is untested) and Xwayland (the layer for old X11 apps; Firefox runs natively on Wayland).
@@ -38,7 +38,9 @@ Not in the box yet: mkosi (building OS images from inside a container is unteste
   WLR_BACKENDS=headless WLR_RENDERER=pixman WLR_LIBINPUT_NO_DEVICES=1 labwc -S wayland-info
   ```
 
-- **In a window on your desktop** (not tried yet): your desktop runs X11, and labwc's wlroots base opens as an X11 window when `DISPLAY` is set and no Wayland session is (from memory). Inside the box, run `labwc`.
+- **In a window on your desktop:** `spikes/shell/run.sh` (on the `spikes` branch) builds the shell spike and opens labwc as a window, with the home screen inside. Works (the lead, 2026-11-22). labwc opens as an X11 window because `DISPLAY` is set and no Wayland session is.
+
+Borrowed files approved for the spike: two Wayland protocol definitions from Stevia v0.57.0 (input-method v2, virtual-keyboard v1), pinned by checksum in `spikes/shell/protocol/README.md` (2026-11-22).
 
 ## Repo guards
 
@@ -71,7 +73,7 @@ Tested 2026-11-22 in a throwaway clone: each refusal fired, normal commits and p
 
 ## Spike code
 
-Spikes are throwaway tests that answer one question. Their code lives on the local `spikes` branch, which is never pushed (agreed 2026-11-22). Results are written up in `docs/research/` on a normal branch.
+Spikes are throwaway tests that answer one question. Their code lives on the local `spikes` branch, which is never pushed (agreed 2026-11-22). Results and every other documentation change are committed on `main` (the lead, 2026-11-22), then `main` is merged into `spikes` so the spike branch stays current. Until that day, documentation had been committed on `spikes` by mistake; fourteen commits were copied to `main`.
 
 ```sh
 git switch spikes          # work on spike code

@@ -2,7 +2,7 @@
 
 An open-source TV interface ("10-foot UI") for cheap Linux home-theatre PCs. A smart-TV replacement that runs like an appliance: easy to install and keep running, driven by a remote or a phone, local only, secure.
 
-Status: design phase. No product code yet; the first test (labwc as the compositor) is being set up.
+Status: design phase. Product code starts once every open question is settled. The first spike, a working shell on labwc, has answered its software questions: [results](docs/research/2026-11-22-shell-spike-results.md); what's still open: [assessment](docs/research/2026-11-22-open-questions-assessment.md).
 
 | Read | For |
 |---|---|

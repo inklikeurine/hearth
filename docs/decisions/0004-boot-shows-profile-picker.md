@@ -1,10 +1,10 @@
 # Decision 0004: Boot shows the profile picker, except for one unlocked profile; each keyring unlocks from a sealed random password
 
-Accepted 2026-11-18 by the lead. Related: [Secret store: oo7](0001-keyring-oo7.md), [One Unix user per profile](0002-one-unix-user-per-profile.md), [Profile PINs](0003-profile-pins-opt-in-self-managed.md).
+Accepted 2026-11-18 by the lead. Related: [Secret store: oo7](0001-keyring-oo7.md), [One Unix user per profile](0002-one-unix-user-per-profile.md), [Profile PINs](0017-profile-pins-and-admin-pin.md).
 
 ## Context
 
-The lead set two rules for boot: with several profiles, boot shows the profile picker; with one profile that is locked, boot also shows it. That answers what boot does when the default profile has a PIN, which [Profile PINs](0003-profile-pins-opt-in-self-managed.md) left open.
+The lead set two rules for boot: with several profiles, boot shows the profile picker; with one profile that is locked, boot also shows it. That answers what boot does when the default profile has a PIN, which [Profile PINs](0017-profile-pins-and-admin-pin.md) left open.
 
 For the keyring, the [secret store research](../research/2026-11-19-keyring-store.md) found that `systemd-creds` uses TPM2 when the box has one and also uses a host key stored on the box. oo7's daemon can read the password from a systemd credential. An empty password would store the keyring unencrypted.
 

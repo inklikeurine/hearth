@@ -19,7 +19,7 @@ Which features count as heavy: Claude proposed the split below, and the lead agr
 | Colour filters for colour blindness | 2.0.0 | A compositor feature |
 | Dialogue boost | 2.0.0 | Needs a tuned audio filter |
 | A separate simple layout | 2.0.0 | A second home-screen layout. Fewer rows and bigger tiles come in 1.0 through the rows-and-columns setting (section 18) |
-| Text size, high-contrast themes, reduced motion | 1.0 | Theme tokens, already planned ([Theming](0009-theming-presets-and-packs.md)) |
+| Text size, high-contrast themes, reduced motion | 1.0 | Theme tokens, already planned ([Theming](0016-theming-own-tokens-no-kirigami.md)) |
 | Captions on by default once chosen, caption size and colour | 1.0 | Settings in Hearth's own player; web apps use the sites' own captions |
 | Mono audio, balance | 1.0 | Small sound settings |
 | Slower key repeat, ignore accidental double presses, longer hold times | 1.0 | Settings in the input service Hearth writes anyway |

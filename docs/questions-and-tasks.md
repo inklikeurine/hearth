@@ -23,7 +23,7 @@ CONTEXT: I'm the solo lead of Hearth, an open-source TV interface ("10-foot UI")
 - Platform: Hearth's own Qt 6 QML shell (GPL-3.0-or-later), borrowing parts from KDE Plasma Bigscreen (no Plasma underneath). One full-screen app at a time; Hearth draws the overlays and the Menu-button system menu, and apps add menu items through a Hearth API. Compositor: labwc. Heavy accessibility features (screen reader, zoom, colour filters) come in 2.0.0. OS image built with mkosi on Fedora 45, installed from an "Installer" boot profile running systemd-sysinstall, updated with systemd-sysupdate (A/B, read-only system, automatic rollback). Boots on UEFI only. Fedora's stock kernel, Secure Boot off by default in 1.0; drivers Fedora doesn't ship (NVIDIA, some Wi-Fi) are pulled at setup time for the hardware found.
 - Hearth's own parts live in the OS image, never as Flatpaks; any other app can be a Flatpak.
 - Each profile is its own Unix user (one active session at a time, optional PIN); logins are kept in oo7, the secret store.
-- Apps: Jellyfin, Moonlight, and Firefox kiosk "web apps" (YouTube TV interface, Twitch, Dropout) with our own TV-navigation extension. One global key map for every app.
+- Apps: Jellyfin, Moonlight, and Firefox kiosk "web apps" (YouTube TV interface, Twitch, Dropout) with our own Firefox extension, hearth-firefox-bridge. One global key map for every app.
 - Phone companion: KDE Connect. Ad and tracker blocking on the box: AdGuard Home, pulled from AdGuard's own releases and pinned.
 - Hard rules: local only (no telemetry, no data collection; every network connection is named and switchable); security first; our own development doesn't build on Chromium or Electron (users may install anything); follow each upstream project's AI policy, and if there isn't one, assume they don't want AI-assisted contributions.
 
@@ -44,8 +44,6 @@ RULES FOR YOUR ANSWER
 |---|---|---|
 | Moonlight and a Jellyfin client (the lead names Moonfin): in the image, or Flatpaks? (Firefox: in the image.) Later (the lead, 2026-11-22). Neither is in Fedora 45's own repos | Decides part of the codec plan and how they update | Design doc, sections 3 and 5.3 |
 | How a PIN guards a profile: Hearth checks the PIN itself, or a root service sets the PIN as the Unix password? Later (the lead, 2026-11-22) | Fedora refuses passwords under 6 characters when users set their own | Design doc, section 13.2; [PIN as password](research/P3-pin-as-password.md) |
-| Fonts: which open-source fonts ship in the image, and which is the default? | The first real screen needs one | Design doc, section 9.2; [open-source fonts](research/B5-oss-fonts.md) |
-| Kirigami: does the fresh shell use any Kirigami (KDE) controls, or only its own? | Decides whether the theme needs its Kirigami bridge, and a dependency | Design doc, section 9 |
 | Kernel lockdown default: off, on, or on except where an outside driver is needed (proposed)? | Lockdown would block drivers pulled at setup time | Design doc, section 5.6 |
 | NVIDIA floor: Pascal (GTX 10) or Turing (GTX 16 / RTX 20)? | Depends on which cards NVIDIA's current driver still supports | Design doc, section 5.6 |
 | Boot-time target | Shapes the image and startup work | Design doc, section 3 |
@@ -53,16 +51,15 @@ RULES FOR YOUR ANSWER
 | Deferred until the architecture is settled: review hosted code-reviewer options (which, if any, and what runs locally instead) | They send our code off the machine; background in the design doc | Design doc, section 17 |
 | Paid streaming switch: in 1.0 or later? | Requires Google's copy-protection download | Design doc, section 8.4 |
 | Rating names and 12-month expiry for Tested with Hearth | Public-facing wording | [Tested with Hearth](tested-with-hearth.md) |
-| Error-code style (`HEARTH-WIFI-003`?) and help-page hosting | Every failure screen depends on it | Design doc, section 15 |
+| Help-page hosting for error codes (codes are human readable: agreed) | Every failure screen's QR code points there | Design doc, section 15 |
 | Saved logins: what happens when the keyring is lost, and a "Saved logins" settings page to forget or reset logins (to scope) | The failure screen and Settings both depend on it | Design doc, sections 10 and 15; [Secret store: oo7](decisions/0001-keyring-oo7.md) |
-| Parental controls without an admin PIN: section 13 relies on an admin PIN to leave a kid profile and to extend screen time, but PINs are now per profile and opt-in. How do parents lock a kid's restrictions? | Parental controls are a primary feature | Design doc, section 13; [Profile PINs](decisions/0003-profile-pins-opt-in-self-managed.md) |
+| The admin PIN (parental controls require one, agreed): an admin profile's own PIN, or a separate box-wide PIN? Can it reset adults' PINs, or only kids'? What else does it guard (settings, adding apps, creating and deleting profiles)? How is a forgotten admin PIN recovered? | Parental controls are a primary feature; the onboarding flow sets it up | [Profile PINs and the admin PIN](decisions/0017-profile-pins-and-admin-pin.md); design doc, section 13 |
 | Feature review: make Firefox kiosk lighter. Which RAM and startup cuts are worth their security or compatibility cost? | One web app must fit the 4 GB RAM budget | Design doc, section 17 |
-| Web-app engine: stock Firefox (kiosk, policies, extension, unsandboxed AutoConfig), or Bigscreen's Qt WebEngine (Chromium)? Only Qt WebEngine makes the page an item inside Hearth's own Qt scene; switching reverses the no-Chromium rule and Firefox-in-the-image | How native web apps can feel, ad blocking, codecs, security upkeep | Design doc, section 8.6; [Firefox outside customising](research/2026-11-19-firefox-outside-customising.md) |
 | Branch protection for `main`: GitHub refuses it on a private repo with a free account. Make the repo public, pay for GitHub Pro (about $4 a month), or rely on local hooks until it goes public? Later (the lead, 2026-11-22). Meanwhile local hooks refuse force pushes to `main` and Claude asks before every push ([dev environment](dev-environment.md)) | Without it, nothing on GitHub stops a bad push to `main` | [Agentic review checks](research/2026-11-19-agentic-review-checks.md) |
 | Network control for apps the user installs: is Flatpak's network permission enough, or does Hearth need per-app control (a firewall rule per app, a "this app wants to connect" prompt)? For a design session, not Sonnet. Shapes the settings screens | Local-only promise without auditing every app | Design doc, section 11; [allowlist draft](research/2026-11-19-network-allowlist-first-draft.md) |
 | Firefox studies (Mozilla's experiments, delivered through Remote Settings): off, or allowed with the rest of Firefox's connections? Telemetry stays off either way | Studies can change Firefox's behaviour on boxes without a Hearth release | Design doc, section 2 (network defaults) |
 | Screen mirroring: when to revisit | Lowest-priority phone feature | Design doc, section 7 |
-| On-screen keyboard details, including word suggestions (wanted? kept per profile? an off switch?). The compositor is now chosen (labwc) | Typing is the worst part of a TV | Design doc, sections 2, 6.2 and 6.4; [shell spike results](research/2026-11-22-shell-spike-results.md) |
+| On-screen keyboard details: word suggestions are agreed; kept per profile? an off switch? | Typing is the worst part of a TV | Design doc, sections 2, 6.2 and 6.4; [shell spike results](research/2026-11-22-shell-spike-results.md) |
 
 ## Research tasks for a Sonnet chat
 
@@ -123,9 +120,9 @@ packages.fedoraproject.org:
 Under 400 words. Save to the Hearth project as L4-firefox-language.md
 ```
 
-### F. Firefox memory settings (1 prompt, on hold)
+### F. Firefox memory settings (1 prompt)
 
-Hold until "Firefox or Bigscreen's Qt WebEngine" is settled (open questions above). The other Gecko-browser questions are answered or dropped: stock Firefox can be shaped far enough from outside that a fork isn't needed ([Firefox outside customising](research/2026-11-19-firefox-outside-customising.md)).
+No longer on hold: Firefox is the web-app engine (agreed 2026-11-22, may be revisited). Run it before the lighter-Firefox review. The other Gecko-browser questions are answered or dropped: stock Firefox can be shaped far enough from outside that a fork isn't needed ([Firefox outside customising](research/2026-11-19-firefox-outside-customising.md)).
 
 #### F4. Firefox memory settings
 
