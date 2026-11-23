@@ -337,6 +337,11 @@ What Hearth would do instead:
 - How fake keys get typed depends on the compositor (section 5.4): the RemoteDesktop portal on KWin, or the kernel's uinput under any compositor.
 - Security: this service can type anything into anything. It gets no network access, accepts input only from local devices and KDE Connect, and logs nothing that's typed.
 
+Found 2026-11-22 (Claude, from the lead's WeChip air mouse on the dev computer, read from `/sys/class/input`) [T]:
+- The air mouse is one USB receiver (`248a:8367`, "Telink Wireless Receiver") showing up as four input devices: a mouse (2 buttons), "Consumer Control" (149 keys declared, including Back, Home, Menu, Select, arrows, volume, play/pause), "System Control" (power, sleep, wake) and a keyboard (146 keys declared: letters, space, Backspace, arrows, Compose).
+- So a remote can't be told from a keyboard by the keys it declares. Hearth needs a list of known remotes by USB ID, or to ask at setup ("is this a remote?"). Claude's proposal, not decided: handle keys rather than whole devices. Remote keys (arrows, Select, Back, Home, Menu, media) become actions; letters and the rest pass through as typing, so a remote with a keyboard on its back still types.
+- Reading input devices needs the `input` group or a permission rule; on Linux Mint the desktop already gives the logged-in user `/dev/uinput` (for creating virtual devices).
+
 ### 6.3 Remapping after setup
 
 Settings → Remotes → pick the remote → a drawing of a generic remote with the button highlighted → "press the button you want for Back". One map for everything, no per-app overrides, and a "reset to defaults" option. Works with a remote, a phone or a keyboard.
