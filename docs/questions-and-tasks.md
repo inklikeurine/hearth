@@ -44,7 +44,6 @@ RULES FOR YOUR ANSWER
 |---|---|---|
 | Moonlight and a Jellyfin client (the lead names Moonfin): in the image, or Flatpaks? (Firefox: in the image.) Later (the lead, 2026-11-22). Neither is in Fedora 45's own repos | Decides part of the codec plan and how they update | Design doc, sections 3 and 5.3 |
 | How a PIN guards a profile: Hearth checks the PIN itself, or a root service sets the PIN as the Unix password? Later (the lead, 2026-11-22) | Fedora refuses passwords under 6 characters when users set their own | Design doc, section 13.2; [PIN as password](research/P3-pin-as-password.md) |
-| Kernel lockdown default: off, on, or on except where an outside driver is needed (proposed)? Research is back: lockdown blocks unsigned drivers even with Secure Boot off, and can be raised after a driver loads | Lockdown would block drivers pulled at setup time | Design doc, section 5.6; [lockdown and module signing](research/D3-lockdown-module-signing.md) |
 | Boot-time target | Shapes the image and startup work | Design doc, section 3 |
 | Casting in 1.0: AirPlay and DLNA receivers as opt-in switches, or later? | Each one is a listening port | Design doc, section 7 |
 | Deferred until the architecture is settled: review hosted code-reviewer options (which, if any, and what runs locally instead) | They send our code off the machine; background in the design doc | Design doc, section 17 |
@@ -58,7 +57,6 @@ RULES FOR YOUR ANSWER
 | Network control for apps the user installs: is Flatpak's network permission enough, or does Hearth need per-app control (a firewall rule per app, a "this app wants to connect" prompt)? For a design session, not Sonnet. Shapes the settings screens | Local-only promise without auditing every app | Design doc, section 11; [allowlist draft](research/2026-11-19-network-allowlist-first-draft.md) |
 | Firefox studies (Mozilla's experiments, delivered through Remote Settings): off, or allowed with the rest of Firefox's connections? Telemetry stays off either way | Studies can change Firefox's behaviour on boxes without a Hearth release | Design doc, section 2 (network defaults) |
 | Screen mirroring: when to revisit | Lowest-priority phone feature | Design doc, section 7 |
-| Translation system for Hearth's own text: Qt's built-in `qsTr()`, or KDE's `i18n()` (KI18n) that Bigscreen uses? | Every string in the shell is written one way or the other from the first line of product code | Design doc, section 9.3; [Bigscreen translations](research/L1-bigscreen-translations.md) |
 | On-screen keyboard details: word suggestions are agreed; kept per profile? an off switch? | Typing is the worst part of a TV | Design doc, sections 2, 6.2 and 6.4; [shell spike results](research/2026-11-22-shell-spike-results.md) |
 
 ## Research tasks for a Sonnet chat
