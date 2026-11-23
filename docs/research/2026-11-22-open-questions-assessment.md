@@ -2,6 +2,8 @@
 
 *Claude, 2026-11-22, at the lead's request ("Is there anything left that is an open question? Put together a comprehensive assessment"). Read from the design doc, the lead's log, decisions 0001–0015 and the shell spike's results. Everything ranked or recommended here is Claude's proposal; nothing in it is decided.*
 
+*Update, same day: every research prompt in section 4 has been run and folded into the design doc; the lead has answered most of section 3's "before product code" decisions (design doc, section 2).*
+
 *Tags: [T] = tested in the spike or checked on the dev computer today; [C] = read in a primary source; [M] = Claude's memory, unchecked.*
 
 ## The short answer

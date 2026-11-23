@@ -18,7 +18,7 @@ Since then:
 2. **Fonts:** no custom fonts in theme packs. Hearth ships a set of open-source fonts in the OS image, and theme authors pick a family from those. The default is Atkinson Hyperlegible Next, with Noto Sans for characters it lacks. A settings page lets the user change fonts; it's designed with the settings app.
 3. Appearance settings are preview first, then apply.
 4. Automatic day/night switching is user-settable: a toggle, off by default. On shows a Day theme and a Night theme dropdown, pre-filled from the theme's own light and dark modes unless the user has set them, switching at two fixed times the user sets (no sunrise/sunset, which would need the box's location). Off: one theme all the time; a theme with two modes shows its author's default mode. No playback check.
-5. The preset set and default look are scoped from scratch (research series A and B in the lead's log).
+5. The preset set and default look are scoped from scratch (the TV appearance and TV design research in `docs/research/`).
 6. Theme packs are data only, never code (as in the design doc).
 
 Points 3 to 6 are unchanged from decision 0009.
@@ -29,7 +29,7 @@ Points 3 to 6 are unchanged from decision 0009.
 - Every control Hearth needs is Hearth's own to build, theme and make accessible: buttons, lists, sliders, text boxes, dialogs.
 - No font importer or sanitiser is needed, which removes the riskiest part of theme-pack import. Images and sounds still need re-encoding at import.
 - Atkinson Hyperlegible Next (`atkinson-hyperlegible-next-fonts`) and Noto Sans (`google-noto-sans-fonts`) are Fedora 45 packages; each ships with its licence file. Neither font's legibility claims cite independent tests ([open-source fonts](../research/B5-oss-fonts.md)).
-- Letters a font family lacks (other languages) fall back to other fonts in the image, which ties into the languages work (series L).
+- Letters a font family lacks (other languages) fall back to other fonts in the image, which ties into the languages work (design doc, section 9.3).
 - The Appearance screen needs two theme instances (live and preview).
 
 ## Turned down
