@@ -42,10 +42,8 @@ RULES FOR YOUR ANSWER
 
 | Question | Why it matters | Where it's discussed |
 |---|---|---|
-| Saved logins: what happens when the keyring is lost, and a "Saved logins" settings page to forget or reset logins (to scope) | The failure screen and Settings both depend on it | Design doc, sections 10 and 15; [Secret store: oo7](decisions/0001-keyring-oo7.md) |
-| Milestones to guide development (Claude's proposal in design doc, section 20) | Gives development an order and a definition of done for each stage | Design doc, section 20 |
+| The roadmap to 1.0: milestones, and the features, APIs, scripts and screens in each (Claude's proposal) | Gives development an order and a definition of done for each piece | [Roadmap](roadmap.md); design doc, section 20 |
 | Boot-time target. Later (the lead) | Shapes the image and startup work | Design doc, section 3 |
-| Firefox studies (Mozilla's experiments, delivered through Remote Settings): off, or allowed with the rest of Firefox's connections? Telemetry stays off either way | Studies can change Firefox's behaviour on boxes without a Hearth release | Design doc, section 2 (network defaults) |
 
 ## Research tasks for a Sonnet chat
 

@@ -7,6 +7,7 @@ Status: design phase. Product code starts once every open question is settled. T
 | Read | For |
 |---|---|
 | [docs/design.md](docs/design.md) | The plan: goals, what's agreed, what's still open |
+| [docs/roadmap.md](docs/roadmap.md) | The proposed road to 1.0: milestones and the work in each |
 | [docs/decisions/](docs/decisions/) | Decisions in force, one file each, with why and what was turned down |
 | [docs/questions-and-tasks.md](docs/questions-and-tasks.md) | Open questions, research prompts, tasks |
 | [docs/research/](docs/research/) | Research results |

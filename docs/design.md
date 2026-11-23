@@ -44,7 +44,7 @@
 | Secret store | oo7, daemon and Flatpak portal ([Secret store: oo7](decisions/0001-keyring-oo7.md)). Each profile's keyring unlocks from a random password sealed with `systemd-creds`, made at profile creation ([Boot shows the profile picker](decisions/0004-boot-shows-profile-picker.md)) |
 | On-box ad and tracker blocker | AdGuard Home. For now, Hearth pulls it from AdGuard's own releases and pins it (2026-11-22, section 13.1) |
 | Dependency allowlist | Generate a reviewed list of the network calls our dependencies need (section 11) |
-| Network defaults | AdGuard Home keeps its own defaults, upstream DNS included. Time source: the base image's default. Firefox's own connections allowed (Remote Settings on), telemetry off. Firefox studies: not decided. Firefox Safe Browsing off. Moonlight's launch-time connections accepted as they are. Captive-portal check ("Wi-Fi sign-in page") off, with a switch in Settings. Per-app audits are not the goal ([allowlist draft](research/2026-11-19-network-allowlist-first-draft.md)) |
+| Network defaults | AdGuard Home keeps its own defaults, upstream DNS included. Time source: the base image's default. Firefox's own connections allowed (Remote Settings on), telemetry off. Firefox studies (Mozilla's experiments) off (2026-11-22). Firefox Safe Browsing off. Moonlight's launch-time connections accepted as they are. Captive-portal check ("Wi-Fi sign-in page") off, with a switch in Settings. Per-app audits are not the goal ([allowlist draft](research/2026-11-19-network-allowlist-first-draft.md)) |
 | Kernel | Fedora's stock kernel, all CPU security mitigations on. Kernel lockdown off in 1.0; revisit with Secure Boot after 1.0 (2026-11-22, section 5.6) |
 | Secure Boot | Off by default in 1.0 |
 | Outside drivers | Drivers Fedora doesn't ship (NVIDIA's own driver, some Wi-Fi chips) are pulled at setup time for the hardware found, not built into every image (section 5.3a) |
@@ -63,7 +63,8 @@
 | On-screen keyboard: word suggestions | Yes, kept per profile, with an off switch (2026-11-22) |
 | Bundled apps | Moonlight and Moonfin (the Jellyfin client) are Flatpaks, not part of the image (2026-11-22) |
 | Profile PINs, what they guard | An adult profile's PIN is asked for when the profile is selected; a kid profile can't be left without a PIN (the admin PIN, section 13) (2026-11-22) |
-| Admin | The admin PIN is the admin profile's own PIN. Permissions come from Unix groups: a profile outside a group that grants a permission doesn't have it, and groups can also take permissions away (2026-11-22, [Profile PINs and the admin PIN](decisions/0017-profile-pins-and-admin-pin.md)) |
+| Admin | The admin PIN is one settable, box-wide PIN for the family's parents, not any profile's own PIN (the lead's correction). Hearth checks every PIN itself. Permissions come from Unix groups: a profile outside a group that grants a permission doesn't have it, and groups can also take permissions away (2026-11-22, [Profile PINs and the admin PIN](decisions/0017-profile-pins-and-admin-pin.md)) |
+| Saved logins when a keyring can't be opened | Minimal: the profile gets a fresh, empty keyring and one notice to sign in to apps again; no "Saved logins" settings page in 1.0 (2026-11-22) |
 | Paid streaming | In 1.0. Firefox fetches Google's Widevine copy protection itself; listed in network activity (2026-11-22, section 8.4) |
 | Help pages for error codes | On the project's GitHub wiki (2026-11-22, section 15) |
 | Apps the user installs | Allowed to connect to the internet; Flatpak's own network permission is the control, with no per-app firewall from Hearth (2026-11-22, section 11) |
@@ -73,9 +74,7 @@
 
 ## 3. Open
 
-- Saved logins when a profile's keyring can't be opened, and a "Saved logins" settings page (lead's log).
-- Firefox studies: off, or allowed with Firefox's other connections (lead's log).
-- Milestones: proposed in section 20.
+- Milestones and the roadmap to 1.0: proposed in section 20 and the [roadmap](roadmap.md).
 - Boot-time target: later.
 
 Parked by the lead (2026-11-22): hosted code reviewers until we're ready to code; branch protection for `main` after the code reviewers; the lighter-Firefox review closer to 1.0. After 1.0: casting (AirPlay, DLNA), screen mirroring, Tested with Hearth.
@@ -669,14 +668,14 @@ A primary feature.
 
 | Control | How |
 |---|---|
-| Profiles | Picture and name; optional PIN. One admin profile owns settings |
+| Profiles | Picture and name; optional PIN. Settings, adding apps, and creating or deleting profiles can each be put behind the family's admin PIN (agreed 2026-11-22) |
 | Allowed apps | Per profile; kids can't add apps or open settings |
 | Movie and TV ratings | Each Hearth profile maps to its own Jellyfin user, which has a maximum rating |
 | YouTube restricted mode, SafeSearch | Forced through DNS (YouTube and Google support this officially) |
 | Website limits in web apps | Firefox's website-filter policy, per profile |
 | Screen time | Daily limit and bedtime hours; 5-minute warning; admin PIN to extend (admin PIN agreed 2026-11-22, section 2) |
 | Leaving a kid profile | Needs the admin PIN |
-| Activity summary | Kept on the box only; visible to the admin profile |
+| Activity summary | Kept on the box only; opened with the admin PIN |
 | Limit | Someone with the box in hand can boot another system. The guide covers setting a BIOS password |
 
 ### 13.1 On-box ad and tracker blocker
@@ -728,9 +727,9 @@ Decided already: one Unix user per profile, one session at a time, optional PIN,
 - **Starting a session** ([greetd sessions](research/P1-greetd-sessions.md)): greetd is a small login service (in Fedora 45). Its greeter, the picker screen, runs as its own `greeter` user and hands greetd the chosen user name. greetd checks the password through PAM, Linux's login-check system, and starts the session as that user. `initial_session` logs one user in automatically once per boot, which fits the one-profile, no-PIN case. The new session gets the screen and input through logind. Unconfirmed: whether Fedora's greetd login config registers the session with logind (`pam_systemd`); check in a test image.
   - Claude's note: under greetd, the picker is a separate small program run before any profile's session, not part of the shell.
 - **Ending a session** ([ending sessions](research/P2-ending-sessions.md)): `loginctl terminate-user` ends all of one user's sessions and processes. `KillUserProcesses=` kills a session's processes at logout; the upstream default is yes, Fedora's is unconfirmed (Claude recalls no). Each user's own copy of systemd stays 10 seconds after the last session ends, and apps it started may outlive the session. So "a new login ends the old session" needs `terminate-user`, and a test that Firefox and a Flatpak app really stop.
-- **PINs** (**agreed 2026-11-22:** an adult profile's PIN is asked for when it's selected; a kid profile can't be left without the admin PIN. **Proposed (Claude), to test in the profiles spike:** Hearth checks the PIN itself, as the research advises, rather than setting it as the Unix password) ([PIN as password](research/P3-pin-as-password.md)): Fedora has no PIN login, so a PIN would be a short ordinary password. Fedora's password-quality check refuses anything under 6 characters (default 8) when a user sets their own password; root can still set one, with a warning. If the failed-login lock is switched on, 3 wrong tries lock the profile for 10 minutes (man-page defaults; Fedora's own unconfirmed). How a PIN guards a profile is open and can wait (the lead, 2026-11-22). The options to bring then: Hearth checks the PIN itself, or a root service sets the PIN as the Unix password; the research advises against the second.
+- **PINs** (**agreed 2026-11-22:** an adult profile's PIN is asked for when it's selected; a kid profile can't be left without the admin PIN. **Agreed:** Hearth checks the PIN itself, as the research advises, rather than setting it as the Unix password; the profiles spike tests it) ([PIN as password](research/P3-pin-as-password.md)): Fedora has no PIN login, so a PIN would be a short ordinary password. Fedora's password-quality check refuses anything under 6 characters (default 8) when a user sets their own password; root can still set one, with a warning. If the failed-login lock is switched on, 3 wrong tries lock the profile for 10 minutes (man-page defaults; Fedora's own unconfirmed). How a PIN guards a profile is open and can wait (the lead, 2026-11-22). The options to bring then: Hearth checks the PIN itself, or a root service sets the PIN as the Unix password; the research advises against the second.
 - **Creating and deleting profiles** ([creating users](research/P4-creating-users.md)): `useradd` and `userdel` write only to `/etc` and `/home`, so they should work with a read-only `/usr` (test on an image). `userdel` refuses while the user has processes running, so deleting a profile ends its session first. systemd-homed offers encrypted, portable home folders; its tool is in Fedora 45's `systemd-udev` package, but whether the service ships is unconfirmed. Claude's note: an encrypted home opens only with the user's password, which clashes with the no-prompt boot. **Proposed:** plain `useradd` for 1.0.
-- **An admin profile** ([polkit rules](research/P5-polkit-admin.md)): polkit is the service that decides who may do privileged actions (Fedora 45 ships version 127). Its rules are small JavaScript files; Hearth's would sit in `/usr/share/polkit-1/rules.d`, inside the read-only image, so no profile can change them. A rule can let members of one Unix group do one action without a password, and Hearth's system services ask polkit over D-Bus (`CheckAuthorization`). So an admin profile can be built as a Unix group plus Hearth's rules. Whether one exists at all is the parental-controls question in the lead's log.
+- **Admin rights** (the admin PIN is box-wide, not a profile's, agreed 2026-11-22; [polkit rules](research/P5-polkit-admin.md)): polkit is the service that decides who may do privileged actions (Fedora 45 ships version 127). Its rules are small JavaScript files; Hearth's would sit in `/usr/share/polkit-1/rules.d`, inside the read-only image, so no profile can change them. A rule can let members of one Unix group do one action without a password, and Hearth's system services ask polkit over D-Bus (`CheckAuthorization`). So an admin profile can be built as a Unix group plus Hearth's rules. Whether one exists at all is the parental-controls question in the lead's log.
 
 ## 14. Accessibility
 
@@ -868,24 +867,19 @@ The lead's design notes are in [App Menu Contribution API](research/2026-11-20-a
 - **A first outside app for the SDK after 1.0** (the lead's idea, 2026-11-22): Moonfin, the Jellyfin client the lead is considering (section 3), as a good candidate to add menu integration to. What bifrost recorded about Moonfin is in [bifrost: test boxes and TVs](research/2026-11-22-bifrost-optiplex-and-tv.md): not on Flathub, an unsigned `.flatpak` bundle with no update source, no full-screen setting, a TV mode. Nothing checked for Hearth yet.
 - **Sites that use the Menu key** (Claude's note): Leanback for Dropout opens its own settings on the remote's Menu button. Once Hearth owns Menu, a site's or extension's menu has to arrive as items in the menu's app section, through `hearth-firefox-bridge`, instead.
 
-## 20. Milestones (proposed)
+## 20. Milestones and the roadmap (proposed)
 
-*Claude's proposal, 2026-11-22, at the lead's request ("We need to work out a series of milestones to help guide development"). Nothing here is decided. Each milestone ends with something you can try on a box, and lists what "done" means. They would become GitHub milestones.*
+*Claude's proposal, 2026-11-22. Nothing here is decided.* The lead asked for a roadmap to 1.0 that names the features, APIs, scripts and screens. It's in [the roadmap](roadmap.md): seven milestones, each ending with something to try on a box, and every piece of work in each one listed with what it is and a rough size.
 
-| # | Milestone | What you can do at the end | Done when |
-|---|---|---|---|
-| 0 | **Groundwork** (now; no product code) | Nothing new on screen. Every open question is settled and every risky unknown is tested | The four open questions are answered. Spikes pass: test image with A/B update and rollback (in a virtual machine), profiles and logins, per-profile DNS, the keyboard in Flatpak apps, Firefox policies and the bridge installed for every profile. The lead says product code can start |
-| 1 | **A box that boots and updates itself** | Install Hearth from USB in a VM and on the OptiPlex; it boots straight into labwc and a bare home screen; publish a new version and watch it update, then roll back a broken one | mkosi builds the image automatically (needed for every Firefox security release); signed updates; rollback proven; the hardware checks 8–11 on the OptiPlex |
-| 2 | **The 10-foot loop** | Pick a tile, watch YouTube, press Back, Home and Menu, type a search with the on-screen keyboard, come home | Product versions of the home screen, menu, key handling, the on-screen keyboard (with word suggestions), web apps with `hearth-firefox-bridge` signed by Mozilla, theme tokens and the default theme, the first failure screens |
-| 3 | **First boot and profiles** | Unbox, follow the first-boot wizard with a remote, make profiles, set PINs and parental controls, switch profiles | Installer page, first-boot wizard (hardware check, network, default profile, admin PIN when controls are first used), profile picker, PINs, saved logins (oo7), AdGuard Home per profile |
-| 4 | **Settings from the remote** | Change everything on the box from the sofa | Network, display (with TV colour range), sound to the TV, remotes, apps (Flatpak install, add a web app), updates, privacy and network activity, appearance, the 1.0 accessibility set, time and language, power |
-| 5 | **Living-room ready (alpha)** | Use it as the household's TV box for a week | Codecs and driver add-ons built on the box, notifications, sleep and wake from the remote, the recovery menu, help pages on the wiki, RAM on a 4 GB box within budget, the connection allowlist checked in CI. Alpha testers start |
-| 6 | **1.0** | Hand it to someone else to install | The lighter-Firefox review, release signing (GPG key and GitHub attestation, after alpha), the USB install guide, user and contributor docs, a security review |
-
-Claude's notes:
-- The phone (KDE Connect) isn't placed: typing from the phone doesn't work on labwc as KDE Connect stands (section 7), and the lead parked it. It needs a decision on where it lands: 1.0, or after.
-- The order puts the riskiest system work (image, updates) before the screens, so a broken foundation shows up before there's much built on it.
-- After 1.0, already parked: casting, screen mirroring, Tested with Hearth, heavy accessibility (2.0), Secure Boot and lockdown.
+| # | Milestone | You can try |
+|---|---|---|
+| 0 | Groundwork (no product code) | Nothing new on screen; every risky unknown tried |
+| 1 | A box that boots and updates itself | Install from USB, update, roll back |
+| 2 | The 10-foot loop | Watch YouTube with the remote, type with the on-screen keyboard |
+| 3 | First boot and profiles | Set up a new box and a family of profiles from the sofa |
+| 4 | Settings from the remote | Change everything without a keyboard |
+| 5 | Living-room ready (alpha) | A week as the household TV box |
+| 6 | 1.0 | Someone else installs it from the guide |
 
 ## Sources
 
