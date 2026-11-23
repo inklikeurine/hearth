@@ -20,7 +20,7 @@ CONTEXT: I'm the solo lead of Hearth, an open-source TV interface ("10-foot UI")
 - Goal: a smart-TV replacement that runs like an appliance, as reliable as a basic fridge.
 - Hardware floor: 4 GB RAM, x86-64, graphics with VP9 hardware decode: Intel 7th gen or newer, AMD Raven Ridge-class APUs (2018) or newer, NVIDIA supported. Raspberry Pi 4 is a design goal only.
 - Optional hardware: on-board Wi-Fi, Bluetooth, USB infrared receivers, gamepads and HDMI-CEC are recommended and supported by default, but never assumed present; old laptops, desktops and mini-PCs often lack them.
-- Platform: Hearth's own Qt 6 QML shell (GPL-3.0-or-later), borrowing parts from KDE Plasma Bigscreen (no Plasma underneath). One full-screen app at a time; Hearth draws the overlays and the Menu-button system menu, and apps add menu items through a Hearth API. Compositor not chosen; labwc is tested first. Heavy accessibility features (screen reader, zoom, colour filters) come in 2.0.0. OS image built with mkosi on Fedora 45, installed from an "Installer" boot profile running systemd-sysinstall, updated with systemd-sysupdate (A/B, read-only system, automatic rollback). Boots on UEFI only. Fedora's stock kernel, Secure Boot off by default in 1.0; drivers Fedora doesn't ship (NVIDIA, some Wi-Fi) are pulled at setup time for the hardware found.
+- Platform: Hearth's own Qt 6 QML shell (GPL-3.0-or-later), borrowing parts from KDE Plasma Bigscreen (no Plasma underneath). One full-screen app at a time; Hearth draws the overlays and the Menu-button system menu, and apps add menu items through a Hearth API. Compositor: labwc. Heavy accessibility features (screen reader, zoom, colour filters) come in 2.0.0. OS image built with mkosi on Fedora 45, installed from an "Installer" boot profile running systemd-sysinstall, updated with systemd-sysupdate (A/B, read-only system, automatic rollback). Boots on UEFI only. Fedora's stock kernel, Secure Boot off by default in 1.0; drivers Fedora doesn't ship (NVIDIA, some Wi-Fi) are pulled at setup time for the hardware found.
 - Hearth's own parts live in the OS image, never as Flatpaks; any other app can be a Flatpak.
 - Each profile is its own Unix user (one active session at a time, optional PIN); logins are kept in oo7, the secret store.
 - Apps: Jellyfin, Moonlight, and Firefox kiosk "web apps" (YouTube TV interface, Twitch, Dropout) with our own TV-navigation extension. One global key map for every app.
@@ -46,7 +46,6 @@ RULES FOR YOUR ANSWER
 | How a PIN guards a profile: Hearth checks the PIN itself, or a root service sets the PIN as the Unix password? Later (the lead, 2026-11-22) | Fedora refuses passwords under 6 characters when users set their own | Design doc, section 13.2; [PIN as password](research/P3-pin-as-password.md) |
 | Fonts: which open-source fonts ship in the image, and which is the default? | The first real screen needs one | Design doc, section 9.2; [open-source fonts](research/B5-oss-fonts.md) |
 | Kirigami: does the fresh shell use any Kirigami (KDE) controls, or only its own? | Decides whether the theme needs its Kirigami bridge, and a dependency | Design doc, section 9 |
-| KWin on its own, labwc (a small wlroots compositor), or Hearth as its own compositor (Qt Wayland Compositor, which makes every app's window an item in Hearth's scene)? labwc is tested first (agreed). cage and Weston are out | RAM, overlays, how fake keys get typed, whether our on-screen keyboard can type into every app, screen reader by 2.0 | Design doc, sections 5.4 and 6.2 |
 | Kernel lockdown default: off, on, or on except where an outside driver is needed (proposed)? | Lockdown would block drivers pulled at setup time | Design doc, section 5.6 |
 | NVIDIA floor: Pascal (GTX 10) or Turing (GTX 16 / RTX 20)? | Depends on which cards NVIDIA's current driver still supports | Design doc, section 5.6 |
 | Boot-time target | Shapes the image and startup work | Design doc, section 3 |
@@ -63,7 +62,8 @@ RULES FOR YOUR ANSWER
 | Network control for apps the user installs: is Flatpak's network permission enough, or does Hearth need per-app control (a firewall rule per app, a "this app wants to connect" prompt)? For a design session, not Sonnet. Shapes the settings screens | Local-only promise without auditing every app | Design doc, section 11; [allowlist draft](research/2026-11-19-network-allowlist-first-draft.md) |
 | Firefox studies (Mozilla's experiments, delivered through Remote Settings): off, or allowed with the rest of Firefox's connections? Telemetry stays off either way | Studies can change Firefox's behaviour on boxes without a Hearth release | Design doc, section 2 (network defaults) |
 | Screen mirroring: when to revisit | Lowest-priority phone feature | Design doc, section 7 |
-| Deferred until the compositor is chosen: on-screen keyboard details, including word suggestions (wanted? kept per profile? an off switch?) | Typing is the worst part of a TV; the compositor decides what the keyboard can do | Design doc, sections 2 and 3 |
+| On-screen keyboard details, including word suggestions (wanted? kept per profile? an off switch?). The compositor is now chosen (labwc). Also from the spike: how the keyboard tells a real keyboard from a remote, so a real keyboard's typing isn't swallowed | Typing is the worst part of a TV | Design doc, sections 2, 6.2 and 6.4; [shell spike results](research/2026-11-22-shell-spike-results.md) |
+| Signing `hearth-firefox-bridge` on addons.mozilla.org: Mozilla has no AI policy for add-ons. The ground rule says "follow each upstream project's AI policy; if it has none, stay out". Does it cover signing our own extension, or only contributions to their code? (The research chat and Claude read it as contributions only.) | Decides whether the bridge can be signed at all | Design doc, section 8.2; [unlisted signing](research/M1-unlisted-extension-signing.md) |
 
 ## Research tasks for a Sonnet chat
 
@@ -281,6 +281,7 @@ Plain language, under 400 words. No praise, no filler.
 | Read the [design doc](design.md) and mark each "proposed" line agree / disagree / discuss | Turns proposals into decisions | 1 hour |
 | Get a real potato test box: an old 4 GB laptop or mini-PC with 7th-gen Intel or a Raven Ridge AMD APU. | The floor needs a test machine; the OptiPlex is above it | Cheap or free |
 | Get a USB infrared receiver and a $10–15 air-mouse remote | Default key-map testing | About $25 |
-| Have your phone with KDE Connect ready for labwc spike check 7 | Phone typing into a web app without Plasma | 15 min |
+| Try the test keyboard in a window with the air mouse (`spikes/shell/run.sh`, then a web app's search box) | All keyboard results so far are headless | 15 min |
+| When the bridge is ready to sign: an addons.mozilla.org developer account and API keys | Unlisted signing needs them | 15 min |
 | Paste the summary prompt (above) into the threat-model chat and bring the reply back | It's the only earlier chat not yet in the repo | 10 min |
 | Decide the open questions above, a few at a time | Unblocks decision records | Ongoing |

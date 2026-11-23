@@ -21,7 +21,7 @@
 | Home screen and overlays | The lead's wants, listed in section 18: one full-screen app at a time; the installed apps in rows the user arranges, with the next row peeking in; a rows-and-columns setting; overlays; particle effects on the home screen only; a user-set background; a status overlay with burn-in protection |
 | System menu | Hearth owns the menu the Menu button opens. Apps add their items through a Menu Contribution API, in 1.0. A public SDK for app makers comes after 1.0 (section 19) |
 | Accessibility | Heavy features move to 2.0.0: screen reader, zoom, colour filters, dialogue boost, a separate simple layout. Cheap ones stay in 1.0 ([Heavy accessibility in 2.0](decisions/0013-heavy-accessibility-in-2-0.md)) |
-| Compositor test | labwc is tested first. The compositor itself is still open (section 5.4) |
+| Compositor | labwc for 1.0 ([labwc for 1.0](decisions/0015-labwc-for-1-0.md); section 5.4) |
 | Hardware floor | 4 GB RAM, x86-64, graphics with VP9 hardware decode: Intel 7th gen (Kaby Lake) or newer, AMD Raven Ridge-class APUs (2018) or newer, NVIDIA. Raspberry Pi 4 is a design goal only |
 | Firmware | UEFI only. Boxes in legacy (BIOS) mode are switched to UEFI first; the install guide says how ([UEFI only](decisions/0014-uefi-only.md)) |
 | Development | For now, in a Fedora 45 distrobox on the lead's machine ([dev environment](dev-environment.md)). Spike code lives on a local-only `spikes` branch that is never pushed (2026-11-22) |
@@ -60,8 +60,7 @@
 
 ## 3. Open
 
-- Compositor, the program that draws windows. labwc is tested first. gamescope is likely out; cage and Weston are out (section 5.4). It must let Hearth's on-screen keyboard type into every app.
-- On-screen keyboard details, including word suggestions. Waits for the compositor.
+- On-screen keyboard details, including word suggestions. The compositor is chosen (labwc), so this is open now; the shell spike's test keyboard shows what labwc allows (section 6.4).
 - Bundled apps, image or Flatpak: later (the lead, 2026-11-22). Firefox goes in the image. Are Moonlight and a Jellyfin client Hearth's own parts, or ordinary Flatpaks? The lead names Moonfin as the Jellyfin client to look at. Neither Moonlight nor Moonfin is in Fedora 45's own repos (package list; RPM Fusion not checked), so "in the image" would mean Hearth packages and patches them itself. Decides part of the codec plan (section 5.3).
 - Kernel lockdown default: on, off, or on except on boxes that need an outside driver (section 5.6).
 - NVIDIA floor: which generations count as supported, given NVIDIA's driver support (section 5.6).
@@ -156,7 +155,7 @@ The lead asked whether codecs we can't ship can be layered in. They can. On a sy
 
 ### 5.4 Compositor
 
-**Agreed:** labwc is tested first (2026-11-22). The compositor itself isn't chosen.
+**Decided (2026-11-22):** labwc is Hearth 1.0's compositor (the lead: "labwc for 1.0, now"), without waiting for the hardware checks. Record: [labwc for 1.0](decisions/0015-labwc-for-1-0.md). The comparison below is kept for the reasons.
 
 gamescope is probably out: it needs Vulkan, which a lot of potato-class graphics lack or only half-support.
 
@@ -424,6 +423,14 @@ YouTube's TV interface (`youtube.com/tv`) works in desktop Firefox; no user-agen
 - Release Firefox only installs extensions signed by Mozilla. That covers both cases the lead wants: extensions listed on addons.mozilla.org, and extensions in a GitHub repo that Mozilla signs as "unlisted" (Leanback for Dropout works this way).
 - Each definition pins an extension version and its checksum. A new version reaches boxes only when a new definition is published on Hearth's web-app channel, never by auto-installing the latest release (section 12.4).
 - Advanced users can add any signed extension from a URL, with a warning that it updates on its own schedule.
+
+**hearth-firefox-bridge** (agreed 2026-11-22, section 6.1): Hearth's own small extension, signed by Mozilla as unlisted. What Mozilla's rules say ([unlisted signing](research/M1-unlisted-extension-signing.md), [extension in the OS image](research/M2-extension-in-the-os-image.md); research results, wording to check before a decision record):
+- Signing: an addons.mozilla.org (AMO) developer account and API keys, then `web-ext sign --channel unlisted`. Automatic checks first, "up to 24 hours"; a person may review it later, at any time, and can block it. [C]
+- Every add-on follows Mozilla's Add-on Policies, listed or not. Code must be reviewable; minified code is allowed, obfuscated code isn't, and code from bundlers or build tools needs its source attached. Data sent to a native program falls under the same consent rules, and leaking user information through native messaging is banned. Permissions must be only what it needs. [C]
+- Mozilla has no policy on AI-written add-on code (NOT FOUND in the policies). Firefox's own AI coding policy covers patches to Firefox, not add-ons. [C] Whether the ground rule "if it has none, stay out" covers signing our own extension is in the lead's log.
+- Getting it into every profile from the image: a `policies.json` with `ExtensionSettings` → `force_installed` and a `file:///` address can install a signed extension and stop users removing it. [C] Where Fedora's Firefox reads `policies.json` from isn't documented: `/etc/firefox/policies/` or the install's `distribution/` folder. The box has `/usr/lib64/firefox/distribution/` and `/etc/firefox/pref/`. Extensions dropped in the system-wide extensions folder need the user's approval, so that route doesn't suit an appliance. [C]
+- The native messaging manifest goes in `/usr/lib64/mozilla/native-messaging-hosts/` (Mozilla's docs; the folder exists in Fedora's Firefox package). [C]
+- **Proposed (Claude):** plain, unminified JavaScript with no build step, so no source upload; the bridge passes Hearth's actions and page reports only, never page content or user data; installed through `policies.json` in the image, with the manifest system-wide. To test in the dev box: which `policies.json` path Fedora's build reads, and whether a policy install skips every prompt (needs a signed extension to test with).
 
 ### 8.3 Browser engine: no Chromium
 
@@ -742,7 +749,7 @@ Rules for 1.0:
   - what YouTube, Twitch and Dropout send
 - Feature review, a lighter Firefox kiosk: cut RAM and startup time per web app. Fewer content processes, the security cost of turning down site isolation (Fission), unneeded features off (Pocket, sync, studies, PDF viewer, spell check and so on), faster start and close, how long a closed web app stays warm, and whether each web app needs uBlock Origin now that AdGuard Home blocks ad domains for the whole box (section 13.1). Measure one YouTube web app on a 4 GB box before and after. Inputs: the Gecko research task (route 4) in [the lead's log](questions-and-tasks.md), and the RAM budget (section 5.5).
 - Software that fills the gaps: where the lead's preferences (no Chromium, local only) leave holes, list candidate software and the trade-offs. Open to negotiation.
-- Spike results: compositor (5.4; shell spike, headless, so far), native-messaging Back key (6.1; done headless: [shell spike results](research/2026-11-22-shell-spike-results.md)), KDE Connect typing into web apps (7), per-profile DNS (13.1).
+- Spike results: compositor (5.4; shell spike, headless; labwc chosen), typing with a test keyboard (6.4; done headless), native-messaging Back key (6.1; done headless: [shell spike results](research/2026-11-22-shell-spike-results.md)), KDE Connect typing into web apps (7), per-profile DNS (13.1).
 - Agentic review plan (goal 6). The first research pass ([agentic review notes](research/2026-11-19-agentic-code-review-notes.md)) made no decisions; its sources were mostly blogs, none opened in full. Checked since ([agentic review checks](research/2026-11-19-agentic-review-checks.md)): Claude Code's limits (an allow-list, a git guard hook) aren't set up yet; branch protection is refused on a private repo with a free account; code checkers wait for code; mkosi pins Fedora with `Snapshot=`. Points for the review:
   - Rules files are advice; hooks, CI checks and branch protection enforce.
   - AI tools invent package names, and attackers register them. Every new dependency needs approval, and versions are pinned.
