@@ -334,7 +334,7 @@ What Hearth would do instead:
 
 - Keep from Bigscreen: the SDL3 controller code, the libcec code, the device watcher, and its permission rules for the kernel's virtual-keyboard device (uinput).
 - New: the action layer, app adapters, the native-messaging bridge, exclusive grabbing, the global remap screen.
-- How fake keys get typed depends on the compositor (section 5.4): the RemoteDesktop portal on KWin, or the kernel's uinput under any compositor.
+- How fake keys get typed: under labwc (chosen), through the kernel's uinput; there's no RemoteDesktop portal for it (section 7).
 - Security: this service can type anything into anything. It gets no network access, accepts input only from local devices and KDE Connect, and logs nothing that's typed.
 
 **Agreed (2026-11-22), from Claude's proposal:** keys are handled by what they are, not by which device sent them; this replaces "every remote-like device, grabbed exclusively" above for keyboards and remotes. The lead: navigation cohesion is what matters, not the device; "our primary input mode is the onscreen keyboard", and keypresses from keyboards and remotes with keyboards on them must still reach text boxes ("your proposal is good").
@@ -380,10 +380,10 @@ On labwc, our keyboard would use three protocols: input-method v2 (the composito
   - Gamepad shortcuts that recur: X for delete, Y for space (Windows' gamepad keyboard, Google's old ADT-1 kit).
   - Confirming the arrangements themselves needs screenshots or the devices. The four layouts agreed in section 2 come from the lead.
 - **Agreed (2026-11-22):** spike check 4 uses a small test keyboard written in the spike, borrowing Stevia's two protocol files (input-method v2, virtual-keyboard v1), pinned to Stevia v0.57.0 with checksums (the lead: "A"). Stevia itself doesn't run on labwc (section 5.4).
-- Check 4 result (2026-11-22; the lead confirmed in a window with the air mouse: "keyboard works"; details headless, [shell spike results](research/2026-11-22-shell-spike-results.md)): the test keyboard types into Firefox on labwc, driven by arrows and Select through input-method v2's keyboard grab, with Backspace and Enter through virtual-keyboard. Found: Firefox doesn't pass `inputmode="none"` on; Qt apps switch text input on with no text box focused; a real keyboard's keys are swallowed while the keyboard is shown, so the input service has to tell real keyboards from remotes.
+- Check 4 result (2026-11-22; the lead confirmed in a window with the air mouse: "keyboard works"; details headless, [shell spike results](research/2026-11-22-shell-spike-results.md)): the test keyboard types into Firefox on labwc, driven by arrows and Select through input-method v2's keyboard grab, with Backspace and Enter through virtual-keyboard. Found: Firefox doesn't pass `inputmode="none"` on; Qt apps switch text input on with no text box focused; a real keyboard's keys were swallowed while the keyboard was shown, fixed since by handling keys by what they are (section 6.2).
 - Proposed combination: a Qt QML keyboard that matches the shell and its theme, built from plasma-keyboard's layouts and navigation, talking input-method v2 the way Stevia does.
 - Password fields: text-input v3 marks them (purpose `password`, hint `sensitive_data`), so the keyboard turns word suggestions off there ([Wayland keyboard protocols](research/K1-wayland-keyboard-protocols.md)).
-- Web apps with their own keyboard: on bifrost, Plasma's on-screen keyboard opened over Leanback for Dropout's own one ([bifrost: test boxes and TVs](research/2026-11-22-bifrost-optiplex-and-tv.md)). Leanback's fix is the web's own: its text boxes are marked `inputmode="none"` (and `ime-mode: disabled`), meaning "no system keyboard here" ([Leanback's Firefox findings](research/2026-11-22-leanback-firefox-learnings.md)). **Proposed:** Hearth's keyboard honours that mark. To test: whether Firefox passes it on to a keyboard working through text-input v3; Plasma's used an older protocol.
+- Web apps with their own keyboard: on bifrost, Plasma's on-screen keyboard opened over Leanback for Dropout's own one ([bifrost: test boxes and TVs](research/2026-11-22-bifrost-optiplex-and-tv.md)). Leanback's fix is the web's own: its text boxes are marked `inputmode="none"` (and `ime-mode: disabled`), meaning "no system keyboard here" ([Leanback's Firefox findings](research/2026-11-22-leanback-firefox-learnings.md)). **Proposed:** Hearth's keyboard honours that mark. Tested 2026-11-22: Firefox doesn't pass it on through text-input v3 (the keyboard opened anyway), so the mark would have to reach the shell through `hearth-firefox-bridge` instead (Claude's proposal).
 - Licences: GPL-3.0-only and GPL-3.0-or-later code mix, and so do the "GPL-2.0-only OR GPL-3.0-only" files if we take them as GPL-3. GPL-2.0-only code doesn't mix with them.
 
 ### 6.5 TV control without HDMI-CEC (idea, not scheduled)
@@ -395,7 +395,7 @@ HDMI-CEC lets the remote turn the TV on and change its volume, but it's a bonus 
 - What bifrost did, tested on a TCL Roku TV (Roku OS 16.0.4): power, volume, mute and input switching through Roku's External Control Protocol. It found the TV on the network and woke it with Wake-on-LAN. The remote's volume keys went to the TV, not the box.
 - What the TV needed: "Control by mobile apps → Network access: Enabled" (the default, "Limited", refuses key presses since Roku OS 14.1) and "Fast TV start: On" (so it can be woken from standby).
 - For Hearth it would be a "home network only" connection (kind C, section 11): named, listed, and off until the user pairs a TV. Each TV brand has its own protocol; bifrost has nothing on LG's.
-- How bifrost caught the remote's keys (it grabbed the remote's device exclusively and passed the other keys on through a virtual device) is the same approach section 6.2 proposes for Hearth's input service.
+- How bifrost caught the remote's keys: it grabbed the remote's device exclusively and passed the other keys on through a virtual device. Hearth handles keys by what they are instead (section 6.2), so that's for gamepads and CEC only, if at all.
 
 ## 7. Phone
 
@@ -475,7 +475,7 @@ These need Widevine, Google's copy-protection module, which Firefox downloads fr
 | Our own browser on WPE WebKit | A small launcher around WPE (Cog is an existing one). Full control of keys and the window | Possible, but loses Firefox extensions (uBlock Origin, Leanback for Dropout) and some site compatibility |
 | Firefox in kiosk mode plus our extension | Mozilla does the security work; our extension adds TV navigation; native messaging gives us the key control (section 6) | Use for 1.0 |
 
-Revisit if the Back-key spike shows Firefox still takes keys we need, or one Firefox web app doesn't fit the 4 GB RAM budget. A WPE-based launcher is then the next candidate.
+Revisit if one Firefox web app doesn't fit the 4 GB RAM budget. A WPE-based launcher is then the next candidate. (The other trigger is answered: the Back-key spike found no key Firefox takes before Hearth, section 6.1.)
 
 ### 8.6 Later: our own browser, and a Hearth API for web apps
 

@@ -62,7 +62,7 @@ RULES FOR YOUR ANSWER
 | Network control for apps the user installs: is Flatpak's network permission enough, or does Hearth need per-app control (a firewall rule per app, a "this app wants to connect" prompt)? For a design session, not Sonnet. Shapes the settings screens | Local-only promise without auditing every app | Design doc, section 11; [allowlist draft](research/2026-11-19-network-allowlist-first-draft.md) |
 | Firefox studies (Mozilla's experiments, delivered through Remote Settings): off, or allowed with the rest of Firefox's connections? Telemetry stays off either way | Studies can change Firefox's behaviour on boxes without a Hearth release | Design doc, section 2 (network defaults) |
 | Screen mirroring: when to revisit | Lowest-priority phone feature | Design doc, section 7 |
-| On-screen keyboard details, including word suggestions (wanted? kept per profile? an off switch?). The compositor is now chosen (labwc). Also from the spike: how the keyboard tells a real keyboard from a remote, so a real keyboard's typing isn't swallowed | Typing is the worst part of a TV | Design doc, sections 2, 6.2 and 6.4; [shell spike results](research/2026-11-22-shell-spike-results.md) |
+| On-screen keyboard details, including word suggestions (wanted? kept per profile? an off switch?). The compositor is now chosen (labwc) | Typing is the worst part of a TV | Design doc, sections 2, 6.2 and 6.4; [shell spike results](research/2026-11-22-shell-spike-results.md) |
 
 ## Research tasks for a Sonnet chat
 
@@ -251,7 +251,7 @@ Under 400 words. Save to the Hearth project as X1-kde-qt-ai-policy.md
 
 ## Spikes to add
 
-Short hands-on tests found in design sessions. The labwc spike, agreed and planned, is in the design doc, section 5.4.
+Short hands-on tests found in design sessions. The labwc spike's software checks are done (design doc, section 5.4); its hardware checks wait for the software work.
 
 - Per-user DNS through the firewall: can nftables make each Unix user's lookups reach AdGuard Home from a different local address, so it sees separate clients? Fallback: one AdGuard Home per profile ([AdGuard per-profile check](research/2026-11-19-adguard-per-profile.md)).
 - Firefox shaped from outside: unsandboxed AutoConfig works in the Firefox build the image ships; which built-in keys it can rebind (Escape, Backspace, Back); what kiosk mode does to context menus and dialogs ([Firefox outside customising](research/2026-11-19-firefox-outside-customising.md)).
@@ -279,7 +279,7 @@ Plain language, under 400 words. No praise, no filler.
 |---|---|---|
 | Read the [design doc](design.md) and mark each "proposed" line agree / disagree / discuss | Turns proposals into decisions | 1 hour |
 | Get a real potato test box: an old 4 GB laptop or mini-PC with 7th-gen Intel or a Raven Ridge AMD APU. | The floor needs a test machine; the OptiPlex is above it | Cheap or free |
-| Get a USB infrared receiver and a $10–15 air-mouse remote | Default key-map testing | About $25 |
+| Get a USB infrared receiver (the WeChip air mouse is already in hand) | Default key-map testing | About $15 |
 | When the bridge is ready to sign: an addons.mozilla.org developer account and API keys | Unlisted signing needs them | 15 min |
 | Paste the summary prompt (above) into the threat-model chat and bring the reply back | It's the only earlier chat not yet in the repo | 10 min |
 | Decide the open questions above, a few at a time | Unblocks decision records | Ongoing |
