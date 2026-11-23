@@ -337,6 +337,13 @@ What Hearth would do instead:
 - How fake keys get typed depends on the compositor (section 5.4): the RemoteDesktop portal on KWin, or the kernel's uinput under any compositor.
 - Security: this service can type anything into anything. It gets no network access, accepts input only from local devices and KDE Connect, and logs nothing that's typed.
 
+**Agreed (2026-11-22), from Claude's proposal:** keys are handled by what they are, not by which device sent them; this replaces "every remote-like device, grabbed exclusively" above for keyboards and remotes. The lead: navigation cohesion is what matters, not the device; "our primary input mode is the onscreen keyboard", and keypresses from keyboards and remotes with keyboards on them must still reach text boxes ("your proposal is good").
+- labwc's key bindings catch Back, Home, Menu, Esc and Backspace from every device, and the shell decides what each means now. Esc is Back. Backspace deletes when an app's text box has focus and is Back anywhere else.
+- Arrows and Select drive the on-screen keyboard while it's shown and go to the app otherwise. Anything that types (letters, digits, space) goes into the text box, whichever device sent it.
+- No separate input program for keyboards and remotes. One comes later for gamepads and HDMI-CEC, which don't arrive as keys; the rest of the table above is its plan.
+
+Built and tested headless in the shell spike the same day ([shell spike results](research/2026-11-22-shell-spike-results.md)).
+
 Found 2026-11-22 (Claude, from the lead's WeChip air mouse on the dev computer, read from `/sys/class/input`) [T]:
 - The air mouse is one USB receiver (`248a:8367`, "Telink Wireless Receiver") showing up as four input devices: a mouse (2 buttons), "Consumer Control" (149 keys declared, including Back, Home, Menu, Select, arrows, volume, play/pause), "System Control" (power, sleep, wake) and a keyboard (146 keys declared: letters, space, Backspace, arrows, Compose).
 - So a remote can't be told from a keyboard by the keys it declares. Hearth needs a list of known remotes by USB ID, or to ask at setup ("is this a remote?"). Claude's proposal, not decided: handle keys rather than whole devices. Remote keys (arrows, Select, Back, Home, Menu, media) become actions; letters and the rest pass through as typing, so a remote with a keyboard on its back still types.

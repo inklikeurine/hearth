@@ -1,6 +1,6 @@
 # Shell spike: results so far
 
-*Claude, 2026-11-22. The spike code is on the local-only `spikes` branch (`spikes/shell/`, its README has the details). Everything below ran headless: labwc with no screen in the dev box, keys pressed with wtype, windows checked with wlrctl, pictures saved by the shell. The latest run passed 69 of 69 checks, twice in a row. The lead has run an earlier build in a window; nobody has watched the keyboard on a screen yet.*
+*Claude, 2026-11-22. The spike code is on the local-only `spikes` branch (`spikes/shell/`, its README has the details). Everything below ran headless: labwc with no screen in the dev box, keys pressed with wtype, windows checked with wlrctl, pictures saved by the shell. The latest run passed 76 of 76 checks, twice in a row. The lead has run an earlier build in a window; nobody has watched the keyboard on a screen yet.*
 
 *Tags: [T] = seen in the spike's own test runs; [C] = read in source or installed files; [M] = Claude's memory, unchecked.*
 
@@ -70,6 +70,18 @@ What each kind of web field asks for (Firefox 160, text-input v3's content purpo
 - **The keyboard doesn't repeat a held arrow:** the grab passes key presses and the repeat rate, and repeating is the keyboard's job. The test keyboard doesn't do it yet.
 - **Stevia** still starts in the session and never shows; it caused no conflict.
 
+## Keys by what they are, not by device (agreed 2026-11-22)
+
+Built after the lead agreed (design doc, section 6.2) [T, headless, two runs]:
+- labwc's key bindings send Esc and Backspace, from any device, to the shell, as they already did Back, Home and Menu. Esc is Back. Backspace on the home screen and on a page with no text box focused meant Back (it went back a page); in a text box it deleted. The pages never saw Back, Esc or Backspace.
+- With the on-screen keyboard shown, a real keyboard typed "cats" straight into the box. Enter right after typing reached the page as Enter; after an arrow, Enter pressed the highlighted key instead (Claude's rule, since a remote's OK and a keyboard's Enter are the same key).
+- **labwc's key bindings catch every keyboard's keys, our own virtual keyboard's included.** The on-screen keyboard's ⌫ sent Backspace through its virtual keyboard, the binding caught it, and the shell sent it again: a loop. Deleting now goes through input-method v2's "delete text before the cursor" request, which isn't a key press. Enter still goes as a key, since nothing binds it.
+- Each binding starts a small `hearth-shell --send` program, so every Backspace in a text box costs a program start. Fine for a spike; the real shell needs a faster path. Holding Backspace probably deletes only once (not tested).
+- Ctrl and Alt shortcuts are dropped while the on-screen keyboard is shown.
+- No new dependency, and no access to input devices was needed. The permission rule from the earlier plan wasn't installed.
+
+The lead's air mouse, read from `/sys/class/input` [T]: one USB receiver (`248a:8367`) shows up as four devices, one of them a 146-key keyboard. Telling remotes from keyboards by their keys wouldn't have worked; handling keys by what they are doesn't need to.
+
 ## Found on the way
 
 - **The home screen as a desktop** needs the window-switching protocol (wlr-foreign-toplevel-management), from Fedora's `wlr-protocols-devel`. With it the shell knows which app is in front, minimizes it, brings it back and closes it.
@@ -86,7 +98,7 @@ What each kind of web field asks for (Firefox 160, text-input v3's content purpo
 - The spike catches only the remote's Back key, through labwc. The real input service grabs remote devices so keyboards keep typing (section 6.2); a keyboard's Esc still reaches Firefox in the spike.
 - Back in native apps needs the app adapters from section 6.1; the spike answers "no adapter". Later (the lead).
 - Typing works on labwc with a keyboard of our own, through standard protocols. The real keyboard needs, on top of the test one:
-  - a way to tell real keyboards from remotes, so a real keyboard's typing isn't swallowed. Phosh does this with phoc's private device-state protocol, which is why Stevia won't run without it; labwc has nothing like it, so Hearth's input service (section 6.2) would have to say;
+  - a real keyboard's typing passed through while it's shown (done since: keys by what they are, below). Phosh tells keyboards from remotes with phoc's private device-state protocol, which is why Stevia won't run without it;
   - the "describes a text box" rule against Qt's stray activations, or a better one;
   - `inputmode="none"` passed on some other way, such as `hearth-firefox-bridge` telling the shell;
   - key repeat, and libxkbcommon for key names.
