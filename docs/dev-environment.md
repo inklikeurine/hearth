@@ -26,9 +26,10 @@ A [distrobox](https://distrobox.it/) is a container that feels like a second Lin
 | Building | cmake, ninja, gcc-c++, pkgconf, git | cmake 4.3.0 |
 | Checkers | qmllint and qmlformat (from Qt), clang-tidy and clang-format (clang-tools-extra), gitleaks (secret scanner) | clang-tools-extra 23.1.5, gitleaks 8.30.1 |
 | Apps the spike tests against | Firefox, Stevia (a ready-made on-screen keyboard; it doesn't run on labwc, so the spike has its own test keyboard), KDE Connect | Firefox 160.0, Stevia 0.57.0, KDE Connect 26.08.3 |
+| Building OS images | mkosi (approved 2026-11-22; pinned to Fedora 45's build). Installing it prints a harmless grub warning: grub can't find a real disk inside a container | mkosi 26 |
 | Basics the container image lacks | Mesa graphics drivers, Fedora's core sans fonts | |
 
-Not in the box yet: mkosi (building OS images from inside a container is untested) and Xwayland (the layer for old X11 apps; Firefox runs natively on Wayland).
+Not in the box yet: Xwayland (the layer for old X11 apps; Firefox runs natively on Wayland).
 
 ### Running labwc
 

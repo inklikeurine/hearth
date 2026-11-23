@@ -42,22 +42,10 @@ RULES FOR YOUR ANSWER
 
 | Question | Why it matters | Where it's discussed |
 |---|---|---|
-| Moonlight and a Jellyfin client (the lead names Moonfin): in the image, or Flatpaks? (Firefox: in the image.) Later (the lead, 2026-11-22). Neither is in Fedora 45's own repos | Decides part of the codec plan and how they update | Design doc, sections 3 and 5.3 |
-| How a PIN guards a profile: Hearth checks the PIN itself, or a root service sets the PIN as the Unix password? Later (the lead, 2026-11-22) | Fedora refuses passwords under 6 characters when users set their own | Design doc, section 13.2; [PIN as password](research/P3-pin-as-password.md) |
-| Boot-time target | Shapes the image and startup work | Design doc, section 3 |
-| Casting in 1.0: AirPlay and DLNA receivers as opt-in switches, or later? | Each one is a listening port | Design doc, section 7 |
-| Deferred until the architecture is settled: review hosted code-reviewer options (which, if any, and what runs locally instead) | They send our code off the machine; background in the design doc | Design doc, section 17 |
-| Paid streaming switch: in 1.0 or later? | Requires Google's copy-protection download | Design doc, section 8.4 |
-| Rating names and 12-month expiry for Tested with Hearth | Public-facing wording | [Tested with Hearth](tested-with-hearth.md) |
-| Help-page hosting for error codes (codes are human readable: agreed) | Every failure screen's QR code points there | Design doc, section 15 |
 | Saved logins: what happens when the keyring is lost, and a "Saved logins" settings page to forget or reset logins (to scope) | The failure screen and Settings both depend on it | Design doc, sections 10 and 15; [Secret store: oo7](decisions/0001-keyring-oo7.md) |
-| The admin PIN: an admin profile's own PIN, or a separate box-wide PIN? Deferred (the lead, 2026-11-22). | Parental controls are a primary feature; the onboarding flow sets it up | [Profile PINs and the admin PIN](decisions/0017-profile-pins-and-admin-pin.md); design doc, section 13 |
-| Feature review: make Firefox kiosk lighter. Which RAM and startup cuts are worth their security or compatibility cost? | One web app must fit the 4 GB RAM budget | Design doc, section 17 |
-| Branch protection for `main`: GitHub refuses it on a private repo with a free account. Make the repo public, pay for GitHub Pro (about $4 a month), or rely on local hooks until it goes public? Later (the lead, 2026-11-22). Meanwhile local hooks refuse force pushes to `main` and Claude asks before every push ([dev environment](dev-environment.md)) | Without it, nothing on GitHub stops a bad push to `main` | [Agentic review checks](research/2026-11-19-agentic-review-checks.md) |
-| Network control for apps the user installs: is Flatpak's network permission enough, or does Hearth need per-app control (a firewall rule per app, a "this app wants to connect" prompt)? For a design session, not Sonnet. Shapes the settings screens | Local-only promise without auditing every app | Design doc, section 11; [allowlist draft](research/2026-11-19-network-allowlist-first-draft.md) |
+| Milestones to guide development (Claude's proposal in design doc, section 20) | Gives development an order and a definition of done for each stage | Design doc, section 20 |
+| Boot-time target. Later (the lead) | Shapes the image and startup work | Design doc, section 3 |
 | Firefox studies (Mozilla's experiments, delivered through Remote Settings): off, or allowed with the rest of Firefox's connections? Telemetry stays off either way | Studies can change Firefox's behaviour on boxes without a Hearth release | Design doc, section 2 (network defaults) |
-| Screen mirroring: when to revisit | Lowest-priority phone feature | Design doc, section 7 |
-| On-screen keyboard details: word suggestions are agreed; kept per profile? an off switch? | Typing is the worst part of a TV | Design doc, sections 2, 6.2 and 6.4; [shell spike results](research/2026-11-22-shell-spike-results.md) |
 
 ## Research tasks for a Sonnet chat
 

@@ -60,19 +60,25 @@
 | Product code | Starts only after all open questions are settled (2026-11-22) |
 | Web-app engine | Firefox, probably for good; may be revisited once the work is deeper in. Claude flags it when web-app integrations become important (2026-11-22) |
 | Fonts | Default: Atkinson Hyperlegible Next, with Noto Sans for wider coverage. A settings page to change fonts, designed with the settings app (2026-11-22, from Claude's recommendation) |
-| On-screen keyboard: word suggestions | Yes (2026-11-22) |
+| On-screen keyboard: word suggestions | Yes, kept per profile, with an off switch (2026-11-22) |
+| Bundled apps | Moonlight and Moonfin (the Jellyfin client) are Flatpaks, not part of the image (2026-11-22) |
+| Profile PINs, what they guard | An adult profile's PIN is asked for when the profile is selected; a kid profile can't be left without a PIN (the admin PIN, section 13) (2026-11-22) |
+| Admin | The admin PIN is the admin profile's own PIN. Permissions come from Unix groups: a profile outside a group that grants a permission doesn't have it, and groups can also take permissions away (2026-11-22, [Profile PINs and the admin PIN](decisions/0017-profile-pins-and-admin-pin.md)) |
+| Paid streaming | In 1.0. Firefox fetches Google's Widevine copy protection itself; listed in network activity (2026-11-22, section 8.4) |
+| Help pages for error codes | On the project's GitHub wiki (2026-11-22, section 15) |
+| Apps the user installs | Allowed to connect to the internet; Flatpak's own network permission is the control, with no per-app firewall from Hearth (2026-11-22, section 11) |
+| After 1.0 | Casting (AirPlay, DLNA), screen mirroring, Tested with Hearth (2026-11-22) |
 | Error codes | Every error code is human readable (2026-11-22) |
 | Parental controls: admin PIN | Parental controls require an admin PIN, asked for once they're first used (a kid profile or a restriction); it can reset any profile's PIN, adult or kid. It can also guard settings, adding apps, and creating and deleting profiles, each a switch with sensible defaults. A forgotten admin PIN means a full factory reset. Whether it's an admin profile's PIN or a box-wide one: deferred. Its setup flow is tagged for the onboarding / first-install flow, designed later (2026-11-22, [Profile PINs and the admin PIN](decisions/0017-profile-pins-and-admin-pin.md)) |
 
 ## 3. Open
 
-- On-screen keyboard details beyond word suggestions (agreed: yes). The compositor is chosen (labwc); the shell spike's test keyboard shows what labwc allows (section 6.4).
-- Bundled apps, image or Flatpak: later (the lead, 2026-11-22). Firefox goes in the image. Are Moonlight and a Jellyfin client Hearth's own parts, or ordinary Flatpaks? The lead names Moonfin as the Jellyfin client to look at. Neither Moonlight nor Moonfin is in Fedora 45's own repos (package list; RPM Fusion not checked), so "in the image" would mean Hearth packages and patches them itself. Decides part of the codec plan (section 5.3).
-- How a PIN guards a profile: later (section 13.2).
+- Saved logins when a profile's keyring can't be opened, and a "Saved logins" settings page (lead's log).
+- Firefox studies: off, or allowed with Firefox's other connections (lead's log).
+- Milestones: proposed in section 20.
 - Boot-time target: later.
-- Casting in 1.0: AirPlay and DLNA receivers as opt-in switches, or later (section 7).
-- Hosted code reviewers: deferred until the architecture is settled (section 17).
-- Screen mirroring: revisit later.
+
+Parked by the lead (2026-11-22): hosted code reviewers until we're ready to code; branch protection for `main` after the code reviewers; the lighter-Firefox review closer to 1.0. After 1.0: casting (AirPlay, DLNA), screen mirroring, Tested with Hearth.
 
 ## 4. Lessons from bifrost
 
@@ -117,7 +123,7 @@ Risk: systemd marks the sysupdate D-Bus interface experimental, so it can change
 | Apps the user installs | Flatpak from Flathub | Daily check |
 | Firefox | In the image (section 2) | With the OS, plus an image for every Firefox security release |
 | AdGuard Home | In the image, a pinned upstream release; its own updater off (section 13.1) | With the OS, plus an image for every AdGuard Home security release |
-| Moonlight, Jellyfin client | In the image or Flatpak; open (section 3) | With the OS, or daily |
+| Moonlight, Moonfin (Jellyfin client) | Flatpak from Flathub (agreed 2026-11-22) | Daily check |
 | Web-app definitions and their extensions | Hearth's own signed channel (section 8) | When the lead publishes; pinned versions |
 | Codecs | Follows the OS (section 5.3) | With the OS |
 
@@ -470,7 +476,7 @@ YouTube's TV interface (`youtube.com/tv`) works in desktop Firefox; no user-agen
 
 These need Widevine, Google's copy-protection module, which Firefox downloads from Google.
 
-- Off by default, behind an opt-in switch: "Paid streaming (uses Google's copy protection)".
+- **Agreed (2026-11-22):** in 1.0 (the lead: "If we need to have it, just include it"). Widevine can't come from a Flatpak or from Hearth's image: Firefox downloads it from Google itself, and Flathub's Firefox does the same (Google doesn't let others repackage it; from memory). So "including it" means Firefox's copy protection is switched on and fetches Widevine on first use. The download is listed under network activity, with its switch (section 11).
 - Labelled "may not work". On Linux, quality is often capped well below a smart TV's.
 
 ### 8.5 Why Firefox and not our own browser
@@ -594,8 +600,8 @@ The lead's concern: a rule of "update checks are the only outgoing connection" c
 | A. Needed to work | Time sync (secure websites need a correct clock), DNS | On | Point at their own servers |
 | B. Updates | OS image, Flatpak apps, web-app definitions | On | Pause, delay, point at a mirror, turn off (with a warning) |
 | C. Home network only | Phone (KDE Connect), casting, mDNS name (`hearth.local`), SSH in developer mode | Phone on; SSH off | Turn each off; the firewall keeps these on the home network, with no internet access |
-| D. What you open | YouTube, Twitch, Jellyfin, Moonlight | When used | Their choice |
-| E. Opt-in extras | Paid-streaming copy protection, the network's "Wi-Fi sign-in page" check | Off | Turn on |
+| D. What you open | YouTube, Twitch, Jellyfin, Moonlight, apps the user installs (agreed 2026-11-22: allowed to connect, controlled by Flatpak's own network permission), paid streaming's copy-protection download (on, section 8.4) | When used | Their choice |
+| E. Opt-in extras | The network's "Wi-Fi sign-in page" check | Off | Turn on |
 | Never | Telemetry, analytics, automatic crash uploads | — | — (crash reports leave through a QR code the user scans; section 15) |
 
 Enforcement:
@@ -722,7 +728,7 @@ Decided already: one Unix user per profile, one session at a time, optional PIN,
 - **Starting a session** ([greetd sessions](research/P1-greetd-sessions.md)): greetd is a small login service (in Fedora 45). Its greeter, the picker screen, runs as its own `greeter` user and hands greetd the chosen user name. greetd checks the password through PAM, Linux's login-check system, and starts the session as that user. `initial_session` logs one user in automatically once per boot, which fits the one-profile, no-PIN case. The new session gets the screen and input through logind. Unconfirmed: whether Fedora's greetd login config registers the session with logind (`pam_systemd`); check in a test image.
   - Claude's note: under greetd, the picker is a separate small program run before any profile's session, not part of the shell.
 - **Ending a session** ([ending sessions](research/P2-ending-sessions.md)): `loginctl terminate-user` ends all of one user's sessions and processes. `KillUserProcesses=` kills a session's processes at logout; the upstream default is yes, Fedora's is unconfirmed (Claude recalls no). Each user's own copy of systemd stays 10 seconds after the last session ends, and apps it started may outlive the session. So "a new login ends the old session" needs `terminate-user`, and a test that Firefox and a Flatpak app really stop.
-- **PINs** ([PIN as password](research/P3-pin-as-password.md)): Fedora has no PIN login, so a PIN would be a short ordinary password. Fedora's password-quality check refuses anything under 6 characters (default 8) when a user sets their own password; root can still set one, with a warning. If the failed-login lock is switched on, 3 wrong tries lock the profile for 10 minutes (man-page defaults; Fedora's own unconfirmed). How a PIN guards a profile is open and can wait (the lead, 2026-11-22). The options to bring then: Hearth checks the PIN itself, or a root service sets the PIN as the Unix password; the research advises against the second.
+- **PINs** (**agreed 2026-11-22:** an adult profile's PIN is asked for when it's selected; a kid profile can't be left without the admin PIN. **Proposed (Claude), to test in the profiles spike:** Hearth checks the PIN itself, as the research advises, rather than setting it as the Unix password) ([PIN as password](research/P3-pin-as-password.md)): Fedora has no PIN login, so a PIN would be a short ordinary password. Fedora's password-quality check refuses anything under 6 characters (default 8) when a user sets their own password; root can still set one, with a warning. If the failed-login lock is switched on, 3 wrong tries lock the profile for 10 minutes (man-page defaults; Fedora's own unconfirmed). How a PIN guards a profile is open and can wait (the lead, 2026-11-22). The options to bring then: Hearth checks the PIN itself, or a root service sets the PIN as the Unix password; the research advises against the second.
 - **Creating and deleting profiles** ([creating users](research/P4-creating-users.md)): `useradd` and `userdel` write only to `/etc` and `/home`, so they should work with a read-only `/usr` (test on an image). `userdel` refuses while the user has processes running, so deleting a profile ends its session first. systemd-homed offers encrypted, portable home folders; its tool is in Fedora 45's `systemd-udev` package, but whether the service ships is unconfirmed. Claude's note: an encrypted home opens only with the user's password, which clashes with the no-prompt boot. **Proposed:** plain `useradd` for 1.0.
 - **An admin profile** ([polkit rules](research/P5-polkit-admin.md)): polkit is the service that decides who may do privileged actions (Fedora 45 ships version 127). Its rules are small JavaScript files; Hearth's would sit in `/usr/share/polkit-1/rules.d`, inside the read-only image, so no profile can change them. A rule can let members of one Unix group do one action without a password, and Hearth's system services ask polkit over D-Bus (`CheckAuthorization`). So an admin profile can be built as a Unix group plus Hearth's rules. Whether one exists at all is the parental-controls question in the lead's log.
 
@@ -754,7 +760,7 @@ Rules for 1.0:
 **Agreed** principle: solo projects forget the broken state, so Hearth designs it first.
 
 - Every failure has a screen: one sentence, what to do next, an error code and a QR code.
-- Error codes are readable, not numbers: `HEARTH-UPDATE-012`, `HEARTH-WIFI-003`. **Agreed (2026-11-22):** every error code is human readable.
+- Error codes are readable, not numbers: `HEARTH-UPDATE-012`, `HEARTH-WIFI-003`. **Agreed (2026-11-22):** every error code is human readable, and help pages live on the project's GitHub wiki. (From memory: GitHub's wiki is free for public repos and needs a paid plan for private ones.)
 - The QR code carries only the error code and the Hearth version, no personal data. Scanning it opens that error's help page on the phone, where "Report this" opens a pre-filled bug report from the phone. The box sends nothing (section 11).
 - Diagnostics bundle: the user can save a cleaned-up log bundle to USB or send it to their phone, by choice each time.
 - Recovery menu: opens after three failed boots, or by holding a remote button at power-on. Options: start the previous version, safe mode (shell with no apps), reset settings, factory reset, show diagnostics.
@@ -783,7 +789,7 @@ Policies found so far ([KDE and Qt AI policy](research/X1-kde-qt-ai-policy.md), 
   - which Intel driver build (free or non-free) we get. Partly answered by bifrost: Fedora's free build has no H.264 or HEVC, and RPM Fusion's non-free one adds them (section 5.3). Still to check on Hearth's own image.
   - AMD chips the review couldn't source
   - what YouTube, Twitch and Dropout send
-- Feature review, a lighter Firefox kiosk: cut RAM and startup time per web app. Fewer content processes, the security cost of turning down site isolation (Fission), unneeded features off (Pocket, sync, studies, PDF viewer, spell check and so on), faster start and close, how long a closed web app stays warm, and whether each web app needs uBlock Origin now that AdGuard Home blocks ad domains for the whole box (section 13.1). Measure one YouTube web app on a 4 GB box before and after. Inputs: [Firefox memory settings](research/F4-firefox-memory-prefs.md) and the RAM budget (section 5.5). From that research: the biggest savings come from running fewer processes; with one site open, site isolation (Fission) costs little, and turning it off weakens protection against Spectre-type attacks. No published measurement of one YouTube tab's RAM was found. Mozilla tracks YouTube memory leaks reaching several GB over long sessions, unfixed, which matters for a box that stays on; closing a web app after its grace period (section 5.5) limits it. **Proposed (Claude)** as the starting point to measure: Fission on, spare-process prelaunch off, at most one process per site (`dom.ipc.processCount.webIsolated = 1`).
+- Feature review, a lighter Firefox kiosk (the lead, 2026-11-22: not now; an improvement closer to 1.0): cut RAM and startup time per web app. Fewer content processes, the security cost of turning down site isolation (Fission), unneeded features off (Pocket, sync, studies, PDF viewer, spell check and so on), faster start and close, how long a closed web app stays warm, and whether each web app needs uBlock Origin now that AdGuard Home blocks ad domains for the whole box (section 13.1). Measure one YouTube web app on a 4 GB box before and after. Inputs: [Firefox memory settings](research/F4-firefox-memory-prefs.md) and the RAM budget (section 5.5). From that research: the biggest savings come from running fewer processes; with one site open, site isolation (Fission) costs little, and turning it off weakens protection against Spectre-type attacks. No published measurement of one YouTube tab's RAM was found. Mozilla tracks YouTube memory leaks reaching several GB over long sessions, unfixed, which matters for a box that stays on; closing a web app after its grace period (section 5.5) limits it. **Proposed (Claude)** as the starting point to measure: Fission on, spare-process prelaunch off, at most one process per site (`dom.ipc.processCount.webIsolated = 1`).
 - Software that fills the gaps: where the lead's preferences (no Chromium, local only) leave holes, list candidate software and the trade-offs. Open to negotiation.
 - Spike results: compositor (5.4; shell spike, headless; labwc chosen), typing with a test keyboard (6.4; done headless), native-messaging Back key (6.1; done headless: [shell spike results](research/2026-11-22-shell-spike-results.md)), KDE Connect typing into web apps (7), per-profile DNS (13.1).
 - Agentic review plan (goal 6). The first research pass ([agentic review notes](research/2026-11-19-agentic-code-review-notes.md)) made no decisions; its sources were mostly blogs, none opened in full. Checked since ([agentic review checks](research/2026-11-19-agentic-review-checks.md)): Claude Code's limits (an allow-list, a git guard hook) aren't set up yet; branch protection is refused on a private repo with a free account; code checkers wait for code; mkosi pins Fedora with `Snapshot=`. Points for the review:
@@ -861,6 +867,25 @@ The lead's design notes are in [App Menu Contribution API](research/2026-11-20-a
 - **Trusted identity:** the Flatpak app ID and its `.desktop` file, or the web-app definition (section 8.1).
 - **A first outside app for the SDK after 1.0** (the lead's idea, 2026-11-22): Moonfin, the Jellyfin client the lead is considering (section 3), as a good candidate to add menu integration to. What bifrost recorded about Moonfin is in [bifrost: test boxes and TVs](research/2026-11-22-bifrost-optiplex-and-tv.md): not on Flathub, an unsigned `.flatpak` bundle with no update source, no full-screen setting, a TV mode. Nothing checked for Hearth yet.
 - **Sites that use the Menu key** (Claude's note): Leanback for Dropout opens its own settings on the remote's Menu button. Once Hearth owns Menu, a site's or extension's menu has to arrive as items in the menu's app section, through `hearth-firefox-bridge`, instead.
+
+## 20. Milestones (proposed)
+
+*Claude's proposal, 2026-11-22, at the lead's request ("We need to work out a series of milestones to help guide development"). Nothing here is decided. Each milestone ends with something you can try on a box, and lists what "done" means. They would become GitHub milestones.*
+
+| # | Milestone | What you can do at the end | Done when |
+|---|---|---|---|
+| 0 | **Groundwork** (now; no product code) | Nothing new on screen. Every open question is settled and every risky unknown is tested | The four open questions are answered. Spikes pass: test image with A/B update and rollback (in a virtual machine), profiles and logins, per-profile DNS, the keyboard in Flatpak apps, Firefox policies and the bridge installed for every profile. The lead says product code can start |
+| 1 | **A box that boots and updates itself** | Install Hearth from USB in a VM and on the OptiPlex; it boots straight into labwc and a bare home screen; publish a new version and watch it update, then roll back a broken one | mkosi builds the image automatically (needed for every Firefox security release); signed updates; rollback proven; the hardware checks 8–11 on the OptiPlex |
+| 2 | **The 10-foot loop** | Pick a tile, watch YouTube, press Back, Home and Menu, type a search with the on-screen keyboard, come home | Product versions of the home screen, menu, key handling, the on-screen keyboard (with word suggestions), web apps with `hearth-firefox-bridge` signed by Mozilla, theme tokens and the default theme, the first failure screens |
+| 3 | **First boot and profiles** | Unbox, follow the first-boot wizard with a remote, make profiles, set PINs and parental controls, switch profiles | Installer page, first-boot wizard (hardware check, network, default profile, admin PIN when controls are first used), profile picker, PINs, saved logins (oo7), AdGuard Home per profile |
+| 4 | **Settings from the remote** | Change everything on the box from the sofa | Network, display (with TV colour range), sound to the TV, remotes, apps (Flatpak install, add a web app), updates, privacy and network activity, appearance, the 1.0 accessibility set, time and language, power |
+| 5 | **Living-room ready (alpha)** | Use it as the household's TV box for a week | Codecs and driver add-ons built on the box, notifications, sleep and wake from the remote, the recovery menu, help pages on the wiki, RAM on a 4 GB box within budget, the connection allowlist checked in CI. Alpha testers start |
+| 6 | **1.0** | Hand it to someone else to install | The lighter-Firefox review, release signing (GPG key and GitHub attestation, after alpha), the USB install guide, user and contributor docs, a security review |
+
+Claude's notes:
+- The phone (KDE Connect) isn't placed: typing from the phone doesn't work on labwc as KDE Connect stands (section 7), and the lead parked it. It needs a decision on where it lands: 1.0, or after.
+- The order puts the riskiest system work (image, updates) before the screens, so a broken foundation shows up before there's much built on it.
+- After 1.0, already parked: casting, screen mirroring, Tested with Hearth, heavy accessibility (2.0), Secure Boot and lockdown.
 
 ## Sources
 

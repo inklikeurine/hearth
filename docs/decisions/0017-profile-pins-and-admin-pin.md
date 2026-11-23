@@ -28,6 +28,8 @@ New:
 Added the same day, answering what this record first left open (the lead, 2026-11-22):
 - The admin PIN can reset any profile's PIN, adult or kid ("both").
 - The admin PIN *can* guard settings, adding apps, and creating and deleting profiles: each is a switch the admin sets, with sensible defaults ("it CAN, settable by user with sensible defaults"). Claude's proposed defaults, not decided: once an admin PIN exists, all three are guarded; the admin can switch any of them off.
+- The admin PIN is the admin profile's own PIN. Permissions come from Unix groups: a profile outside a group that grants a permission doesn't have it, and groups can also be used to take permissions away ("admin pin is an a pin for the admin profile. if you're not part of a group that gets permissions, you don't have them. We can also use permissions to be exclusionary instead").
+- An adult profile's PIN is asked for when the profile is selected; a kid profile can't be left without the admin PIN.
 - A forgotten admin PIN is recovered only by a system reset ("system reset. don't forget it"). The setup flow says so plainly when the PIN is set. The lead confirmed it means a full factory reset ("full factory reset"), which wipes every profile.
 
 ## Consequences
@@ -47,7 +49,6 @@ Harder:
 
 ## Not decided
 
-- Whether the admin PIN belongs to an admin profile (that profile's own PIN, required once parental controls are on) or is a separate box-wide PIN. Deferred (the lead, 2026-11-22).
 - The default for each admin-guarded switch (Claude's proposal above).
 - Whether authenticating with a paired device (the phone, for example) is feasible and safe for any recovery (carried over from 0003).
 - Whether a locked profile can be deleted without wiping the box (carried over from 0003).
