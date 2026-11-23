@@ -13,7 +13,18 @@
 | 6. Back key | Works. labwc takes the remote's Back; the shell sends a `back` action over native messaging to a TV-navigation extension, which closes the page's open menu, else goes back a page, else leaves the app (the home screen comes back). Firefox stayed full screen; the pages never saw Back or Escape. Slowest round trip, shell → extension → page → shell: 7–8 ms (target: 50 ms) |
 | 12. Forcing full screen | Works with a labwc window rule using `ToggleFullscreen`: foot, which opens as a window, goes full screen, and Firefox in kiosk mode stays full screen. `Maximize` didn't take effect at all |
 
-Checks 4 (typing), 7 (phone typing) and 8–11 (real screen, RAM, overlay over video, TV colour range) are still to do.
+Checks 4 (typing), 7 (phone typing) and 8–11 (real screen, RAM, overlay over video, TV colour range) are still to do. The lead's order: software first, real hardware after; phone typing later.
+
+## The lead's run in a window (2026-11-22)
+
+- The UI is serviceable and clear for a spike (the lead).
+- Back closes Dropout, Twitch and YouTube, but does nothing in Firefox opened from its own tile. Expected from the code: only web apps get the TV-navigation extension; for any other app the shell answers `no-adapter` and does nothing.
+
+## Check 4, typing: first try
+
+- Stevia can't run on labwc. Both Fedora's 0.57.0 and upstream main (2026-11-21) require `zphoc_device_state_v1`, phoc's private protocol, before they create the keyboard (`pos_wayland_has_wl_protcols()`, `src/pos-wayland.c`) [C]. Under headless labwc it bound everything else (input-method v2, virtual-keyboard, layer-shell) and logged "Wayland not yet ready, skipping input surface creation".
+- The dev box passes the host desktop's IBus settings (`GTK_IM_MODULE=ibus`, `QT_IM_MODULE`, `XMODIFIERS`) to apps, so Firefox sends text boxes to IBus and never asks labwc for a keyboard. The spike's session (`session.sh`) drops them.
+- The protocol files a home-made test keyboard needs (`input-method-unstable-v2.xml`, `virtual-keyboard-unstable-v1.xml`) aren't in the box's approved packages. Fedora has them only inside a Rust crate package (`rust-wayland-protocols-misc-devel`, which pulls in cargo and Rust); Stevia's repo carries copies (MIT-style licence).
 
 ## Found on the way
 

@@ -198,6 +198,10 @@ Spike code lives on the local-only `spikes` branch; results are written up in `d
 | 11 | TV colour range | Record whether full/limited range can be set under labwc, and how ([TV colour range](research/A5-tv-colour-range.md)) | A real TV |
 | 12 | Forcing full screen | An app that opens as a window (Moonfin starts at 1280×720) is made full screen by Hearth, through a labwc window rule or the shell | Dev box |
 
+**Agreed (2026-11-22):** real-hardware checks (8–11) come after the software checks are done (the lead: "real hardware is after software is done"). Phone typing (check 7) is for later.
+
+Check 4, first try (2026-11-22, Claude): Stevia can't run on labwc. Both Fedora's 0.57.0 and upstream's main branch (2026-11-21) wait for `zphoc_device_state_v1`, a protocol only Phosh's compositor (phoc) offers, before they show any keyboard (`pos_wayland_has_wl_protcols()` in `src/pos-wayland.c`) [C, read in the source]. labwc doesn't offer it, so Stevia starts and never appears. Also found: the host desktop's IBus settings (`GTK_IM_MODULE=ibus`) leak into the dev box and make Firefox hand text boxes to IBus instead of labwc; the spike's session now drops them.
+
 #### A working shell first (agreed 2026-11-22)
 
 The lead: a working shell before setting up any hardware. It's spike code on the local `spikes` branch (the lead's choice over starting the real shell), built and run in the dev box with labwc in a window on the lead's desktop. Approved dependencies: Qt 6.11, layer-shell-qt 6.8, labwc 0.20, Firefox 160, and `wlr-protocols-devel` (added 2026-11-22), all Fedora 45 packages.
@@ -298,6 +302,8 @@ Spike: native messaging latency (it must feel instant), and whether Firefox swal
 
 **Result (2026-11-22, headless, [shell spike results](research/2026-11-22-shell-spike-results.md)):** it works. labwc caught the remote's Back before Firefox; the shell sent it over native messaging to a test extension, which closed the page's menu, went back a page, and left the app, in that order. Firefox stayed full screen and the pages never saw Back or Escape. Slowest round trip: 7–8 ms. The spike installs the extension as a temporary add-on, because Fedora's Firefox installs only Mozilla-signed extensions for good; the product ships it signed (section 8.2).
 
+**Agreed (2026-11-22):** the extension becomes `hearth-firefox-bridge`, a small Mozilla-signed Firefox extension that the lead and Claude develop together (the lead: "We can codevelop a small signed firefox extension as a hearth-firefox-bridge"). Back in other apps (step 3): later. Found by the lead in a window: Back did nothing in Firefox opened from its own tile, which had no extension. The spike now gives that tile its own profile and the extension too.
+
 Confirmed by the lead's testing for Leanback for Dropout ([Leanback's Firefox findings](research/2026-11-22-leanback-firefox-learnings.md)):
 - A page can't stop Firefox's Back. Cancelling `BrowserBack` doesn't stop the history-back (tested with the Dev Probe). So Hearth has to take the remote's Back before Firefox sees it, as step 1 says.
 - What an air mouse's buttons arrive as in Firefox: Back as `BrowserBack` (some remotes send Escape), Home as `BrowserHome`, Menu as `ContextMenu`, which opens Firefox's own context menu unless something stops it.
@@ -348,7 +354,7 @@ On labwc, our keyboard would use three protocols: input-method v2 (the composito
 |---|---|---|---|
 | [plasma-keyboard](https://github.com/KDE/plasma-keyboard) (KDE, Qt 6 QML; what Bigscreen uses) | Layouts as packages (dozens of languages), D-pad navigation, word candidates, text composers for complex scripts | GPL, mostly GPL-2.0-only OR GPL-3.0-only; some files Qt's GPL-3.0-only ([existing keyboards](research/K3-existing-keyboards.md)) | Speaks input-method v1, which only KWin offers. Its compositor link would be replaced with v2 for labwc |
 | [Qt Virtual Keyboard](https://github.com/qt/qtvirtualkeyboard) | QML layouts and styles, arrow-key navigation, word-prediction plug-ins | GPL-3.0-only or commercial | Runs inside one Qt app, not system-wide, so it'd need wrapping. plasma-keyboard has solved a similar wrapping problem |
-| [Stevia](https://gitlab.gnome.org/World/Phosh/stevia) (Phosh's keyboard, GTK4) | How to drive input-method v2, virtual-keyboard and layer-shell on a wlroots-based compositor, the same set labwc offers. Word completion (presage) and correction (hunspell) | GPL-3.0-or-later | Active: v0.59.0, 2026-11-14. Touch-first |
+| [Stevia](https://gitlab.gnome.org/World/Phosh/stevia) (Phosh's keyboard, GTK4) | How to drive input-method v2, virtual-keyboard and layer-shell on a wlroots-based compositor, the same set labwc offers. Word completion (presage) and correction (hunspell) | GPL-3.0-or-later | Active: v0.59.0, 2026-11-14. Touch-first. Fedora 45's build (0.57.0) uses GTK3 and libhandy. Needs phoc's private `zphoc_device_state_v1`, so it doesn't run on labwc as it is (section 5.4) |
 | [wvkbd](https://github.com/jjsullivan5196/wvkbd) | The smallest C example of the same protocols | GPL-3.0 | Touch and pointer only |
 | [Squeekboard](https://gitlab.gnome.org/World/Phosh/squeekboard) | Same protocols plus text-input v3 | GPL-3.0 | Marked unmaintained. Reference only |
 | [Kodi](https://github.com/xbmc/xbmc/tree/master/system/keyboardlayouts) | 31 remote-friendly keyboard layout files (XML), one per language | GPL (Kodi's) | Data, not code |
@@ -360,6 +366,7 @@ On labwc, our keyboard would use three protocols: input-method v2 (the composito
   - Gboard on Google TV picks a layout per kind of field (text, email, password, number). text-input v3 tells our keyboard the same thing (its "content purpose"), so Hearth can do this too.
   - Gamepad shortcuts that recur: X for delete, Y for space (Windows' gamepad keyboard, Google's old ADT-1 kit).
   - Confirming the arrangements themselves needs screenshots or the devices. The four layouts agreed in section 2 come from the lead.
+- **Agreed (2026-11-22):** spike check 4 uses a small test keyboard written in the spike, borrowing Stevia's two protocol files (input-method v2, virtual-keyboard v1), pinned to Stevia v0.57.0 with checksums (the lead: "A"). Stevia itself doesn't run on labwc (section 5.4).
 - Proposed combination: a Qt QML keyboard that matches the shell and its theme, built from plasma-keyboard's layouts and navigation, talking input-method v2 the way Stevia does.
 - Password fields: text-input v3 marks them (purpose `password`, hint `sensitive_data`), so the keyboard turns word suggestions off there ([Wayland keyboard protocols](research/K1-wayland-keyboard-protocols.md)).
 - Web apps with their own keyboard: on bifrost, Plasma's on-screen keyboard opened over Leanback for Dropout's own one ([bifrost: test boxes and TVs](research/2026-11-22-bifrost-optiplex-and-tv.md)). Leanback's fix is the web's own: its text boxes are marked `inputmode="none"` (and `ime-mode: disabled`), meaning "no system keyboard here" ([Leanback's Firefox findings](research/2026-11-22-leanback-firefox-learnings.md)). **Proposed:** Hearth's keyboard honours that mark. To test: whether Firefox passes it on to a keyboard working through text-input v3; Plasma's used an older protocol.
@@ -391,7 +398,10 @@ HDMI-CEC lets the remote turn the TV on and change its volume, but it's a bonus 
 Findings from the phone and casting chat (sources in the [design log](research/2026-11-18-design-log-remote-input-phone-casting.md)):
 
 - KDE Connect needs ports 1714–1764 on the home network. Its iPhone app is partial.
-  - Spike: does KDE Connect typing reach a Firefox web app under our compositor, without Plasma?
+  - Spike: does KDE Connect typing reach a Firefox web app under our compositor, without Plasma? Later (the lead, 2026-11-22).
+  - Checked in the files, not tried (Claude, 2026-11-22): on Wayland, KDE Connect 26.08.3 types through the desktop's remote-control portal (RemoteDesktop) and libei; its typing plugin (`kdeconnect_mousepad.so`) links libei and calls `ConnectToEIS` [C]. Fedora 45's portal for wlroots compositors (`xdg-desktop-portal-wlr` 0.8.5) offers only Screenshot and ScreenCast [C, its `wlr.portal` file]. So under labwc, KDE Connect would pair but couldn't type into apps.
+  - **Agreed (2026-11-22):** revisit later; the core experience comes first.
+  - The lead's idea (2026-11-22, not decided): KDE Connect may need to be forked at some point and become a standalone Hearth feature or app.
   - That chat recommended a Hearth phone web page instead. KDE Connect stays the choice; the web page is the fallback if the spike fails.
 - AirPlay: UxPlay (GPL-3) mirrors the screen and plays audio from iPhones, but not Apple-protected video. It needs an H.264 decoder, which ties into the codec issue (section 5.3).
 - DLNA ("play to"): gmrender-resurrect is a headless receiver.
