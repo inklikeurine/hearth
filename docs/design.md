@@ -22,7 +22,7 @@
 | System menu | Hearth owns the menu the Menu button opens. Apps add their items through a Menu Contribution API, in 1.0. A public SDK for app makers comes after 1.0 (section 19) |
 | Accessibility | Heavy features move to 2.0.0: screen reader, zoom, colour filters, dialogue boost, a separate simple layout. Cheap ones stay in 1.0 ([Heavy accessibility in 2.0](decisions/0013-heavy-accessibility-in-2-0.md)) |
 | Compositor | labwc for 1.0 ([labwc for 1.0](decisions/0015-labwc-for-1-0.md); section 5.4) |
-| Hardware floor | 4 GB RAM, x86-64, graphics with VP9 hardware decode: Intel 7th gen (Kaby Lake) or newer, AMD Raven Ridge-class APUs (2018) or newer, NVIDIA. Raspberry Pi 4 is a design goal only |
+| Hardware floor | 4 GB RAM, x86-64, graphics with VP9 hardware decode: Intel 7th gen (Kaby Lake) or newer, AMD Raven Ridge-class APUs (2018) or newer, NVIDIA Turing (GTX 16 / RTX 20) or newer. NVIDIA Pascal (GTX 10) is legacy, its support ending October 2028 (2026-11-22, section 5.6). Raspberry Pi 4 is a design goal only |
 | Firmware | UEFI only. Boxes in legacy (BIOS) mode are switched to UEFI first; the install guide says how ([UEFI only](decisions/0014-uefi-only.md)) |
 | Development | For now, in a Fedora 45 distrobox on the lead's machine ([dev environment](dev-environment.md)). Spike code lives on a local-only `spikes` branch that is never pushed (2026-11-22) |
 | Optional hardware | On-board Wi-Fi, Bluetooth, USB infrared receivers, gamepads and HDMI-CEC are recommended and supported by default, never assumed present. Every core path (install, setup, recovery, settings, updates) works without them; features that need one appear only when it's there, or say what's missing ([Optional hardware](decisions/0008-optional-hardware-supported-never-assumed.md)) |
@@ -69,7 +69,6 @@
 - On-screen keyboard details beyond word suggestions (agreed: yes). The compositor is chosen (labwc); the shell spike's test keyboard shows what labwc allows (section 6.4).
 - Bundled apps, image or Flatpak: later (the lead, 2026-11-22). Firefox goes in the image. Are Moonlight and a Jellyfin client Hearth's own parts, or ordinary Flatpaks? The lead names Moonfin as the Jellyfin client to look at. Neither Moonlight nor Moonfin is in Fedora 45's own repos (package list; RPM Fusion not checked), so "in the image" would mean Hearth packages and patches them itself. Decides part of the codec plan (section 5.3).
 - Kernel lockdown default: on, off, or on except on boxes that need an outside driver (section 5.6).
-- NVIDIA floor: which generations count as supported, given NVIDIA's driver support (section 5.6).
 - How a PIN guards a profile: later (section 13.2).
 - Boot-time target: later.
 - Casting in 1.0: AirPlay and DLNA receivers as opt-in switches, or later (section 7).
@@ -249,6 +248,7 @@ Rule: one web app open at a time; going home closes it after a short grace perio
     - VP9 decode from Pascal (GTX 10-series) on.
     - Needs NVIDIA's own driver, the `nvidia-vaapi-driver` bridge, and a Firefox setting that overrides its block on NVIDIA hardware decoding.
     - Confirmed ([NVIDIA's supported GPUs and licence](research/D4-nvidia-support-and-licence.md)): NVIDIA's current Linux driver (620) supports Turing (GTX 16 / RTX 20) and newer only. Maxwell, Pascal and Volta stay on the older 580 branch, still updated; NVIDIA promises security fixes for those cards through October 2028, in a statement that never mentions Linux.
+    - **Agreed (2026-11-22), from Claude's recommendation:** NVIDIA Turing (GTX 16 / RTX 20) and newer are supported; Pascal (GTX 10) is legacy hardware, with its support ending October 2028, when NVIDIA's promised security fixes end (the lead: "as recommended").
     - NVIDIA's licence lets the user install the driver, and lets anyone pass it on unmodified with the licence attached; it says nothing about software fetching it for the user. **Proposed (Claude):** setup shows NVIDIA's licence and the user accepts it before the driver is fetched.
     - Hardware decode in the Firefox Flatpak on NVIDIA is unconfirmed.
   - Forcing H.264: an extension has to hide VP9 and AV1 from all three ways a page asks what the browser can play, running in the page's own script world. The common h264ify extension covers two. Needed only on legacy-tier boxes; switched on only when the first-boot hardware check finds no VP9 decode.
@@ -639,7 +639,7 @@ The lead's concern: attack surface, for us and for users. The approach: secure d
   - A forged network broadcast could change another device's shown name or type (CVE-2025-32900). Same fix.
   - Protocol 8 itself never checked that the device ID matched across two handshake messages, so a paired device could be impersonated. Rated critical (CVE-2025-66270). Fixed in desktop 25.12, Android 1.34.4, iOS 0.5.4.
   - Fedora 45 ships the desktop app at 26.08 (26.08.3 in the dev box), past all three fixes. KDE's two advisories of 30 Oct 2026 ([October 2026 advisories](research/C3-kdeconnect-oct-2026-advisories.md)): a flood of bad packets could freeze the desktop app (fixed in 26.08.3, the version Fedora 45 ships), and deeply nested data crashes the Android app (fixed in Android 1.37.0). Both need someone on the home network. **Proposed (Claude):** require KDE Connect Android 1.37.0 or later.
-- QR-code pairing: no KDE Connect app supports it. The desktop, Android and iOS source has no QR code at all, and no feature request was found ([QR pairing and old versions](research/C2-kdeconnect-qr-and-versions.md); KDE's bug search was blocked to the research tools, so one may exist). It stays a candidate contribution, only if KDE's AI policy allows.
+- QR-code pairing: no KDE Connect app supports it. The desktop, Android and iOS source has no QR code at all, and no feature request was found ([QR pairing and old versions](research/C2-kdeconnect-qr-and-versions.md); KDE's bug search was blocked to the research tools, so one may exist). Not upstreamed: KDE Connect refuses contributions mostly made by AI (section 16), and the lead won't upstream it (2026-11-22).
 - Refusing older devices: Fedora 45's version (26.08) refuses only a paired device that drops to an older protocol than it used before; an unpaired old device only gets a log warning. KDE's 26.11 beta refuses every network device below protocol 8, with no switch (commit `94b1f0a`, 13 Sep 2026). So the rule arrives with the next KDE release Fedora ships (Fedora updates KDE apps within a release: from memory).
 - **Proposed:**
   - Require protocol version 8: wait for KDE's release that drops older versions rather than patching it ourselves. Ship desktop 25.12 or later in any case.
