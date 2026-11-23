@@ -32,6 +32,8 @@ Checks 7 (phone typing) and 8–11 (real screen, RAM, overlay over video, TV col
 
 ## Check 4, typing: the test keyboard
 
+The lead tried it in a window with the air mouse on 2026-11-22: "keyboard works".
+
 How it works: the shell has a keyboard of its own (`src/inputmethod.cpp`, `qml/KeyboardWindow.qml`), borrowing Stevia's two protocol files (pinned, `protocol/README.md`). Firefox tells labwc a text box has focus (text-input v3); labwc tells the keyboard (input-method v2); the keyboard appears as a layer-shell strip along the bottom and grabs the keys, so arrows and Select work the keyboard while Firefox keeps its text box focused. Text goes back through input-method v2; Backspace and Enter through virtual-keyboard v1.
 
 Results [T, headless test, two runs]:
@@ -90,7 +92,6 @@ What each kind of web field asks for (Firefox 160, text-input v3's content purpo
   - key repeat, and libxkbcommon for key names.
 
 ## Not confirmed
-- All the keyboard results are headless, with wtype standing in for the remote. Not yet seen in a window with the air mouse.
 - Whether the box's Firefox reads a system-wide native messaging manifest.
 - The meaning of the password box's hint bits (`0xc0`): from memory of text-input v3; its definition file isn't in the box.
 
