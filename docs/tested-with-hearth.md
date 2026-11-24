@@ -1,7 +1,5 @@
 # Tested with Hearth: how apps get rated
 
-*Exploration note, 2026-11-18. Claude's proposal; nothing here is decided.*
-
 ## What it is
 
 A public page in Hearth's docs, with the same data shown in the shell's "add an app" screen. It tells a user before installing whether an app or web app works on a TV with a remote. Each entry also carries the app's adapter, which makes the app follow Hearth's global key map (Back always means back, even if the app needs Esc for it). The rating and the adapter come from the same test record.
@@ -9,7 +7,7 @@ A public page in Hearth's docs, with the same data shown in the shell's "add an 
 It covers:
 
 - Apps: Flatpaks from Flathub, plus whatever ships in the image.
-- Web-app definitions: YouTube, Twitch, Dropout, and user-built ones that get submitted.
+- Web-app definitions: user-built ones that get submitted.
 
 A "Tested hardware" page uses the same process and record format, with different checks.
 
@@ -39,7 +37,7 @@ Four areas, modelled on Steam Deck Verified. Each item is a yes/no question; the
    - Back does what a viewer expects on every screen: closes the menu, then goes back a page, then leaves the app.
    - Home always returns to Hearth.
    - No mouse needed.
-   - Text entry works (on-screen keyboard or phone typing).
+   - Text entry works (on-screen keyboard).
 2. Screen
    - Text readable from 3 m (10 ft) at 1080p.
    - Fits the screen: no cut-off edges, no tiny windows.
@@ -52,14 +50,10 @@ Four areas, modelled on Steam Deck Verified. Each item is a yes/no question; the
 4. System
    - Runs on the floor hardware (4 GB box) within its RAM budget.
    - Video uses hardware decoding where the hardware supports it.
-   - Sound goes to the TV.
-   - Local only: in a recorded session, it contacts only its own service and nothing on the never list.
    - Has a known update path (Flathub, or a pinned version in Hearth's channel).
 
 Facts shown on every entry, never used to block it:
 
-- licence
-- what it's built on ("Built on Chromium" is shown as a fact; users are free to install it)
 - whether it needs an account
 - whether it uses Google's copy protection
 
@@ -88,13 +82,6 @@ Facts shown on every entry, never used to block it:
 ## Community reports
 
 The box never sends a report. A user who finds a problem picks "Report how this app works" in the app's menu. The TV shows a QR code holding only the app ID, the app version and the Hearth version. Scanning it opens a GitHub issue form on the phone with the checklist questions. A report changes the rating only after the lead confirms it.
-
-## Open questions
-
-- Is 12 months the right expiry?
-- Should "Works with tweaks" apps show in the shell by default?
-- Once Hearth has contributors, who can test: only the lead, or trusted testers with their own hardware tier?
-- Should web-app definitions submitted by users be listed, or kept as personal recipes?
 
 ## Sources
 
