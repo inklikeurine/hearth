@@ -1,9 +1,8 @@
 # The lead's questions and tasks
 
-*Running log, started 2026-11-18. It holds only what's still open. When a question is answered or a task is finished, its line is deleted: the answer goes into the [design doc](design.md), research results into `docs/research/`, and locked-in decisions into decision records.*
+*Running log. It holds only what's still open. When a question is answered or a task is finished, its line is deleted: the answer goes into the [design doc](design.md), research results into `docs/research/`, and locked-in decisions into decision records.*
 
 ## How to use this
-
 - Questions are decisions only the lead can make. Answered in a design chat, each becomes an "Agreed" line in the design doc and is deleted here.
 - Research tasks are small prompts for a fresh Sonnet chat. Sonnet is unreliable on big or loose tasks, so every prompt asks one narrow question, names the sources and the table to fill, and has a word limit (350–500 words):
   1. Paste the context block, then one prompt.
@@ -38,7 +37,7 @@ RULES FOR YOUR ANSWER
 - Save your answer to the Hearth project under the name the prompt gives.
 ```
 
-## Open questions (decisions for the lead)
+## Open questions
 
 | Question | Why it matters | Where it's discussed |
 |---|---|---|
@@ -48,7 +47,7 @@ RULES FOR YOUR ANSWER
 
 ## Research tasks for a Sonnet chat
 
-None waiting. The eleven prompts that were here were run by Claude research agents on 2026-11-22 (the lead's request) and folded into the design doc: [Bigscreen translations](research/L1-bigscreen-translations.md), [font sizes per script](research/L2-font-sizes-per-script.md), [system locales](research/L3-system-locales.md), [how Firefox picks a language](research/L4-firefox-language.md), [Firefox memory settings](research/F4-firefox-memory-prefs.md), [TV platforms' web-app features](research/G1-tv-web-app-apis.md), [drivers as system extensions](research/D2-driver-sysext.md), [lockdown and module signing](research/D3-lockdown-module-signing.md), [NVIDIA's supported GPUs and licence](research/D4-nvidia-support-and-licence.md), [KDE Connect's October 2026 advisories](research/C3-kdeconnect-oct-2026-advisories.md), [KDE and Qt AI policy](research/X1-kde-qt-ai-policy.md). New prompts go here, written for a fresh chat with the context block above.
+None waiting. New prompts go here, written for a fresh chat with the context block above.
 
 ## Spikes to add
 
@@ -58,14 +57,13 @@ Short hands-on tests found in design sessions. The labwc spike's software checks
 - Firefox shaped from outside: unsandboxed AutoConfig works in the Firefox build the image ships; which built-in keys it can rebind (Escape, Backspace, Back); what kiosk mode does to context menus and dialogs ([Firefox outside customising](research/2026-11-19-firefox-outside-customising.md)).
 - Profiles and sessions, in a test image ([how profiles run](research/2026-11-23-design-doc-detail.md), section 13.2): does Fedora's greetd login config register sessions with logind; what is Fedora's `KillUserProcesses=` default (`systemd-analyze cat-config systemd/logind.conf`); do Firefox and a Flatpak app stop after `loginctl terminate-user` (`systemd-cgls`); do `useradd` and `userdel` work with `/usr` read-only.
 - AdGuard Home as a service (design doc, DNS filter): AdGuard's own build runs as an unprivileged user with only the port-53 capability, next to systemd-resolved, with `--no-check-update`; record every connection it makes.
-- Record a real boot (first egress test): boot the first image in a test VM, record every DNS lookup and connection (method in the [allowlist draft](research/2026-11-19-network-allowlist-first-draft.md)), and turn it into the repo's allowlist file. Replaces desk research for the base-system list.
 
-## Summarising a chat for the design log
+## Summarizing a chat for the design log
 
 Paste this into any Hearth chat before closing it, and save the reply to the Hearth project on claude.ai. Bring it to a design session, where it's copied into `docs/research/`.
 
 ```
-Summarise this conversation for Hearth's design log, so a fresh session can use it without the chat:
+Summarize this conversation for Hearth's design log, so a fresh session can use it without the chat:
 1. Decisions I made (one line each).
 2. Facts you confirmed, with source links.
 3. Things you were unsure about or couldn't confirm.
