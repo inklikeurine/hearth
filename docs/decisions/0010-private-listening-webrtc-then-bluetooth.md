@@ -1,12 +1,12 @@
 # Decision 0010: Private listening: a WebRTC phone page first, then Bluetooth
 
-Accepted 2026-11-19 by the lead. Related: design doc, section 7 (phone features, priority 2); [Optional hardware](0008-optional-hardware-supported-never-assumed.md); [private listening research](../research/2026-11-19-private-listening.md).
+Related: design doc, section 7 (phone features, priority 2); [Optional hardware](0008-optional-hardware-supported-never-assumed.md); [private listening research](../research/2026-11-19-private-listening.md).
 
 ## Context
 
 Private listening means the TV's sound in your headphones, like Roku's feature. The hard part is lip sync: every platform plays the audio with a known delay and holds the picture back by the same amount. Hearth's own video player (mpv) can do that exactly; Firefox can only follow the delay its audio output reports, which is untested for a network sink.
 
-Boxes may have no Bluetooth radio. The lead: "This project has no control over end hardware. Assume old low-end laptops and mini-PCs." A "recommended adapters" list is allowed; a hardware requirement is not. The lead has no iPhone to test with.
+Boxes may have no Bluetooth radio. The lead has no iPhone to test with. This work is scoped for v2.0.0
 
 ## Decision
 
