@@ -1,16 +1,14 @@
 # Decision 0016: Theming: Hearth's own tokens with no Kirigami, preview-first Appearance, day/night toggle, no fonts in theme packs, Atkinson Hyperlegible Next by default
 
-Accepted 2026-11-22 by the lead. Replaces decision 0009 (theming presets and packs, accepted 2026-11-19), which planned a small bridge for leftover Kirigami controls. Related: design doc, sections 2 and 9; [theming research](../research/2026-11-19-theming.md); [open-source fonts](../research/B5-oss-fonts.md); [Borrow from Bigscreen, write the shell fresh](0012-borrow-from-bigscreen-write-shell-fresh.md).
+Related: design doc, sections 2 and 9; [theming research](../research/2026-11-19-theming.md); [open-source fonts](../research/B5-oss-fonts.md); [Borrow from Bigscreen, write the shell fresh](0012-borrow-from-bigscreen-write-shell-fresh.md).
 
-## Why it changed
+## Context
 
-Decision 0009 was written when the shell was going to be a fork of KDE Plasma Bigscreen. Bigscreen's shared controls and home screen use Kirigami's theme and size names (Kirigami is KDE's QML toolkit), so 0009 chose "route C": Hearth's theme drives the screens directly, plus a small QML file passing Hearth's colours to any Kirigami controls that remain.
+Bigscreen's shared controls and home screen use Kirigami's theme and size names (Kirigami is KDE's QML toolkit), the plan was for Hearth's theme to drive the screens directly, plus a small QML file passing Hearth's colours to any Kirigami controls that remain.
 
 Since then:
 - The shell is written fresh, borrowing parts from Bigscreen ([decision 0012](0012-borrow-from-bigscreen-write-shell-fresh.md)), so there's no fork to move off Kirigami.
 - The shell spike built the home screen, menu and on-screen keyboard with Hearth's own controls and theme tokens only, with no gap Kirigami would have filled.
-- The lead, 2026-11-22: no Kirigami ("Kirigami: no?", confirmed as "No Kirigami").
-- The lead, 2026-11-22, on fonts: Atkinson Hyperlegible Next as the default, as Claude recommended, "with a settings menu to change them once we design the settings menu/app".
 
 ## Decision
 
@@ -20,8 +18,6 @@ Since then:
 4. Automatic day/night switching is user-settable: a toggle, off by default. On shows a Day theme and a Night theme dropdown, pre-filled from the theme's own light and dark modes unless the user has set them, switching at two fixed times the user sets (no sunrise/sunset, which would need the box's location). Off: one theme all the time; a theme with two modes shows its author's default mode. No playback check.
 5. The preset set and default look are scoped from scratch (the TV appearance and TV design research in `docs/research/`).
 6. Theme packs are data only, never code (as in the design doc).
-
-Points 3 to 6 are unchanged from decision 0009.
 
 ## Consequences
 
@@ -34,9 +30,6 @@ Points 3 to 6 are unchanged from decision 0009.
 
 ## Turned down
 
-- Kirigami route C (Hearth's tokens plus a bridge for leftover Kirigami controls), decision 0009's choice: with a fresh shell there are no leftover Kirigami controls to bridge.
-- Kirigami route A (replace only, no bridge) and route B (bridge only, keep Kirigami names everywhere): turned down in 0009; moot without Kirigami.
+- Kirigami: Hearth's tokens plus a bridge for leftover Kirigami controls.
 - Fonts allowed in packs, sanitised at import: the lead's first answer in 0009; turned down because font parsing is a known attack route (CVE-2025-27363, a FreeType bug reported as exploited) and a sanitiser adds work and risk.
-- Apply-instantly settings: Claude's first proposal in 0009; a bad choice could make the screen being used unreadable.
-- Sunrise/sunset switching: needs the box's location, which breaks local-only.
 - Other default fonts from the research (Inter, Source Sans 3, Red Hat Text, IBM Plex Sans and others): Claude recommended Atkinson Hyperlegible Next for being made for low vision and packaged in Fedora 45; the lead agreed.
