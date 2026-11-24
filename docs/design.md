@@ -22,7 +22,7 @@ How to read it:
 ### How we work (decided)
 
 - **Design doc and roadmap** (2026-11-23): this doc is a component map with a short spec per component; facts live in research notes, linked (the lead: "A"). Milestones are GitHub milestones, used to track how complete a feature is and whether it's ready to ship (the lead: "I meant C"). Milestones go part by part (the lead: "B"). Every milestone gets broken into tasks, not necessarily now.
-- **Product code** (2026-11-23, replaces "starts only after all open questions are settled", 2026-11-22): the roadmap grid shows which open decision blocks which piece of work (the lead: "the grid shows which open decision blocks which cell"). Claude's reading, to confirm: a piece of work can start once nothing in the grid blocks it, and only when the lead asks.
+- **Product code** (2026-11-23, replaces "starts only after all open questions are settled", 2026-11-22): the roadmap grid shows which open decision blocks which piece of work (the lead: "the grid shows which open decision blocks which cell"). A piece of work can start once nothing in the grid blocks it, and only when the lead asks (the lead confirmed Claude's reading: "yes you're right").
 - **Development:** for now in a Fedora 45 distrobox on the lead's machine ([dev environment](dev-environment.md)). Spike code lives on a local-only `spikes` branch that is never pushed (2026-11-22).
 - **The repo:** uses GitHub's free features: milestones, labels, Actions, Projects, security and code-quality tools, bots.
 - **Parked** (2026-11-22): hosted code reviewers until we're ready to code; branch protection for `main` after the code reviewers; the lighter-Firefox review closer to 1.0; a boot-time target, later.

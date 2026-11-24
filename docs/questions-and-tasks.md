@@ -43,7 +43,6 @@ RULES FOR YOUR ANSWER
 | Question | Why it matters | Where it's discussed |
 |---|---|---|
 | The roadmap's part order, grid, labels and milestone 1 tasks (Claude's proposal, 2026-11-23) | Gives development an order and a definition of done for each piece | [Roadmap](roadmap.md) |
-| Product code: does "the grid shows which open decision blocks which cell" mean a piece can start once nothing blocks it, when the lead asks? (Claude's reading) | Decides when code can start | Design doc, section 2 |
 | The "Waiting on the lead" lines under each component | Each one blocks a cell in the roadmap grid; milestone 0 and 1's come first | [Design doc](design.md) |
 | Boot-time target. Later (the lead) | Shapes the image and startup work | Design doc, section 2 |
 
