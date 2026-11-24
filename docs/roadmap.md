@@ -1,12 +1,12 @@
-# Roadmap to 1.0 (proposed)
+# Roadmap to 1.0.0 (proposed)
 
-*Claude's proposal, 2026-11-23, rebuilt from the lead's answers that day: milestones are GitHub milestones, used to track how complete a feature is and whether it's ready to ship; milestones go part by part; every milestone gets broken into tasks; the grid shows which open decision blocks which piece of work. The order of the parts, the grid and the tasks are Claude's proposal. Nothing here is decided except those answers.*
+Milestones are GitHub milestones, used to track how complete a feature is and whether it's ready to ship; milestones go part by part; every milestone gets broken into tasks; the grid shows which open decision blocks which piece of work. The order of the parts, the grid and the tasks are Claude's proposal. Nothing here is decided except those answers.
 
 ## How it works
 
 - **Parts and components** come from the [design doc's component map](design.md#3-component-map). Each part is one milestone. A milestone is done when every component in its part reaches "done" and its "Done when" checks pass.
 - **Grid cells** say how far a component gets in each milestone:
-  - **done**: finished for 1.0, including its failure screens.
+  - **done**: finished for 1.0.0, including its failure screens.
   - **stub**: the least another part needs to build and test against. For example, the OS image milestone logs one fixed user in automatically, because the real login screen comes with Profiles.
   - **+ something**: added to a done component when a later part needs it.
   - Empty: no work in that milestone.
@@ -35,13 +35,13 @@ Other labels: `kind:` screen, service, API, script, config, test, docs.
 | 5 | Hardware | Hardware check and add-ons need profiles' setup flow and the image | Codecs and drivers built on the box, gamepads and CEC, sleep and wake |
 | 6 | Settings and setup | The pages drive services from parts 3–5 | Set up a new box and change everything from the sofa |
 | 7 | Alpha | Release stage, not a part: everything together on real boxes | A week as the household TV box, no keyboard |
-| 8 | 1.0 | Release stage: signing, docs, reviews, beta | Someone else installs it from the guide |
+| 8 | 1.0.0 | Release stage: signing, docs, reviews, beta | Someone else installs it from the guide |
 
 Cost of going part by part (raised 2026-11-22 when the lead chose it): Hearth first runs as a whole on a real box at milestone 3, and users can't use any feature until every part is done. Putting the shell first means there's something to try from milestone 1.
 
 ## The grid
 
-M0 Ready to code · M1 Shell · M2 Web apps · M3 OS image · M4 Profiles · M5 Hardware · M6 Settings · M7 Alpha · M8 1.0
+M0 Ready to code · M1 Shell · M2 Web apps · M3 OS image · M4 Profiles · M5 Hardware · M6 Settings · M7 Alpha · M8 1.0.0
 
 | Part | Component | M0 | M1 | M2 | M3 | M4 | M5 | M6 | M7 | M8 | Blocked by |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -74,13 +74,13 @@ M0 Ready to code · M1 Shell · M2 Web apps · M3 OS image · M4 Profiles · M5 
 | Hardware | Hardware add-ons | | | | | | done | | | | Add-on method; NVIDIA licence screen; where the compiler comes from; spike: codec add-on |
 | Hardware | Gamepads and HDMI-CEC | | | | | | done | | | | — |
 | Hardware | Power and sleep | | | | | | done | | | | Waking from each remote |
-| Settings | Settings app | | | | | stub (frame for parental screens) | | done | | | TV colour range; HDR in 1.0 or after; TV-first sound rule |
+| Settings | Settings app | | | | | stub (frame for parental screens) | | done | | | TV colour range; HDR in 1.0.0 or after; TV-first sound rule |
 | Settings | First-boot wizard | | | | | | | done | | | Moonlight and Moonfin: offered or on every box |
 | Settings | Apps | | stub (launch only) | | | | | done | | | Spike: portals in a Hearth session |
 | Docs | Help pages | | | | | | | | done | | — |
 | Docs | Install guide | | | | | | | | | done | — |
 | Docs | User and contributor docs | | + shell | + web apps | + build and release | | | | | done | Diátaxis layout |
-| Phone | KDE Connect features | not placed | | | | | | | | | The phone in 1.0, or after |
+| Phone | KDE Connect features | not placed | | | | | | | | | The phone in 1.0.0, or after |
 
 ## Milestones
 
@@ -196,10 +196,10 @@ Done when: a fresh box is set up with the first-boot wizard and only a remote, a
 
 Done when: a week in a real living room with no keyboard, no SSH and no lost viewing; the RAM budget holds on a 4 GB box; every error code has a help page; testers have a guide and a way to report problems.
 
-### 8. 1.0
+### 8. 1.0.0
 
 Done when: signing is on; a stranger installs it from the guide and uses it as their TV box; the security review, accessibility pass and lighter-Firefox review are done; beta brought fixes only.
 
 ## Not placed (needs the lead)
 
-- **The phone:** in 1.0, or after? Typing from a phone doesn't work on labwc with KDE Connect as it stands (design doc, Phone).
+- **The phone:** in 1.0.0, or after? Typing from a phone doesn't work on labwc with KDE Connect as it stands (design doc, Phone).
