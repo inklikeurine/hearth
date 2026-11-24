@@ -1,6 +1,6 @@
 # Decision 0014: Hearth boots on UEFI only
 
-Accepted 2026-11-22 by the lead ("BIOS-only boxes: sure", answering Claude's proposal). Related: design doc, sections 5.2 and 12.1; [USB install guide](0007-usb-install-guide-apps.md).
+Related: design doc, sections 5.2 and 12.1; [USB install guide](0007-usb-install-guide-apps.md).
 
 ## Context
 
@@ -15,7 +15,7 @@ The research ([UEFI at the hardware floor](../research/U1-uefi-at-the-floor.md))
 
 ## Decision
 
-- Hearth's image boots on UEFI only. Claude proposed this; the lead agreed.
+- Hearth's image boots on UEFI only.
 - A box that boots in legacy (CSM) mode has to be switched to UEFI first. The USB install guide says so before the first step, with the menu names for common makers.
 
 ## Consequences
