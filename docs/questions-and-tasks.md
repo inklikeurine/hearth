@@ -42,8 +42,10 @@ RULES FOR YOUR ANSWER
 
 | Question | Why it matters | Where it's discussed |
 |---|---|---|
-| The roadmap to 1.0: milestones, and the features, APIs, scripts and screens in each (Claude's proposal) | Gives development an order and a definition of done for each piece | [Roadmap](roadmap.md); design doc, section 20 |
-| Boot-time target. Later (the lead) | Shapes the image and startup work | Design doc, section 3 |
+| The roadmap's part order, grid, labels and milestone 1 tasks (Claude's proposal, 2026-11-23) | Gives development an order and a definition of done for each piece | [Roadmap](roadmap.md) |
+| Product code: does "the grid shows which open decision blocks which cell" mean a piece can start once nothing blocks it, when the lead asks? (Claude's reading) | Decides when code can start | Design doc, section 2 |
+| The "Waiting on the lead" lines under each component | Each one blocks a cell in the roadmap grid; milestone 0 and 1's come first | [Design doc](design.md) |
+| Boot-time target. Later (the lead) | Shapes the image and startup work | Design doc, section 2 |
 
 ## Research tasks for a Sonnet chat
 
@@ -51,12 +53,12 @@ None waiting. The eleven prompts that were here were run by Claude research agen
 
 ## Spikes to add
 
-Short hands-on tests found in design sessions. The labwc spike's software checks are done (design doc, section 5.4); its hardware checks wait for the software work.
+Short hands-on tests found in design sessions. The labwc spike's software checks are done ([design doc detail](research/2026-11-23-design-doc-detail.md), section 5.4); its hardware checks wait for the software work.
 
 - Per-user DNS through the firewall: can nftables make each Unix user's lookups reach AdGuard Home from a different local address, so it sees separate clients? Fallback: one AdGuard Home per profile ([AdGuard per-profile check](research/2026-11-19-adguard-per-profile.md)).
 - Firefox shaped from outside: unsandboxed AutoConfig works in the Firefox build the image ships; which built-in keys it can rebind (Escape, Backspace, Back); what kiosk mode does to context menus and dialogs ([Firefox outside customising](research/2026-11-19-firefox-outside-customising.md)).
-- Profiles and sessions, in a test image ([how profiles run](design.md), section 13.2): does Fedora's greetd login config register sessions with logind; what is Fedora's `KillUserProcesses=` default (`systemd-analyze cat-config systemd/logind.conf`); do Firefox and a Flatpak app stop after `loginctl terminate-user` (`systemd-cgls`); do `useradd` and `userdel` work with `/usr` read-only.
-- AdGuard Home as a service (design doc, section 13.1): AdGuard's own build runs as an unprivileged user with only the port-53 capability, next to systemd-resolved, with `--no-check-update`; record every connection it makes.
+- Profiles and sessions, in a test image ([how profiles run](research/2026-11-23-design-doc-detail.md), section 13.2): does Fedora's greetd login config register sessions with logind; what is Fedora's `KillUserProcesses=` default (`systemd-analyze cat-config systemd/logind.conf`); do Firefox and a Flatpak app stop after `loginctl terminate-user` (`systemd-cgls`); do `useradd` and `userdel` work with `/usr` read-only.
+- AdGuard Home as a service (design doc, DNS filter): AdGuard's own build runs as an unprivileged user with only the port-53 capability, next to systemd-resolved, with `--no-check-update`; record every connection it makes.
 - Record a real boot (first egress test): boot the first image in a test VM, record every DNS lookup and connection (method in the [allowlist draft](research/2026-11-19-network-allowlist-first-draft.md)), and turn it into the repo's allowlist file. Replaces desk research for the base-system list.
 
 ## Summarising a chat for the design log
@@ -77,7 +79,8 @@ Plain language, under 400 words. No praise, no filler.
 
 | Task | Why | Effort |
 |---|---|---|
-| Read the [design doc](design.md) and mark each "proposed" line agree / disagree / discuss | Turns proposals into decisions | 1 hour |
+| Answer the "Waiting on the lead" lines in the [design doc](design.md): agree / disagree / discuss | Turns proposals into decisions and unblocks the grid | 1 hour |
+| Create the roadmap's milestones and labels on GitHub, once the roadmap is agreed (Claude has no tool for either in this session) | Then Claude files each milestone's tasks as issues | 15 min |
 | Get a real potato test box: an old 4 GB laptop or mini-PC with 7th-gen Intel or a Raven Ridge AMD APU. | The floor needs a test machine; the OptiPlex is above it | Cheap or free |
 | Get a USB infrared receiver (the WeChip air mouse is already in hand) | Default key-map testing | About $15 |
 | When the bridge is ready to sign: an addons.mozilla.org developer account and API keys | Unlisted signing needs them | 15 min |
