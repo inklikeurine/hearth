@@ -1,92 +1,78 @@
 # Hearth design
-
-*Started 2026-11-18. Rebuilt 2026-11-23 as a component map with a short spec per component (the lead's choice). The detail that used to sit here (research facts, spike logs, comparisons) is in [design doc detail](research/2026-11-23-design-doc-detail.md) and the other research notes, linked from each component.*
-
 How to read it:
 - **Decided** lines are the lead's. Each names its decision record where one exists; otherwise it's an "Agreed" line that has no record yet.
 - **Waiting on the lead** lines are Claude's proposals. Nothing in them is decided. The [roadmap](roadmap.md) grid shows which piece of work each one blocks.
 - Answered questions are deleted, not marked done. Git keeps the history.
 
 ## 1. Goals (the lead's)
-
 1. Easy to install and keep running. Like a basic fridge: it works, and updates happen without the user noticing.
-2. Replaces a smart TV. Phone pairing (as a remote and as a connected device), TV remotes as first-class input with sensible defaults, every app usable with a remote or controller, web apps as first-class apps, all settings reachable from the remote.
+2. Replaces a smart TV. TV remotes as first-class input with sensible defaults, every app usable with a remote or controller, all settings reachable from the remote.
 3. Local only. No telemetry, no collecting user data. Users can configure their box however they like.
 4. Secure. AI makes attacks faster and cheaper, so security is a priority from day one.
 5. Well documented. Easy-to-follow code, easier docs.
 6. A plan for thorough agentic review that fits a solo developer working with AI (to be researched).
 7. Anything the co-designer spots.
 
+### Nice to haves
+The following features are classified as "nice to have".
+1. Phone pairing (as a remote and as a connected device)
+2. web apps as first-class apps
+
 ## 2. Rules for every part
 
-### How we work (decided)
-
-- **Design doc and roadmap** (2026-11-23): this doc is a component map with a short spec per component; facts live in research notes, linked (the lead: "A"). Milestones are GitHub milestones, used to track how complete a feature is and whether it's ready to ship (the lead: "I meant C"). Milestones go part by part (the lead: "B"). Every milestone gets broken into tasks, not necessarily now.
-- **Product code** (2026-11-23, replaces "starts only after all open questions are settled", 2026-11-22): the roadmap grid shows which open decision blocks which piece of work (the lead: "the grid shows which open decision blocks which cell"). A piece of work can start once nothing in the grid blocks it, and only when the lead asks (the lead confirmed Claude's reading: "yes you're right").
-- **Development:** for now in a Fedora 45 distrobox on the lead's machine ([dev environment](dev-environment.md)). Spike code lives on a local-only `spikes` branch that is never pushed (2026-11-22).
+### How we work
+- **Design doc and roadmap**: this doc is a component map with a short spec per component; facts live in research notes, linked. Milestones are GitHub milestones, used to track how complete a feature is and whether it's ready to ship. Milestones go part by part. Every milestone gets broken into tasks, not necessarily now.
+- **Product code**: the roadmap grid shows which open decision blocks which piece of work. A piece of work can start once nothing in the grid blocks it, and only when the lead asks.
+- **Development:** In a Fedora 45 distrobox on the lead's machine ([dev environment](dev-environment.md)). Spike code lives on a local-only `spikes` branch that is never pushed.
 - **The repo:** uses GitHub's free features: milestones, labels, Actions, Projects, security and code-quality tools, bots.
-- **Parked** (2026-11-22): hosted code reviewers until we're ready to code; branch protection for `main` after the code reviewers; the lighter-Firefox review closer to 1.0; a boot-time target, later.
+- **Parked**: hosted code reviewers until we're ready to code; branch protection for `main` after the code reviewers; the lighter-Firefox review closer to 1.0; a boot-time target, later.
 
-### Licence, borrowing, upstreams (decided)
+### Licence, borrowing, upstreams
 
-- **Licence:** GPL-3.0-or-later (2026-11-22). It fits the borrowed Bigscreen input handler and the keyboard parts. GPL-2.0-only code, such as Bigscreen's link redirector, stays a separate program or is rewritten.
+- **Licence:** GPL-3.0-or-later. GPL-2.0-only code, such as Bigscreen's link redirector, stays a separate program or is rewritten.
 - **Borrowing:** borrow freely from open-source projects, with credit.
-- **Upstream etiquette:** before contributing anything (code, a bug report, an issue) to another project, look for an AI policy, again on every new pull; follow it if there is one; if there isn't, assume they don't want AI-assisted input and keep our changes in our own repo. Exception: a critical security flaw goes to the project's security channel, saying AI helped find it. The rule covers contributions to someone else's code; having our own work signed (Mozilla signing `hearth-firefox-bridge`) isn't a contribution (2026-11-22). Policies found so far: KDE wants AI tools named; KDE Connect refuses mostly AI-made merge requests; Plasma Bigscreen and Qt have none, so no contributions to either ([KDE and Qt AI policy](research/X1-kde-qt-ai-policy.md)).
+- **Upstream etiquette:** Before contributing anything to upstream (code, a bug report, an issue), look for an AI policy. Follow it if there is one; if there isn't, assume they don't want AI-assisted input and keep our changes in our own repo. This only needs to be looked into if we are going to submit something upstream. Not beforehand.
 - **No Chromium:** our development doesn't build on or ship Chromium or Electron. Users may install Chromium-based apps.
 
-### Local only (decided)
+### Local only
+> Hearth doesn't phone home or send back any personal data. We neither need or want it. Every kind of connection is named, listed and switchable in Settings → Privacy and network activity.
 
-> Hearth never makes a connection the user didn't ask for or switch on, and every kind of connection is named, listed and switchable in Settings → Privacy and network activity.
+- **Network defaults:** AdGuard Home keeps its own defaults, upstream DNS included. Time source: the base image's default. Per-app audits are not the goal.
+- **Apps the user installs:** Per-app audits are not the goal.
 
-| Kind | Examples | Default | User can |
-|---|---|---|---|
-| A. Needed to work | Time sync, DNS | On | Point at their own servers |
-| B. Updates | OS image, Flatpak apps, web-app definitions | On | Pause, delay, use a mirror, turn off (with a warning) |
-| C. Home network only | Phone (KDE Connect), casting, `hearth.local`, SSH in developer mode | Phone on; SSH off | Turn each off; the firewall keeps them off the internet |
-| D. What you open | YouTube, Twitch, Jellyfin, Moonlight, apps the user installs, the copy-protection download | When used | Their choice |
-| E. Opt-in extras | The "Wi-Fi sign-in page" check | Off | Turn on |
-| Never | Telemetry, analytics, automatic crash uploads | — | — |
+### Security
 
-- **Network defaults:** AdGuard Home keeps its own defaults, upstream DNS included. Time source: the base image's default. Firefox's own connections allowed (Remote Settings on), telemetry off, studies off (2026-11-22), Safe Browsing off. Moonlight's launch-time connections accepted as they are. Captive-portal check off, with a switch in Settings. Per-app audits are not the goal.
-- **Apps the user installs** may connect; Flatpak's own network permission is the control, with no per-app firewall from Hearth (2026-11-22).
-- **Dependency allowlist:** generate a reviewed list of the network calls our dependencies need ([allowlist draft](research/2026-11-19-network-allowlist-first-draft.md)). Only the lead approves changes to it. Enforced by per-service network rules and a connection test in CI (see "Network and permission rules" and "CI").
+- Updates are the main defense: signed images, every Firefox security release triggers an image, urgent fixes get an out-of-cycle image.
+- Fedora's stock kernel, all CPU security mitigations on. Kernel lockdown off. Secure Boot off by default.
+- Supply chain: pin versions for everything pulled from outside; a new version reaches boxes only through a release the lead approves.
 
-### Security (decided)
-
-- Updates are the main defence: signed images, every Firefox security release triggers an image, urgent fixes get an out-of-cycle image.
-- Fedora's stock kernel, all CPU security mitigations on. Kernel lockdown off in 1.0, revisited with Secure Boot after 1.0 (2026-11-22). Secure Boot off by default in 1.0.
-- Supply chain: pin versions and checksums for everything pulled from outside; a new version reaches boxes only through a release the lead approves. Every new dependency needs the lead's approval (AGENTS.md).
-
-### Hardware (decided)
-
-- **Floor:** 4 GB RAM, x86-64, graphics with VP9 hardware decode: Intel 7th gen (Kaby Lake) or newer, AMD Raven Ridge-class APUs (2018) or newer, NVIDIA Turing (GTX 16 / RTX 20) or newer. NVIDIA Pascal (GTX 10) is legacy, its support ending October 2028 (2026-11-22). Raspberry Pi 4 is a design goal only.
+### Hardware
+- **Floor:** 4 GB RAM, x86-64: Intel 7th gen (Kaby Lake) or newer, AMD Raven Ridge-class APUs (2018) or newer, NVIDIA Turing (GTX 16 / RTX 20) or newer. NVIDIA Pascal (GTX 10) is legacy, its support ending October 2028. Raspberry Pi 4 is a design goal only.
 - **Firmware:** UEFI only; boxes in legacy (BIOS) mode are switched to UEFI first, and the install guide says how ([UEFI only](decisions/0014-uefi-only.md)).
 - **Optional hardware:** on-board Wi-Fi, Bluetooth, USB infrared receivers, gamepads and HDMI-CEC are recommended and supported by default, never assumed present. Every core path (install, setup, recovery, settings, updates) works without them; features that need one appear only when it's there, or say what's missing ([Optional hardware](decisions/0008-optional-hardware-supported-never-assumed.md)).
-- **RAM budget** on a 4 GB box (estimates, to measure): system and DNS filter 300–400 MB, compositor 80–150 MB, shell 150–250 MB, one Firefox web app 600 MB–1.2 GB, Jellyfin playback 150–300 MB. One web app open at a time; going home closes it after a short grace period; zram on. (Claude's proposal, from the old section 5.5.)
+- **RAM budget** on a 4 GB box: system and DNS filter 300–400 MB, compositor 80–150 MB, shell 150–250 MB, one Firefox web app 600 MB–1.2 GB, Jellyfin playback 150–300 MB. One web app open at a time; going home closes it after a short grace period; zram on.
 - Test boxes: a Dell OptiPlex 3080 Micro and a Lenovo ThinkCentre M910q Tiny (at the floor) ([bifrost: test boxes and TVs](research/2026-11-22-bifrost-optiplex-and-tv.md)).
 
-### When things break (decided)
-
+### When things break
 - Solo projects forget the broken state, so Hearth designs it first. Every failure has a screen: one sentence, what to do next, an error code and a QR code.
-- Every error code is human readable (`HEARTH-UPDATE-012`), and help pages live on the project's GitHub wiki (2026-11-22).
+- Every error code is human readable (`HEARTH-UPDATE-012`), and help pages live on the project's GitHub wiki.
 - The QR code carries only the error code and the Hearth version. The box sends nothing.
 - Process rule: every piece of work has a "what it looks like when it breaks" part and isn't done until its failure screens exist.
 
-### Accessibility (decided)
-
-- Heavy features move to 2.0.0: screen reader, zoom, colour filters, dialogue boost, a separate simple layout. Cheap ones stay in 1.0: text size, high contrast, never colour as the only signal, captions, mono audio and balance, slower key repeat and ignoring double presses, reduced motion, fewer rows and bigger tiles ([Heavy accessibility in 2.0](decisions/0013-heavy-accessibility-in-2-0.md)).
+### Accessibility
+([Heavy accessibility in 2.0.0](decisions/0013-heavy-accessibility-in-2-0.md)).
+- Heavy features are slated for 2.0.0: screen reader, zoom, colour filters, dialogue boost, a separate simple layout.
+- Cheap features slated for 1.0.0: text size, high contrast, never color as the only signal, mono audio and balance, slower key repeat and ignoring double presses, reduced motion, fewer rows and bigger tiles 
 - Every new screen is checked with the high-contrast theme before it's done.
+- Every control gets an accessible name and role (Qt's `Accessible.name`, `Accessible.role`), so the 2.0.0 screen reader doesn't reopen every screen.
 
-Waiting on the lead:
-- Every control gets an accessible name and role (Qt's `Accessible.name`, `Accessible.role`), so the 2.0 screen reader doesn't reopen every screen.
+### Languages
 
-### Languages (decided)
-
-English only until 1.0.0, scoped so 1.0 doesn't block other languages. Hearth's text goes through KDE's translation system (KI18n). The image ships every system language (`glibc-all-langpacks`), the Chinese, Japanese and Korean fonts and Firefox's language packs: easy translations and little work matter more than disk space (2026-11-22; [Bigscreen translations](research/L1-bigscreen-translations.md), [system locales](research/L3-system-locales.md)).
+English only until 1.0.0, scoped so 1.0.0 doesn't block other languages. Hearth's text goes through KDE's translation system (KI18n). The image ships every system language (`glibc-all-langpacks`), the Chinese, Japanese and Korean fonts and Firefox's language packs: easy translations and little work matter more than disk space ([Bigscreen translations](research/L1-bigscreen-translations.md), [system locales](research/L3-system-locales.md)).
 
 ## 3. Component map
 
-Each part is a milestone in the [roadmap](roadmap.md). The parts below are Claude's grouping (2026-11-23), not decided.
+Each part is a milestone in the [roadmap](roadmap.md).
 
 | Part | Components | Runs as |
 |---|---|---|
@@ -97,9 +83,9 @@ Each part is a milestone in the [roadmap](roadmap.md). The parts below are Claud
 | Hardware | Hardware check · Hardware add-ons · Gamepads and HDMI-CEC · Power and sleep | System |
 | Settings and setup | Settings app · First-boot wizard · Apps | Screens in the session |
 | Docs and help | Help pages · Install guide · User and contributor docs | — |
-| Phone | KDE Connect features | The profile's user |
+| Phone | Phone connected features | The profile's user |
 
-How the parts talk (Claude's summary of the current plan):
+How the parts talk:
 
 ```
 greetd ──starts──▶ Login screen ──picks a profile──▶ greetd starts the session
@@ -124,8 +110,8 @@ Does: starts labwc, the shell and the keyboard for a profile; key bindings; wind
 Talks to: labwc, greetd's session.
 
 Decided:
-- labwc is the compositor for 1.0 ([labwc for 1.0](decisions/0015-labwc-for-1-0.md)).
-- `wlr-protocols-devel` is approved as a dependency, for the window-switching protocol (2026-11-22).
+- labwc is the compositor for 1.0.0 ([labwc for 1.0.0](decisions/0015-labwc-for-1-0.md)).
+- `wlr-protocols-devel` is approved as a dependency, for the window-switching protocol.
 
 Detail: why labwc and not KWin, Weston, cage or our own compositor; Fedora 45's labwc protocols ([design doc detail, 5.4](research/2026-11-23-design-doc-detail.md), [labwc protocols on Fedora 45](research/2026-11-22-labwc-protocols-fedora45.md)).
 
@@ -134,10 +120,9 @@ Detail: why labwc and not KWin, Weston, cage or our own compositor; Fedora 45's 
 Does: every colour, size, font and timing in one place (theme tokens); Hearth's own TV controls (tile, button, list, grid, slider, toggle, text box, dialog) and focus ring.
 Talks to: every screen; web apps take the focus highlight and overlay colours from it.
 
-Decided:
-- Theming is high priority, built in from the start. Hearth's own controls and theme tokens, no Kirigami; preview-first Appearance; day/night toggle (off by default, fixed times); no fonts in theme packs ([Theming](decisions/0016-theming-own-tokens-no-kirigami.md)).
-- Fonts: Atkinson Hyperlegible Next by default, Noto Sans for wider coverage; a settings page to change fonts, designed with the settings app (2026-11-22).
-- Theme packs are data only (tokens, wallpapers, icons, sounds), never code. Layout skins are QML, so developer mode only, after 1.0.
+- Theming is high priority, built in from the start. Hearth's own controls and theme tokens; preview-first Appearance; day/night toggle (off by default, fixed times); no fonts in theme packs ([Theming](decisions/0016-theming-own-tokens-no-kirigami.md)).
+- Fonts: Atkinson Hyperlegible Next by default, Noto Sans for wider coverage; a settings page to change fonts, designed with the settings app.
+- Theme packs are data only (tokens, wallpapers, icons, sounds), never code. Layout skins are QML, so developer mode only, after 1.0.0.
 
 Waiting on the lead:
 - Text sizes: smallest text 24 px at 1080p, body around 32–36 px, checked from a sofa ([TV text size](research/A4-tv-text-size.md)).
@@ -154,14 +139,11 @@ Detail: [theming research](research/2026-11-19-theming.md), [TV design principle
 Does: the desktop the apps sit on: installed apps in rows, launching and going home, the background, celebrations and particles.
 Talks to: the app list (desktop files, Flatpaks, web-app definitions), labwc's window switching.
 
-Decided:
 - One full-screen app at a time. The installed apps in rows the user arranges, not sorted into categories; one row shows at a time with a little of the next row peeking in; a rows-and-columns setting; slick animations; a user-set background; celebrations and particle effects on the home screen only (the lead's wants, 2026-11-22).
 - The home screen is a desktop the apps sit on, not an overlay (the lead: "rebuild as a desktop", 2026-11-22).
-
-Waiting on the lead:
 - Arrange apps with Menu → Move, arrows, Select (long-press "jiggle" isn't reliable on NEC infrared remotes).
 - Each profile keeps its own app order; new apps go at the end; a kid profile shows only its allowed apps.
-- Still images only as backgrounds in 1.0.
+- Still images only as backgrounds in 1.0.0.
 - Particles: no more than three flashes a second ([WCAG numbers](research/A3-wcag22-numbers.md)).
 
 ### Overlays
@@ -170,19 +152,16 @@ Does: the status overlay (clock, battery if any, profile, notification bell, net
 Talks to: PipeWire (volume), NetworkManager, the notification service, the profiles service.
 
 Decided:
-- The clock and other fixed elements get burn-in protection: they dim or shift a few pixels over time, and a screensaver starts when the screen sits idle (2026-11-22).
+- The clock and other fixed elements get burn-in protection: they dim or shift a few pixels over time, and a screensaver starts when the screen sits idle.
 - Internet status shows the network state (wired, Wi-Fi, none). "No internet" shows only when something actually fails; no new connection is added to check (2026-11-22). How to detect a failure: to be checked (AdGuard Home's status is the first candidate).
-
-Waiting on the lead:
-- Screensaver delay (Samsung's TVs use 2 minutes) ([OLED burn-in](research/A6-oled-burn-in.md)).
+- Screensaver delay is user settable with a 2 minute default ([OLED burn-in](research/A6-oled-burn-in.md)).
 
 ### Key handling
 
 Does: turns Back, Home, Menu, Esc and Backspace from every device into what they mean right now; passes typing through.
 Talks to: labwc key bindings, the on-screen keyboard, `hearth-firefox-bridge`.
 
-Decided:
-- Air-mouse, infrared and Bluetooth remotes are first-class and all ship with default key maps; HDMI-CEC is a bonus. None is assumed present. The "press each button" learning wizard is optional.
+- Air-mouse, infrared and Bluetooth remotes are first-class and all ship with default key maps; HDMI-CEC is a bonus. None is assumed present. The "press each button" learning wizard is optional for the end user.
 - One global key map: a button means the same thing in every app; making every app obey it is Hearth's job.
 - Keys are handled by what they are, not by which device sent them. labwc's key bindings catch Back, Home, Menu, Esc and Backspace from every device and the shell decides what each means. Esc is Back. Backspace deletes in a text box and is Back anywhere else. Arrows and Select drive the on-screen keyboard while it's shown. Anything that types goes into the text box (2026-11-22).
 - Held keys: Back, Esc, Home and Menu fire once, on release; only Backspace in a text box and arrows in the on-screen keyboard repeat (2026-11-22).
@@ -195,8 +174,7 @@ Detail: Bigscreen's input handler compared, what the air mouse sends ([design do
 Does: the overlay the Menu button opens: a system section always, an app section when the app in front has contributed items. The Menu Contribution API is how apps add items.
 Talks to: apps over D-Bus, web apps through `hearth-firefox-bridge`, MPRIS for play and pause.
 
-Decided:
-- Hearth owns the menu. Apps add items through a Menu Contribution API, in 1.0, used by Hearth's own screens and by web apps. A public SDK for app makers comes after 1.0 (2026-11-22).
+- Hearth owns the menu. Apps add items through a Menu Contribution API, in 1.0.0, used by Hearth's own screens and by web apps. A public SDK for app makers comes after 1.0.0.
 - The lead's design notes: apps send structured data only; name and icon come from the installed manifest; Hearth enforces limits and owns presentation; the app reports state and requests changes; no toolkit or compositor dependency ([App Menu Contribution API](research/2026-11-20-app-menu-contribution-api.md)).
 
 Waiting on the lead:
@@ -208,24 +186,22 @@ Waiting on the lead:
 Does: types into every app, driven by remote, gamepad or keyboard.
 Talks to: labwc through input-method v2 and virtual-keyboard v1; apps through text-input v3.
 
-Decided:
 - Types into every app, including Flatpaks the user installs.
 - Designed from scratch now the compositor is chosen. Layouts: QWERTY grid, alphabet grid, single row, gamepad wheel. Themeable.
 - Word suggestions, kept per profile, with an off switch (2026-11-22).
+- A layout per kind of field (text, email, password, number), as Gboard does; no suggestions in password fields.
+- The word-suggestion engine: a technical pick Claude can make.
 
 Waiting on the lead:
 - Build it as a Qt QML keyboard from plasma-keyboard's layouts and navigation, talking input-method v2 the way Stevia does.
-- A layout per kind of field (text, email, password, number), as Gboard does; no suggestions in password fields.
 - Honour a web page's `inputmode="none"` through the bridge, since Firefox doesn't pass it on.
-- The word-suggestion engine: a technical pick Claude can make, unless the lead wants to.
 
 Detail: [existing keyboards](research/K3-existing-keyboards.md), [TV keyboard layouts](research/K4-tv-keyboard-layouts.md), [Wayland keyboard protocols](research/K1-wayland-keyboard-protocols.md), [apps and text input](research/K2-apps-text-input.md), parts to borrow ([design doc detail, 6.4](research/2026-11-23-design-doc-detail.md)).
 
 ### Notifications
 
 Does: Hearth's own notification service (apps can freeze without one), the bell, short pop-ups.
-
-Decided: Hearth ships its own notification service.
+Hearth ships its own notification service.
 
 ### Failure screens
 
@@ -237,28 +213,20 @@ Does: one failure-screen design, the list of error codes, a QR code to each code
 
 Does: a small file per web app: name, icon, address, user agent, extensions, adapter (normally the bridge), which profiles may use it. Built-ins: YouTube TV, YouTube Music, Twitch, Dropout.
 
-Decided:
-- YouTube's TV interface works in desktop Firefox with no user-agent spoofing (the lead, from experience).
-
-Waiting on the lead:
 - Definitions stay engine-neutral (only the extension list assumes Firefox).
-- Definitions and their pinned extensions update through Hearth's own signed web-app channel, never by auto-installing the latest release.
 - Settings → Apps → "Add a web app" builds one with the remote; advanced users can add any signed extension from a URL, with a warning.
 
 ### Firefox setup
 
 Does: builds each web app's Firefox profile: kiosk mode, prefs, `policies.json`, copy protection, language, hardware decoding.
 
-Decided:
-- Firefox is the web-app engine, probably for good; may be revisited once the work is deeper in. Claude flags it when web-app integrations become important (2026-11-22).
+- Firefox is the web-app engine, probably for good; may be revisited once the work is deeper in. Claude flags it when web-app integrations become important.
 - Firefox ships in the OS image, pinned and tested with our extension, `policies.json` and kiosk mode; latest release only; updates and rolls back with the OS ([Firefox in the OS image](decisions/0011-firefox-in-the-os-image.md)).
-- Paid streaming is in 1.0: Firefox's copy protection is on and fetches Widevine on first use, listed in network activity; labelled "may not work" (2026-11-22).
+- Paid streaming: Firefox's copy protection is on and fetches Widevine on first use.
 - Telemetry and studies off (see Local only).
-
-Waiting on the lead:
 - Each web app's Firefox language set from Hearth's setting through `RequestedLocales` ([how Firefox picks a language](research/L4-firefox-language.md)).
-- Turn off pop-ups a remote can't close in every profile: password saving, notification requests, first-run pages (from bifrost).
-- One Firefox profile per web app; uBlock Origin only where it's worth its RAM. Decided in the lighter-Firefox review (parked to near 1.0; starting point in [Firefox memory settings](research/F4-firefox-memory-prefs.md)).
+- Turn off pop-ups a remote can't close in every profile: password saving, notification requests, first-run pages.
+- One Firefox profile per web app; uBlock Origin only where it's worth its RAM. Decided in the lighter-Firefox review (parked to near 1.0.0; starting point in [Firefox memory settings](research/F4-firefox-memory-prefs.md)).
 
 Detail: [Firefox outside customising](research/2026-11-19-firefox-outside-customising.md), [Leanback's Firefox findings](research/2026-11-22-leanback-firefox-learnings.md), engines compared ([design doc detail, 8.3–8.6](research/2026-11-23-design-doc-detail.md)).
 
@@ -267,8 +235,8 @@ Detail: [Firefox outside customising](research/2026-11-19-firefox-outside-custom
 Does: a small Mozilla-signed Firefox extension: Back on each site (close menu, go back, leave), page reports, `inputmode="none"`, a site's own menu items. Plus its native-messaging host, installed system-wide.
 
 Decided:
-- The lead and Claude develop it together, signed by Mozilla as unlisted (the lead: "We can codevelop a small signed firefox extension as a hearth-firefox-bridge", 2026-11-22).
-
+- The lead and Claude develop it together, signed by Mozilla as unlisted.
+- rename to something more fitting. like hearth-ffd (hearth firefox daemon?) or hearth-ffb (heart-firefox-bridge)
 Waiting on the lead:
 - Plain, unminified JavaScript with no build step; it passes Hearth's actions and page reports only, never page content or user data; force-installed through `policies.json` in the image.
 
@@ -280,7 +248,7 @@ Detail: [unlisted signing](research/M1-unlisted-extension-signing.md), [extensio
 
 Does: product code layout, build system, test framework, code checkers, code review, branch protection.
 
-Decided: hosted code reviewers parked until we're ready to code; branch protection for `main` after them (2026-11-22).
+- Hosted code reviewers parked until we're ready to code; branch protection for `main` after them.
 
 Waiting on the lead:
 - Claude proposes the repo layout, build system, test framework and code checkers for product code. Blocks all product code.
@@ -293,10 +261,7 @@ Does: the mkosi configuration: pinned Fedora 45 snapshot, read-only `/usr`, writ
 Decided:
 - mkosi builds the image on Fedora 45 ([design doc detail, 5.1](research/2026-11-23-design-doc-detail.md) has the reasons).
 - Read-only system: yes.
-- Hearth's own parts are never Flatpaks; they live in the image.
-- AdGuard Home: pulled from AdGuard's own releases and pinned (the lead: "we'll pull it ourselves and pin for now", 2026-11-22). Claude reads this as: version and checksum pinned in the repo, the build fails on a mismatch. Checking AdGuard's signature too is Claude's addition, not yet answered ([AdGuard Home import](research/2026-11-22-adguard-home-import.md)).
-
-Waiting on the lead:
+- AdGuard Home: pulled from AdGuard's own releases and pinned. Version pinned in the repo, the build fails on a mismatch. ([AdGuard Home import](research/2026-11-22-adguard-home-import.md)).
 - The image blocks drivers for hardware an HTPC never has (FireWire, ISDN, old filesystems).
 - Each Hearth release keeps the source archive of the AdGuard Home version it ships (GPL-3.0).
 
@@ -304,13 +269,10 @@ Waiting on the lead:
 
 Does: systemd-boot with boot counting, sysupdate's transfer files, the good-boot check, update timing, the rollback message.
 
-Decided:
 - systemd-sysupdate updates the image: A/B, the new version installs beside the old; automatic rollback if it fails to boot.
 - "Healthy" means the home screen works: a Hearth unit before `boot-complete.target` holds the good mark until the shell reports in ([boot assessment and BIOS](research/2026-11-19-boot-assessment-and-bios.md)).
-- Never restart for an update during viewing (from bifrost).
-
-Waiting on the lead:
-- "Viewing" means an idle inhibitor is held or an audio stream is running and not paused; recheck every 30 minutes; restart anyway after 3 hours (from bifrost).
+- Never restart for an update during viewing.
+- "Viewing" means an idle inhibitor is held or an audio stream is running and not paused; recheck every 30 minutes; notification after 3 hours.
 - Pin the systemd version per release and test the update path in CI, since the sysupdate D-Bus interface is marked experimental.
 - Update timers catch up after a wake.
 
@@ -318,27 +280,24 @@ Waiting on the lead:
 
 Does: the "Installer" boot profile running `systemd-sysinstall`, and the Hearth page that drives it.
 
-Decided:
 - No flasher of our own. The box installs from an "Installer" boot profile running `systemd-sysinstall`, driven by a Hearth page ([Installer](decisions/0005-installer-boot-profile-sysinstall.md)).
 - The default profile is made in the install flow.
 
 ### Recovery and diagnostics
 
-Does: the recovery menu (after three failed boots, or a held button at power-on): previous version, safe mode, reset settings, factory reset, diagnostics. The diagnostics bundle: cleaned-up logs to USB or the phone, by choice each time.
+Does: the recovery menu (after three failed boots, or a held button at power-on): previous version, safe mode, reset settings, factory reset, diagnostics. The diagnostics bundle: cleaned-up logs to USB.
 
 Decided: recovery mode, yes.
 
 ### Network and permission rules
 
-Does: per-service network rules (each Hearth service may reach only its listed addresses), the firewall that keeps home-network services on the home network, polkit rules for privileged actions, the allowlist file.
-
-Waiting on the lead (what listens, Claude's proposal): KDE Connect on after pairing, home network only; mDNS on, home network only; SSH off, keys only; the DNS filter on this box only (sharing it with the home network is opt-in); Bluetooth discoverable only while the pairing page is open.
+Waiting on the lead (what listens, Claude's proposal): The firewall that keeps home-network services on the home network, polkit rules for privileged actions, the allowlist file., KDE Connect on after pairing, home network only; mDNS on, home network only; SSH off, keys only; the DNS filter on this box only (sharing it with the home network is opt-in); Bluetooth discoverable only while the pairing page is open.
 
 ### CI
 
-Does: builds the image on every change and for every Firefox security release; boots it headless in a VM and runs the shell's checks; the connection test (fails the build on any connection not on the allowlist).
+Does: builds the image on every change and for every Firefox security release; boots it headless in a VM and runs the shell's checks.
 
-Decided: automated image builds are required for 1.0 (from Firefox in the image).
+Decided: automated image builds are required for 1.0.0 (from Firefox in the image).
 
 ### Publishing
 
@@ -348,7 +307,7 @@ Decided: a raw disk image in a `.xz` plus a signed checksum; signing (GPG key an
 
 ## 7. Profiles
 
-Parental controls and profiles are a primary consideration (the lead).
+Parental controls and profiles are a primary consideration.
 
 ### Login screen
 
@@ -366,33 +325,25 @@ Decided:
 - The admin PIN is one settable, box-wide PIN for the family's parents, not any profile's own PIN (the lead's correction, 2026-11-22). Parental controls require it, asked for once they're first used (a kid profile or a restriction). It can reset any profile's PIN. It can also guard settings, adding apps, and creating and deleting profiles, each a switch with sensible defaults. A forgotten admin PIN means a full factory reset. Its setup flow is tagged for the onboarding flow, designed later.
 - Permissions come from Unix groups: a profile outside a group that grants a permission doesn't have it, and groups can also take permissions away (2026-11-22).
 - Secret store: oo7, daemon and Flatpak portal; KWallet isn't used ([Secret store: oo7](decisions/0001-keyring-oo7.md)). Each profile's keyring unlocks from a random password sealed with `systemd-creds`, made at profile creation.
-- When a keyring can't be opened: a fresh, empty keyring and one notice to sign in to apps again; no "Saved logins" page in 1.0 (2026-11-22).
-
-Waiting on the lead:
-- Plain `useradd` for 1.0, not systemd-homed (an encrypted home needs the user's password, which clashes with the no-prompt boot).
+- When a keyring can't be opened: a fresh, empty keyring and one notice to sign in to apps again; no "Saved logins" page in 1.0.0 (2026-11-22).
+- Plain `useradd` for 1.0.0, not systemd-homed (an encrypted home needs the user's password, which clashes with the no-prompt boot).
 - Spike first: greetd sessions known to logind; Firefox and a Flatpak app really stop after `loginctl terminate-user`; `useradd` and `userdel` with `/usr` read-only ([greetd sessions](research/P1-greetd-sessions.md), [ending sessions](research/P2-ending-sessions.md), [creating users](research/P4-creating-users.md), [polkit rules](research/P5-polkit-admin.md)).
 
 ### DNS filter
 
 Does: AdGuard Home as the box's ad and tracker blocker, with each profile as its own client; safe search and YouTube restricted mode for kid profiles; Hearth's settings drive it.
 
-Decided: AdGuard Home (one program, about 60–80 MB of RAM, SafeSearch and YouTube restricted mode built in); its own web page off or bound to the box.
-
-Waiting on the lead:
+- AdGuard Home (one program, about 60–80 MB of RAM, SafeSearch and YouTube restricted mode built in); its own web page off or bound to the box.
 - Per-profile clients through the firewall (nftables), fallback one AdGuard Home per profile. Needs a spike ([AdGuard per-profile check](research/2026-11-19-adguard-per-profile.md)).
 - How it runs: its own system user with only the port-53 right, `--no-check-update`, beside systemd-resolved. Needs a spike.
 
 ### Screen-time keeper
 
-Does: counts each kid profile's time, warns 5 minutes ahead, ends the session; the admin PIN extends it.
+Does: counts each kid profile's time, warns ahead (user selectable time), ends the session; the admin PIN extends it.
 
 ### Parental-control screens
 
 Does: allowed apps, screen time and bedtime, website limits (Firefox's policy, per profile), what the admin PIN guards, the activity summary (on the box only, opened with the admin PIN), PIN screens.
-
-Waiting on the lead:
-- Each Hearth profile maps to its own Jellyfin user, with a maximum rating.
-- What a kid profile may do from the power button.
 
 ## 8. Hardware
 
@@ -400,11 +351,9 @@ Waiting on the lead:
 
 Does: a first-boot step that finds the hardware tier, optional hardware present, video decode (by playing a sample), the NVIDIA generation, firmware, display mode, and whether suspend and wake work.
 
-Decided: hardware flags set automatically where possible (hardware detection, agreed). Test codecs by playing them; show codec status in Settings → About (from bifrost).
-
-Waiting on the lead:
+- hardware flags set automatically where possible (hardware detection, agreed). Test codecs by playing them; show codec status in Settings → About (from bifrost).
 - Hardware tiers: supported (the floor and newer) and legacy (anything below that still boots), with a "Legacy hardware: fewer security guarantees" notice and a support end date in Settings → About.
-- Force H.264 through an extension only on legacy boxes with no VP9 decode.
+- Force H.264.
 
 Detail: [video-decode review](research/2026-11-19-hardware-video-decode-review.md).
 
@@ -412,11 +361,11 @@ Detail: [video-decode review](research/2026-11-19-hardware-video-decode-review.m
 
 Does: codecs and outside drivers (NVIDIA, Broadcom Wi-Fi) built or fetched on the box for the hardware found, rebuilt after updates, falling back with a notice.
 
-Decided: anything only some boxes need is fetched during first-boot setup for the hardware found, not shipped in every image, so Hearth never redistributes it. A failed add-on never blocks an update.
+- anything only some boxes need is fetched during first-boot setup for the hardware found, not shipped in every image, so Hearth never redistributes it. A failed add-on never blocks an update.
+- Each add-on is a system extension built on the box from RPM Fusion (codecs) or NVIDIA, tied to Hearth's image version; the old slot's extension stays for rollback.
+- Setup automatically accepts NVIDIA's licence then the driver is fetched.
 
 Waiting on the lead:
-- Each add-on is a system extension built on the box from RPM Fusion (codecs) or NVIDIA, tied to Hearth's image version; the old slot's extension stays for rollback.
-- Setup shows NVIDIA's licence and the user accepts it before the driver is fetched.
 - Where the compiler comes from: in every image, or fetched only on boxes that need it.
 
 Detail: [NVIDIA on image-based Fedora](research/D1-nvidia-on-image-fedora.md), [drivers as system extensions](research/D2-driver-sysext.md), [NVIDIA support and licence](research/D4-nvidia-support-and-licence.md), codecs ([design doc detail, 5.3–5.3a](research/2026-11-23-design-doc-detail.md)).
@@ -430,8 +379,6 @@ Decided: one comes later for gamepads and HDMI-CEC; no separate input program fo
 ### Power and sleep
 
 Decided: real suspend by default, tested on first run; screen-off if the test fails.
-
-Waiting on the lead: the first-run test includes waking from each remote found (from bifrost).
 
 ## 9. Settings and setup
 
@@ -459,53 +406,46 @@ Does: the settings screens, all reachable from the remote. Pages for hardware th
 | About and help | Version, hardware tier, codec status, error history | — |
 | Reset | Reset settings, or full factory reset | — |
 
-Decided:
 - Overscan is handled inside Hearth, not by the TV or the kernel.
 - Sound goes to the TV first and stays there when the screen sleeps (from bifrost).
+- HDR output in 1.0.0.; UI white at 203 nits in HDR.
+- The WirePlumber rule that puts the TV's detected video output (HDMI/DisplayPort) first.
 
 Waiting on the lead:
 - TV colour range: Auto / Full / Limited ([TV colour range](research/A5-tv-colour-range.md)); how to set it under labwc is the spike's real-hardware check.
-- HDR output in 1.0, or after (it needs labwc's Vulkan renderer); UI white at 203 nits in HDR.
-- The WirePlumber rule that puts the TV's HDMI output first.
-
+ 
 ### First-boot wizard
 
 Does: network, TV fit and colour range, the default profile, building add-ons, offering apps.
 
-Decided: first-boot wizard, yes.
-
-Waiting on the lead: Moonlight and Moonfin offered in the wizard (Claude's proposal), or installed on every box?
+- first-boot wizard, yes. 
+- Moonlight and Vaccumetube offered in the wizard.
 
 ### Apps
 
 Does: install, update and remove Flatpaks from Flathub; launch them full screen.
 
-Decided:
 - Flatpak is fully supported for every app that isn't Hearth's own.
-- Moonlight and Moonfin (the Jellyfin client) are Flatpaks, not part of the image (2026-11-22).
-- Every app needs a known update path before it's offered (from bifrost).
 
 ## 10. Docs and help
 
-- Help pages: one per error code, on the GitHub wiki (decided).
+- Help pages: one per error code grouping, on the GitHub wiki.
 - USB install guide: four flasher apps, written at 1.0.0 ([USB install guide](decisions/0007-usb-install-guide-apps.md)). It covers switching the firmware to UEFI, setting the power-loss option (AC Recovery) to Power On, and a firmware password.
-- User and contributor docs kept apart, organised with Diátaxis (tutorials, how-tos, reference, explanation). Claude's proposal.
+- User and contributor docs kept apart, organised with Diátaxis (tutorials, how-tos, reference, explanation).
 
 ## 11. Phone
-
-Decided:
+This work comes after 1.0.0
+Waiting on the lead:
 - KDE Connect as the base. Its mobile app is weak but works.
 - Features in priority order: 1 typing and voice typing · 2 private listening · 3 photos and files · 4 cast a link · 5 screen mirroring (revisit later).
 - Private listening: a WebRTC phone page first, then Bluetooth headphones paired to the box ([Private listening](decisions/0010-private-listening-webrtc-then-bluetooth.md)).
 - Phone typing: revisit later; the core experience comes first (2026-11-22).
-
-Waiting on the lead:
-- The phone in 1.0, or after? Typing from a phone doesn't work on labwc with KDE Connect as it stands: KDE Connect types through a portal labwc's portal backend doesn't offer ([design doc detail, 7](research/2026-11-23-design-doc-detail.md)).
+- The phone in 1.0.0, or after? Typing from a phone doesn't work on labwc with KDE Connect as it stands: KDE Connect types through a portal labwc's portal backend doesn't offer ([design doc detail, 7](research/2026-11-23-design-doc-detail.md)).
 - Pairing only while Settings → Phone → Pair is open, for two minutes; the verification key shown large; require KDE Connect protocol 8 and Android 1.37.0 or later ([KDE Connect 2025 security bugs](research/C1-kdeconnect-2025-bugs.md), [October 2026 advisories](research/C3-kdeconnect-oct-2026-advisories.md)).
 
 The lead's idea, not decided: KDE Connect may need forking at some point, as a standalone Hearth feature or app.
 
-## 12. After 1.0
+## 12. After 1.0.0
 
 Decided: casting (AirPlay, DLNA), screen mirroring, Tested with Hearth ([process](tested-with-hearth.md)) (2026-11-22). Also parked: app adapters for native apps' Back, a public SDK for the Menu Contribution API, Secure Boot and kernel lockdown, heavy accessibility (2.0.0), other languages.
 
