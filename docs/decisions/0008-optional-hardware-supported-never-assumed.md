@@ -1,12 +1,10 @@
 # Decision 0008: Optional hardware is supported but never assumed
 
-Accepted 2026-11-19 by the lead. Related: design doc, sections 2, 6 and 10.
+Related: design doc, sections 2, 6 and 10.
 
 ## Context
 
 Hearth targets old laptops, desktops and mini-PCs reused as TV boxes. Many lack add-on hardware a design might take for granted: Wi-Fi in the first-boot wizard, Bluetooth for headphones and pairing, a CEC remote for power-on and testing.
-
-The hardware floor in the design doc (4 GB RAM, x86-64, Intel 7th gen / AMD Raven Ridge-class graphics, NVIDIA supported) is separate and unchanged.
 
 ## Decision
 
@@ -22,7 +20,7 @@ These are recommended and supported by default, but never assumed present:
 
 ## Consequences
 
-- Hearth detects which of the five each box has. The first-boot hardware check records it with the hardware tier.
+- Hearth detects which of the five each box has on boot. The first-boot hardware check records it with the hardware tier. Subsequent boots check if the configuration has changed.
 - Every core path works with none of the five present: install, first-boot setup, recovery, settings and updates.
   - Network setup works over Ethernet; Wi-Fi is one option.
   - Setup and recovery can't rely on a Bluetooth or CEC remote.
@@ -35,5 +33,5 @@ These are recommended and supported by default, but never assumed present:
 
 ## Turned down
 
-- Treating Wi-Fi, Bluetooth, a CEC remote or a gamepad as required: many old mini-PCs and desktops lack one or more, and setup would dead-end.
-- Dropping the hardware floor as well: the lead kept the floor.
+- Treating Wi-Fi, Bluetooth, a CEC remote or a gamepad as required.
+- Dropping the hardware floor.
