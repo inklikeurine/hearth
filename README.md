@@ -13,6 +13,7 @@ Status: design phase. Each piece of product code starts once nothing in the [roa
 | [docs/research/](docs/research/) | Research results |
 | [docs/tested-with-hearth.md](docs/tested-with-hearth.md) | How apps get tested and rated for Hearth |
 | [docs/dev-environment.md](docs/dev-environment.md) | The development box and the repo's guards |
+| [src/](src/), [tests/](tests/) | The code, and its tests (`tools/dev/check` builds and runs everything) |
 | [AGENTS.md](AGENTS.md) | Working rules for AI-assisted work |
 
 ## Licence

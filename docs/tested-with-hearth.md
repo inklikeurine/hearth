@@ -64,7 +64,6 @@ Facts shown on every entry, never used to block it:
 3. Automatic checks (CI, in a virtual machine):
    - it launches full screen and returns home
    - RAM use on the floor-hardware profile
-   - an egress recording (every connection during a scripted session) compared with the allowlist
    - AppStream input declarations read in as hints
 4. Remote walkthrough (lead, on real hardware), handed over as numbered steps, expected result, what to report. 10–20 minutes per app. The adapter is written at the same time.
 5. Record. One data file per app in the repo, for example `catalog/apps/org.example.App.toml`, holding:

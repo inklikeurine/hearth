@@ -22,7 +22,6 @@ From the spike and the research:
 - labwc has no screen reader, zoom or colour filters. Those are 2.0.0 features ([Heavy accessibility in 2.0.0](0019-heavy-accessibility-in-2-0.md)); 2.0 needs its own plan for them.
 - HDR on labwc needs its Vulkan renderer; the default renderer has no HDR.
 - The display settings protocol labwc offers has no TV colour-range setting (design doc, section 10).
-- KDE Connect can't type into apps under labwc: it types through a remote-control portal that Fedora's portal for wlroots compositors doesn't offer (design doc, section 7). Phone typing was already moved to later.
 
 ## Turned down
 

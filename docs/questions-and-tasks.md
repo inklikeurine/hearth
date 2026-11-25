@@ -23,7 +23,7 @@ CONTEXT: I'm the solo lead of Hearth, an open-source TV interface ("10-foot UI")
 - Hearth's own parts live in the OS image, never as Flatpaks; any other app can be a Flatpak.
 - Each profile is its own Unix user (one active session at a time, optional PIN); logins are kept in oo7, the secret store.
 - Apps: native apps and Firefox kiosk "web apps", with our own Firefox extension, hearth-web-bridge. Which apps ship isn't decided. One global key map for every app.
-- Phone companion: KDE Connect. Ad and tracker blocking on the box: AdGuard Home, pulled from AdGuard's own releases and pinned.
+- Phone features come in 2.0.0. Ad and tracker blocking on the box: AdGuard Home, pulled from AdGuard's own releases and pinned by version and checksum.
 - Hard rules: local only (no telemetry, no data collection; every network connection is named and switchable); security first; our own development doesn't build on Chromium or Electron (users may install anything); follow each upstream project's AI policy, and if there isn't one, assume they don't want AI-assisted contributions.
 
 RULES FOR YOUR ANSWER
@@ -42,10 +42,6 @@ RULES FOR YOUR ANSWER
 | Question | Why it matters | Where it's discussed |
 |---|---|---|
 | The roadmap's part order, grid, labels and milestone 1 tasks (Claude's proposal, 2026-11-23) | Gives development an order and a definition of done for each piece | [Roadmap](roadmap.md) |
-| Build each feature and the screens that control it together (the lead's idea, 2026-11-24)? Claude's pick: yes, with the Settings app's frame moved to milestone 1 | Moves settings pages into each feature's milestone | [Roadmap](roadmap.md) |
-| Checksums for files pulled from outside Fedora (the lead asked what they add) | Claude's pick: only for those few files; Fedora signs its own packages | Design doc, Security and Image build |
-| Once parental controls are on, can an adult remove their PIN? Claude reads no | A child at the picker could open that profile | [Profile PINs](decisions/0018-profile-pins-self-managed.md) |
-| The network allowlist: dropped entirely? | The design doc still names an allowlist file, and app testing still compares against it | Design doc, Network and permission rules; [Tested with Hearth](tested-with-hearth.md) |
 | The "Waiting on the lead" lines under each component | Each one blocks a cell in the roadmap grid; milestone 0 and 1's come first | [Design doc](design.md) |
 | Boot-time target. Later (the lead) | Shapes the image and startup work | Design doc, section 2 |
 
@@ -55,12 +51,7 @@ None waiting. New prompts go here, written for a fresh chat with the context blo
 
 ## Spikes to add
 
-Short hands-on tests found in design sessions. The labwc spike's software checks are done ([design doc detail](research/2026-11-23-design-doc-detail.md), section 5.4); its hardware checks wait for the software work.
-
-- Per-user DNS through the firewall: can nftables make each Unix user's lookups reach AdGuard Home from a different local address, so it sees separate clients? Fallback: one AdGuard Home per profile ([AdGuard per-profile check](research/2026-11-19-adguard-per-profile.md)).
-- Firefox shaped from outside: unsandboxed AutoConfig works in the Firefox build the image ships; which built-in keys it can rebind (Escape, Backspace, Back); what kiosk mode does to context menus and dialogs ([Firefox outside customising](research/2026-11-19-firefox-outside-customising.md)).
-- Profiles and sessions, in a test image ([how profiles run](research/2026-11-23-design-doc-detail.md), section 13.2): do greetd's sessions show up in logind (its config says they should); do Firefox and a Flatpak app stop after `loginctl terminate-user` (`systemd-cgls`); do `useradd` and `userdel` work with `/usr` read-only.
-- AdGuard Home as a service (design doc, DNS filter): AdGuard's own build runs as an unprivileged user with only the port-53 capability, next to systemd-resolved, with `--no-check-update`; record every connection it makes.
+The software spikes ran in a VM on 2026-11-24 ([test image results](research/2026-11-24-test-image-results.md)). Left for a VM: signed updates, SELinux enforcing, rebuilding the codec add-on after an update. Left for real hardware: labwc's Vulkan renderer and HDR, video decode, TV colour range, sound, sleep and wake, RAM on a 4 GB box, overlays over video, driver add-ons.
 
 ## Summarizing a chat for the design log
 

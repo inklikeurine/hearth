@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Builds Hearth and runs every check: tests, QML and C++ linters, formatting and
+# the secret scan. Prints PASS or FAIL for each, and fails if any failed.
+#   tools/dev/check          check
+#   tools/dev/check --fix    also reformat the code in place
+
+set -uo pipefail
+repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+if [[ ! -f /run/.containerenv ]]; then
+    exec distrobox enter hearth-f45 -- "$repo/tools/dev/check" "$@"
+fi
+cd "$repo" || exit 1
+qt=/usr/lib64/qt6/bin
+build=build
+mapfile -t cpp < <(find src tests -name '*.cpp' -o -name '*.h' | sort)
+mapfile -t units < <(find src tests -name '*.cpp' | sort)
+mapfile -t qml < <(find src tests -name '*.qml' | sort)
+
+if [[ "${1:-}" == "--fix" ]]; then
+    clang-format -i "${cpp[@]}"
+    "$qt/qmlformat" -i "${qml[@]}"
+fi
+
+failed=0
+log="$(mktemp)"
+trap 'rm -f "$log"' EXIT
+step() {  # name, command...: run quietly, show the output only on failure
+    local name="$1"
+    shift
+    if "$@" >"$log" 2>&1; then
+        echo "PASS  $name"
+    else
+        echo "FAIL  $name"
+        sed 's/^/      /' "$log"
+        failed=1
+    fi
+}
+
+configure() { cmake -S . -B "$build" -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_COMPILE_WARNING_AS_ERROR=ON; }
+compile() { cmake --build "$build"; }
+run_tests() { ctest --test-dir "$build" --output-on-failure --no-tests=error; }
+# Qt's own all_qmllint target passes even when it prints warnings; -W 0 doesn't.
+lint_qml() { "$qt/qmllint" -W 0 -I "$build/qml" "${qml[@]}"; }
+format_qml() {
+    local file bad=0
+    for file in "${qml[@]}"; do
+        "$qt/qmlformat" "$file" | diff -u "$file" - || bad=1
+    done
+    return "$bad"
+}
+
+step "configure" configure
+step "build" compile
+step "tests" run_tests
+step "qmllint" lint_qml
+step "qmlformat" format_qml
+step "clang-tidy" clang-tidy -p "$build" --quiet "${units[@]}"
+step "clang-format" clang-format --dry-run -Werror "${cpp[@]}"
+step "gitleaks" gitleaks dir --no-banner --redact --log-level warn src tests tools
+exit "$failed"

@@ -8,25 +8,22 @@ Decision 0017 let a profile remove its own PIN and also required a PIN on every 
 
 ## Decision
 
-New (the lead, 2026-11-24):
 - Users manage their own PINs.
 - Accounts with parental controls enabled can't manage theirs.
 - Admins can set any profile's PIN to a new one, in case it's forgotten.
 - A forgotten admin PIN means a factory reset.
-
-Kept from 0017:
 - Every profile, the default one included, can have a PIN. PINs are off by default.
 - A user can set a hint, shown on the PIN screen.
-- Parental controls require an admin PIN, asked for when someone first sets up a child profile or a restriction. A household that never uses parental controls never meets it. Its setup flow is part of the parental-controls design.
-- If parental controls are enabled, all accounts require a PIN to enter, except children's profiles, which need the admin PIN to leave.
+- Parental controls require an admin PIN, asked for when someone first sets up parental controls. A household that never uses parental controls never meets it. Its setup flow is part of the parental-controls design.
+- If parental controls are enabled, all accounts require a PIN to enter, except managed (read: children's) profiles, which need the admin PIN to leave.
 - The admin PIN is one settable, box-wide PIN for the family's parents, not any profile's own PIN.
 - The admin PIN can guard settings, adding apps, and creating and deleting profiles. Each is a switch; all three are on once an admin PIN exists.
 - Permissions come from Unix groups, which can also take permissions away.
 - Hearth checks every PIN itself; PINs aren't Unix passwords.
 
-## Claude's reading, to confirm
+## Reading
 
-"All accounts require a PIN" and "users can manage their own PINs" both stand. Read together: once parental controls are on, an adult can change their PIN but not remove it, and an adult with none is asked to set one. Otherwise a child at the picker could open that profile.
+All accounts require a PIN at setup and users can manage their own PINs. Read together: once parental controls are on, an adult can change their PIN but not remove it, and an adult with none. Otherwise a child at the picker could open that profile. Parental Controls can not enable if all unmanaged (read: adults) profiles do not have a pin enabled.
 
 ## Consequences
 

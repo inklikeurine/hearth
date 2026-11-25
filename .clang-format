@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+BasedOnStyle: WebKit
+PointerAlignment: Right
+ColumnLimit: 100
+AllowShortFunctionsOnASingleLine: Empty

@@ -32,7 +32,7 @@ Other labels: `kind:` screen, service, API, script, config, test, docs.
 | 2 | OS image and releases | Its good-boot check, installer page and recovery screens need the shell | Install from USB on a VM and the OptiPlex, update, roll back |
 | 3 | Profiles | Needs a real image to create users and run greetd | A family of profiles with PINs and a kid profile with limits |
 | 4 | Hardware | Hardware check and add-ons need profiles' setup flow and the image | Codecs and drivers built on the box, gamepads and CEC, sleep and wake |
-| 5 | Settings and setup | The pages drive services from parts 2–4 | Set up a new box and change everything from the sofa |
+| 5 | Settings and setup | First-boot wizard, app management and the pages left over; the other pages ship with their features | Set up a new box and change everything from the sofa |
 | 6 | Web apps | After the shell and most of the UI are settled (the lead, 2026-11-24) | Web apps on a real box, with a remote |
 | 7 | Alpha | Release stage, not a part: everything together on real boxes | A week as the household TV box, no keyboard |
 | 8 | 1.0.0 | Release stage: signing, docs, reviews, beta | Someone else installs it from the guide |
@@ -45,42 +45,42 @@ M0 Ready to code · M1 Shell · M2 OS image · M3 Profiles · M4 Hardware · M5 
 
 | Part | Component | M0 | M1 | M2 | M3 | M4 | M5 | M6 | M7 | M8 | Blocked by |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| OS image | Repo and code checks | done | | | | | | | | | Hosted reviewers |
+| OS image | Repo and code checks | done (empty project builds, its checks run) | | | | | | | | | Hosted reviewers |
 | Shell | Session setup | | done | + started by greetd | + per-profile sessions | | | | | | — |
-| Shell | Theme and controls | | done | | | | | | | + accessibility pass | — |
+| Shell | Theme and controls | | done, with Appearance | | | | | | | + accessibility pass | — |
 | Shell | Home screen | | done | | + per-profile order | | | + web apps | | | — |
-| Shell | Overlays | | done | | + profile switcher | | | | | | How to detect "no internet" (to research) |
-| Shell | Key handling | | done | | | + gamepads, CEC | + remapping | + bridge | | | — |
+| Shell | Overlays | | done | | + profile switcher | | | | | | — |
+| Shell | Key handling | | done, with remapping | | | + gamepads, CEC | | + bridge | | | — |
 | Shell | System menu | | done | | | | | + web-app items | | | — |
-| Shell | On-screen keyboard | | done (gamepad wheel: stub) | | | + gamepad wheel | | + `inputmode` | | | Spike: keyboard beyond Firefox |
+| Shell | On-screen keyboard | | done (gamepad wheel: stub) | | | + gamepad wheel | | + `inputmode` | | | — |
 | Shell | Notifications | | done | | | | | | | | — |
 | Shell | Failure screens | | done (design + shell's own) | + image's | + profiles' | + hardware's | + settings' | + web apps' | | | — |
 | Web apps | Web-app definitions | | | | | | | done, with allowed profiles and "add a web app" | | | — |
-| Web apps | Firefox setup | | | stub (in the image) | | | | done, with website limits and hardware decode | | + lighter Firefox | Spike: Firefox from outside; uBlock Origin (lighter-Firefox review, parked) |
+| Web apps | Firefox setup | | | stub (in the image) | | | | done, with website limits and hardware decode | | + lighter Firefox | uBlock Origin (lighter-Firefox review, parked) |
 | Web apps | `hearth-web-bridge` | | | | | | | done (signed, installed by policy) | | | Bridge rules (plain JavaScript, actions only); the lead's addons.mozilla.org account |
-| OS image | Image build | | | done | | | | | | | Checksums for pulled files |
-| OS image | Boot and updates | | | done | | | + Updates page | | | | Spike: updates and rollback |
-| OS image | Installer | | | done | | | | | | | Spike: installer |
+| OS image | Image build | | | done | | | | | | | — |
+| OS image | Boot and updates | | | done, with the Updates page | | | | | | | — |
+| OS image | Installer | | | done | | | | | | | — |
 | OS image | Recovery and diagnostics | | | done | | | | | | | — |
-| OS image | Network and permission rules | | | done | + group rules | | | | | | What listens; whether the allowlist stays |
+| OS image | Network and permission rules | | | done | + group rules | | | | | | What listens |
 | OS image | CI | | | done | | | | | | | — |
 | OS image | Publishing | | | done (unsigned) | | | | | | + signing | — |
-| Profiles | Login screen | | | stub (one user, logged in automatically) | done | | | | | | Spike: profiles and logins |
-| Profiles | Profiles service | | stub (placeholder name) | stub (one user) | done | | | | | | Adults removing PINs; spike: profiles and logins |
-| Profiles | DNS filter | | | stub (one client) | done | | | | | | Spike: per-profile DNS; spike: AdGuard Home as a service |
+| Profiles | Login screen | | | stub (one user, logged in automatically) | done | | | | | | — |
+| Profiles | Profiles service | | stub (placeholder name) | stub (one user) | done | | | | | | — |
+| Profiles | DNS filter | | | stub (one client) | done | | | | | | — |
 | Profiles | Screen-time keeper | | | | done | | | | | | — |
-| Profiles | Parental-control screens | | | | done | | + inside Settings | | | | — |
+| Profiles | Parental-control screens | | | | done, inside Settings | | | | | | — |
 | Hardware | Hardware check | | | | | done | | | | | — |
-| Hardware | Hardware add-ons | | | | | done | | | | | Where the compiler comes from; spike: codec add-on |
+| Hardware | Hardware add-ons | | | | | done | | | | | Where the compiler comes from; spike: driver add-ons (needs hardware) |
 | Hardware | Gamepads and HDMI-CEC | | | | | done | | | | | — |
 | Hardware | Power and sleep | | | | | done | | | | | — |
-| Settings | Settings app | | | | stub (frame for parental screens) | | done | | | | TV colour range; features and their screens together |
+| Settings | Settings app | | frame; Appearance, Accessibility, Remotes | + Updates, Network, Time, Reset, Developer mode | + Profiles | + Display, Sound, Bluetooth, Power | done | | | | TV colour range |
 | Settings | First-boot wizard | | | | | | done | | | | — |
-| Settings | Apps | | stub (launch only) | | | | done | | | | Spike: portals in a Hearth session |
+| Settings | Apps | | stub (launch only) | | | | done | | | | — |
 | Docs | Help pages | | | | | | | | done | | — |
 | Docs | Install guide | | | | | | | | | done | — |
 | Docs | User and contributor docs | | + shell | + build and release | | | | + web apps | | done | — |
-| Phone | Phone connected features | after 1.0.0 | | | | | | | | | — |
+| Phone | Phone features | 2.0.0 | | | | | | | | | — |
 
 ## Milestones
 
@@ -91,11 +91,10 @@ Done when: the lead has OK'd the repo layout, build system, test framework and c
 Tasks:
 - Decide the code-review setup: hosted reviewers, if any, and local checks.
 - Branch protection for `main`. Free GitHub accounts don't offer it on private repos ([agentic review checks](research/2026-11-19-agentic-review-checks.md)), so either the repo goes public or the protection waits.
-- Empty project: builds in the dev box, the checkers run, one test passes.
 
 ### 1. Shell
 
-Done when: in the dev box, labwc in a window, with the air mouse: the home screen shows installed apps in rows; an app opens full screen and Home comes back; Menu opens the system menu over it; volume shows over it; the on-screen keyboard types into Firefox, a GTK4 app, a Qt app and an SDL app; a notification reaches the bell; a failed app launch shows a failure screen; every screen passes the high-contrast check; the headless test suite passes.
+Done when: in the dev box, labwc in a window, with the air mouse: the home screen shows installed apps in rows; an app opens full screen and Home comes back; Menu opens the system menu over it; volume shows over it; the on-screen keyboard types into Firefox, a GTK4 app, a Qt app and an SDL app; a notification reaches the bell; a failed app launch shows a failure screen; the Appearance, Accessibility and Remotes pages work; every screen passes the high-contrast check; the headless test suite passes.
 
 Tasks, by component:
 
@@ -122,7 +121,7 @@ Tasks, by component:
 - App list: desktop files and Flatpaks
 - Rows of tiles with the next row peeking in; focus and scroll animation
 - Launch full screen, Home brings the home screen forward, return to a running app
-- Rows-and-columns value read from config (the setting's page comes in milestone 5)
+- Rows-and-columns value read from config (its setting is on the Appearance page)
 - Background image
 - Arrange apps
 - Celebrations and particles
@@ -132,7 +131,7 @@ Tasks, by component:
 - Burn-in protection: dim and shift
 - Screensaver (2-minute default, user settable)
 - Volume overlay through PipeWire
-- "No internet" when something fails (blocked: research how to detect it)
+- "No internet" when something fails (AdGuard answers "server failure")
 
 **Key handling**
 - Key router: what each key means now (home screen, overlay, text box, app)
@@ -154,7 +153,10 @@ Tasks, by component:
 - Layout per kind of field
 - Word suggestions, kept per profile, with an off switch
 - A real keyboard's letters pass through; held arrows repeat; key names through libxkbcommon
-- Spike: types into GTK4, Qt and SDL Flatpaks
+
+**Settings**
+- Settings frame: the page list, opening a page, Back
+- Appearance, Accessibility and Remotes pages
 
 **Notifications**
 - Notification service (freedesktop Notifications over D-Bus)
@@ -171,7 +173,7 @@ Tasks, by component:
 
 ### 2. OS image and releases
 
-Done when: a USB-installed box, in a VM and on the OptiPlex, boots into the shell, updates itself, rolls back a broken version and opens the recovery menu; CI builds the image and fails on any connection not on the allowlist. The shell's real-hardware checks run here: real screen, overlay over playing video, TV colour range.
+Done when: a USB-installed box, in a VM and on the OptiPlex, boots into the shell, updates itself, rolls back a broken version and opens the recovery menu; CI builds the image. The shell's real-hardware checks run here: real screen, overlay over playing video, TV colour range.
 
 ### 3. Profiles
 
@@ -179,7 +181,7 @@ Done when: on an installed box, a family of profiles can be made, switched and d
 
 ### 4. Hardware
 
-Done when: the hardware check sorts the test boxes correctly; H.264 is set up on every box and survive an update; a failed add-on falls back with a notice; gamepads and a CEC remote drive the shell; sleep and wake work.
+Done when: the hardware check sorts the test boxes correctly; H.264 is set up on every box and survives an update; a failed add-on falls back with a notice; gamepads and a CEC remote drive the shell; sleep and wake work.
 
 ### 5. Settings and setup
 

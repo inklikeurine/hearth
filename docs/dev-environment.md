@@ -25,7 +25,7 @@ A [distrobox](https://distrobox.it/) is a container that feels like a second Lin
 | Shell toolkit | Qt 6 (base, QML, Wayland, SVG, shader tools, Qt tools), layer-shell-qt (turns a Qt window into an overlay), wlr-protocols-devel (the window-switching protocol's definition) | Qt 6.11.2, layer-shell-qt 6.8.3 |
 | Building | cmake, ninja, gcc-c++, pkgconf, git | cmake 4.3.0 |
 | Checkers | qmllint and qmlformat (from Qt), clang-tidy and clang-format (clang-tools-extra), gitleaks (secret scanner) | clang-tools-extra 23.1.5, gitleaks 8.30.1 |
-| Apps the spike tests against | Firefox, Stevia (a ready-made on-screen keyboard; it doesn't run on labwc, so the spike has its own test keyboard), KDE Connect | Firefox 160.0, Stevia 0.57.0, KDE Connect 26.08.3 |
+| Apps the spike tests against | Firefox, Stevia (a ready-made on-screen keyboard; it doesn't run on labwc, so the spike has its own test keyboard) | Firefox 160.0, Stevia 0.57.0 |
 | Building OS images | mkosi (approved 2026-11-22; pinned to Fedora 45's build). Installing it prints a harmless grub warning: grub can't find a real disk inside a container | mkosi 26 |
 | Product code (approved 2026-11-24) | kf6-ki18n-devel, libxkbcommon-devel, qrencode-devel, hunspell-devel, hunspell-en-US | KI18n 6.32.0, libxkbcommon 1.13.1, qrencode 4.1.1, hunspell 1.7.6 |
 | Basics the container image lacks | Mesa graphics drivers, Fedora's core sans fonts | |
@@ -43,6 +43,10 @@ Not in the box yet: Xwayland (the layer for old X11 apps; Firefox runs natively 
 - **In a window on your desktop:** `spikes/shell/run.sh` (on the `spikes` branch) builds the shell spike and opens labwc as a window, with the home screen inside. Works (the lead, 2026-11-22). labwc opens as an X11 window because `DISPLAY` is set and no Wayland session is.
 
 Borrowed files approved for the spike: two Wayland protocol definitions from Stevia v0.57.0 (input-method v2, virtual-keyboard v1), pinned by checksum in `spikes/shell/protocol/README.md` (2026-11-22).
+
+## Building and checking
+
+`tools/dev/check`, from the repo, builds Hearth in the box and runs every check: the tests, qmllint, qmlformat, clang-tidy, clang-format and gitleaks. It prints PASS or FAIL for each. `tools/dev/check --fix` also reformats the code.
 
 ## Repo guards
 

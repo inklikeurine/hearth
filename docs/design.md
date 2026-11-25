@@ -15,12 +15,13 @@ How to read it:
 
 ### Nice to haves
 The following features are classified as "nice to have".
-1. Phone pairing (as a remote and as a connected device)
+1. Phone pairing (as a remote and as a connected device), in 2.0.0
 2. web apps as first-class apps (in 1.0.0; work starts near the end, after the shell and most of the UI are settled)
 
 ## 2. Rules for every part
 
 ### How we work
+- **Features and their screens together:** each feature is built with the settings page that controls it and its failure screens (the lead, 2026-11-24).
 - **Design doc and roadmap**: this doc is a component map with a short spec per component; facts live in research notes, linked. Milestones are GitHub milestones, used to track how complete a feature is and whether it's ready to ship. Milestones go part by part. Every milestone gets broken into tasks, not necessarily now.
 - **Product code**: the roadmap grid shows which open decision blocks which piece of work. A piece of work can start once nothing in the grid blocks it, and only when the lead asks.
 - **Development:** In a Fedora 45 distrobox on the lead's machine ([dev environment](dev-environment.md)). Spike code lives on a local-only `spikes` branch that is never pushed.
@@ -47,7 +48,7 @@ The following features are classified as "nice to have".
 
 - Updates are the main defense: signed images, every Firefox security release triggers an image, urgent fixes get an out-of-cycle image.
 - Fedora's stock kernel, all CPU security mitigations on. Kernel lockdown off. Secure Boot off by default.
-- Supply chain: pin versions for everything pulled from outside; a new version reaches boxes only through a release the lead approves.
+- Supply chain: pin versions for everything pulled from outside, with a checksum for files from outside Fedora (the lead, 2026-11-24); a new version reaches boxes only through a release the lead approves.
 
 ### Hardware
 - **Floor:** 4 GB RAM, x86-64: Intel 7th gen (Kaby Lake) or newer, AMD Raven Ridge-class APUs (2018) or newer, NVIDIA Turing (GTX 16 / RTX 20) or newer. NVIDIA Pascal (GTX 10) is legacy, its support ending October 2028. Raspberry Pi 4 is a design goal only.
@@ -86,7 +87,7 @@ Each part is a milestone in the [roadmap](roadmap.md).
 | Hardware | Hardware check · Hardware add-ons · Gamepads and HDMI-CEC · Power and sleep | System |
 | Settings and setup | Settings app · First-boot wizard · Apps | Screens in the session |
 | Docs and help | Help pages · Install guide · User and contributor docs | — |
-| Phone | Phone connected features | The profile's user |
+| Phone (2.0.0) | Phone features | The profile's user |
 
 How the parts talk:
 
@@ -156,7 +157,7 @@ Talks to: PipeWire (volume), NetworkManager, the notification service, the profi
 
 Decided:
 - The clock and other fixed elements get burn-in protection: they dim or shift a few pixels over time, and a screensaver starts when the screen sits idle.
-- Internet status shows the network state (wired, Wi-Fi, none). "No internet" shows only when something actually fails; no new connection is added to check (2026-11-22). How to detect a failure: to be checked (AdGuard Home's status is the first candidate).
+- Internet status shows the network state (wired, Wi-Fi, none). "No internet" shows only when something actually fails; no new connection is added to check (2026-11-22). How: AdGuard Home answers "server failure" when the connection is down (tested, 2026-11-24).
 - Screensaver delay is user settable with a 2 minute default ([OLED burn-in](research/A6-oled-burn-in.md)).
 
 ### Key handling
@@ -264,7 +265,7 @@ Does: the mkosi configuration: pinned Fedora 45 snapshot, read-only `/usr`, writ
 Decided:
 - mkosi builds the image on Fedora 45 ([design doc detail, 5.1](research/2026-11-23-design-doc-detail.md) has the reasons).
 - Read-only system: yes.
-- AdGuard Home: pulled from AdGuard's own releases and pinned. Version pinned in the repo, the build fails on a mismatch. ([AdGuard Home import](research/2026-11-22-adguard-home-import.md)).
+- AdGuard Home: pulled from AdGuard's own releases and pinned. Version and checksum pinned in the repo; the build fails on a mismatch. ([AdGuard Home import](research/2026-11-22-adguard-home-import.md)).
 - The image blocks drivers for hardware an HTPC never has (FireWire, ISDN, old filesystems).
 - Each Hearth release keeps the source archive of the AdGuard Home version it ships (GPL-3.0).
 
@@ -278,6 +279,8 @@ Does: systemd-boot with boot counting, sysupdate's transfer files, the good-boot
 - "Viewing" means an idle inhibitor is held or an audio stream is running and not paused; recheck every 30 minutes; notification after 3 hours.
 - Pin the systemd version per release and test the update path in CI. systemd 262 marks sysupdate experimental again and removes its D-Bus interface in 263 ([systemd 262](research/2026-11-24-systemd-262-installer-update-apis.md)).
 - Update timers catch up after a wake.
+- Tested in a VM: update, rollback of a broken version, and the good mark waiting for the shell. The boot file must be `Mode=0644`, or rollback never happens ([test image results](research/2026-11-24-test-image-results.md)).
+- Hearth's own settings live in `/usr`, which each version replaces; `/etc` is copied from the image once, on first boot, and belongs to the box (the lead took Claude's pick, 2026-11-24).
 
 ### Installer
 
@@ -295,7 +298,7 @@ Decided: recovery mode, yes.
 
 ### Network and permission rules
 
-Waiting on the lead (what listens, Claude's proposal): The firewall that keeps home-network services on the home network, polkit rules for privileged actions, the allowlist file., KDE Connect on after pairing, home network only; mDNS on, home network only; SSH off, keys only; the DNS filter on this box only (sharing it with the home network is opt-in); Bluetooth discoverable only while the pairing page is open.
+Waiting on the lead (what listens, Claude's proposal): The firewall that keeps home-network services on the home network, polkit rules for privileged actions, mDNS on, home network only; SSH off, keys only; the DNS filter on this box only (sharing it with the home network is opt-in); Bluetooth discoverable only while the pairing page is open.
 
 ### CI
 
@@ -332,15 +335,15 @@ Decided:
 - When a keyring can't be opened: a fresh, empty keyring and one notice to sign in to apps again; no "Saved logins" page in 1.0.0 (2026-11-22).
 - Plain `useradd` for 1.0.0, not systemd-homed (an encrypted home needs the user's password, which clashes with the no-prompt boot).
 - Checked in the dev box (2026-11-24): Fedora 45's greetd login config includes `system-auth`, which loads `pam_systemd`, so its sessions should register with logind; `KillUserProcesses=` is off, so a logout alone can leave programs running and Hearth has to end the user with `loginctl terminate-user`.
-- Spike first, in a test image: greetd sessions really show up in logind; Firefox and a Flatpak app really stop after `loginctl terminate-user`; `useradd` and `userdel` with `/usr` read-only ([greetd sessions](research/P1-greetd-sessions.md), [ending sessions](research/P2-ending-sessions.md), [creating users](research/P4-creating-users.md), [polkit rules](research/P5-polkit-admin.md)).
+- Tested in a VM ([test image results](research/2026-11-24-test-image-results.md)): greetd sessions register with logind; `loginctl terminate-user` ended Firefox, a Flatpak and a detached program in 0.6 seconds; `useradd` and `userdel` work with `/usr` read-only; the oo7 keyring opens with no prompt. Before deleting a user, Hearth ends every program it runs; Hearth checks for itself that the keyring opened.
 
 ### DNS filter
 
 Does: AdGuard Home as the box's ad and tracker blocker, with each profile as its own client; safe search and restricted mode for kid profiles; Hearth's settings drive it.
 
 - AdGuard Home (one program, about 60–80 MB of RAM, safe search and restricted mode built in); its own web page off or bound to the box.
-- Per-profile clients through the firewall (nftables), fallback one AdGuard Home per profile. Needs a spike ([AdGuard per-profile check](research/2026-11-19-adguard-per-profile.md)).
-- How it runs: its own system user with only the port-53 right, `--no-check-update`, beside systemd-resolved. Needs a spike.
+- Per-profile clients through the firewall (nftables), by Unix user. Works, Flatpak apps included ([test image results](research/2026-11-24-test-image-results.md)).
+- How it runs: its own system user with only the port-53 right and `--no-check-update`. Works. Without systemd-resolved: its lookups skip a profile's rules (tested).
 
 ### Screen-time keeper
 
@@ -389,7 +392,7 @@ Decided: real suspend by default, tested on first run; screen-off if the test fa
 
 ### Settings app
 
-Does: the settings screens, all reachable from the remote. Pages for hardware the box doesn't have are hidden or say what's missing. Built on system interfaces and KDE libraries that don't need Plasma.
+Does: the settings screens, all reachable from the remote. The frame comes with the shell; each page ships with the feature it controls. Pages for hardware the box doesn't have are hidden or say what's missing. Built on system interfaces and KDE libraries that don't need Plasma.
 
 | Page | What's on it | Built on |
 |---|---|---|
@@ -398,7 +401,6 @@ Does: the settings screens, all reachable from the remote. Pages for hardware th
 | Display | Resolution, refresh rate, screen fit, TV colour range, HDR where possible | labwc's output settings; colour range needs a helper of our own |
 | Sound | Outputs with the TV's own name; volume limit, mono, balance | PipeWire / WirePlumber |
 | Remotes | "Press the button you want for Back", reset to defaults, key-repeat speed | Key handling |
-| Phone | Pair, unpair, what the phone may do | KDE Connect |
 | Apps | Installed apps, add a web app | Flatpak, web-app definitions |
 | Profiles and parental controls | See Profiles | Profiles service |
 | Appearance | Presets and sliders with live preview, day/night, fonts, rows and columns, background, theme packs from USB | Theme tokens |
@@ -438,16 +440,8 @@ Does: install, update and remove Flatpaks from Flathub; launch them full screen.
 - User and contributor docs kept apart, organised with Diátaxis (tutorials, how-tos, reference, explanation).
 
 ## 11. Phone
-This work comes after 1.0.0
-Waiting on the lead:
-- KDE Connect as the base. Its mobile app is weak but works.
-- Features in priority order: 1 typing and voice typing · 2 private listening · 3 photos and files · 4 cast a link · 5 screen mirroring (revisit later).
-- Private listening: a WebRTC phone page first, then Bluetooth headphones paired to the box ([Private listening](decisions/0010-private-listening-webrtc-then-bluetooth.md)).
-- Phone typing: revisit later; the core experience comes first (2026-11-22).
-- Typing from a phone doesn't work on labwc with KDE Connect as it stands: KDE Connect types through a portal labwc's portal backend doesn't offer ([design doc detail, 7](research/2026-11-23-design-doc-detail.md)).
-- Pairing only while Settings → Phone → Pair is open, for two minutes; the verification key shown large; require KDE Connect protocol 8 and Android 1.37.0 or later ([KDE Connect 2025 security bugs](research/C1-kdeconnect-2025-bugs.md), [October 2026 advisories](research/C3-kdeconnect-oct-2026-advisories.md)).
 
-The lead's idea, not decided: KDE Connect may need forking at some point, as a standalone Hearth feature or app.
+All phone features come in 2.0.0 (the lead, 2026-11-24): typing and voice typing, private listening ([Private listening](decisions/0010-private-listening-webrtc-then-bluetooth.md)), photos and files, casting a link, screen mirroring. What they're built on is decided then; earlier research is in [docs/research](research/).
 
 ## 12. After 1.0.0
 
