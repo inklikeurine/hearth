@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# QVERIFY(optional) already stops a test before the value is used.
+InheritParentConfig: true
+Checks: '-bugprone-unchecked-optional-access'

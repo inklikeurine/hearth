@@ -1,0 +1,4 @@
+[Desktop Entry]
+Type=Application
+Name=Test app 1
+Exec=sleep 60

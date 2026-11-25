@@ -32,6 +32,13 @@ GridView {
     preferredHighlightBegin: 0
     preferredHighlightEnd: cellHeight * rows
 
+    // Something is always highlighted, also when the list arrives after the grid.
+    onCountChanged: {
+        if (currentIndex < 0 && count > 0) {
+            currentIndex = 0;
+        }
+    }
+
     delegate: FocusScope {
         id: cell
 

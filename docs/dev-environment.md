@@ -49,7 +49,7 @@ Borrowed files approved for the spike: two Wayland protocol definitions from Ste
 
 `tools/dev/check`, from the repo, builds Hearth in the box and runs every check: the tests, qmllint, qmlformat, clang-tidy, clang-format and gitleaks. It prints PASS or FAIL for each. `tools/dev/check --fix` also reformats the code.
 
-`build/tests/gallery/hearth-gallery` (in the box) shows every control in a window; add `high-contrast` for that theme.
+`build/tests/gallery/hearth-gallery` (in the box) shows every control in a window; add `high-contrast` for that theme. `build/src/shell/hearth-shell` is the shell itself: the home screen in a window, reading its settings from the box's `~/.config/hearth/shell.ini`.
 
 ## Repo guards
 

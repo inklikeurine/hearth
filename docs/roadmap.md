@@ -104,20 +104,17 @@ Tasks, by component:
 - Window rule that forces apps full screen
 
 **Theme and controls** (done: theme tokens and loader, dark and high-contrast themes with their contrast check, fonts, focus ring, tile, tile grid, button)
-- Every string through KI18n
+- Every new string through KI18n (set up)
 - Controls: toggle, slider
 - Controls: list
 - Controls: text box
 - Controls: dialog
 - Accessible name and role on every new control
 
-**Home screen**
-- App list: desktop files and Flatpaks
-- Rows of tiles with the next row peeking in; focus and scroll animation
-- Launch full screen, Home brings the home screen forward, return to a running app
-- Rows-and-columns value read from config (its setting is on the Appearance page)
-- Background image
-- Arrange apps
+**Home screen** (done: app list with each profile's order, rows of tiles with the next row peeking in, starting an app, rows and columns read from config, background picture)
+- Home brings the home screen forward, return to a running app, one app at a time (window switching; the spike's `toplevels` code shows how)
+- A failure screen when an app can't start (now only a warning in the log)
+- Arrange apps: the Move mode (the list can already move an app and remembers it)
 - Celebrations and particles
 
 **Overlays**

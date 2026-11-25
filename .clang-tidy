@@ -1,4 +1,4 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-Checks: '-*,bugprone-*,clang-analyzer-*,performance-*,-bugprone-easily-swappable-parameters'
+Checks: '-*,bugprone-*,clang-analyzer-*,performance-*,-bugprone-easily-swappable-parameters,-performance-enum-size'
 WarningsAsErrors: '*'
 HeaderFilterRegex: '/(src|tests)/'

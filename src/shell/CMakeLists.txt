@@ -6,8 +6,11 @@ qt_add_qml_module(hearth-shell-lib
     URI Hearth.Shell
     OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/qml/Hearth/Shell
     QML_FILES
+        HomeScreen.qml
         Main.qml
     DEPENDENCIES
+        TARGET hearth-apps
+        TARGET hearth-controls
         TARGET hearth-theme
     SOURCES
         version.cpp
@@ -16,6 +19,10 @@ qt_add_qml_module(hearth-shell-lib
 target_compile_definitions(hearth-shell-lib PRIVATE HEARTH_VERSION="${PROJECT_VERSION}")
 target_include_directories(hearth-shell-lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(hearth-shell-lib PUBLIC
+    hearth-apps
+    hearth-appsplugin
+    hearth-controls
+    hearth-controlsplugin
     hearth-theme
     hearth-themeplugin
     Qt6::Quick
@@ -25,5 +32,7 @@ qt_add_executable(hearth-shell main.cpp)
 target_link_libraries(hearth-shell PRIVATE
     hearth-shell-lib
     hearth-shell-libplugin
+    KF6::I18n
+    KF6::I18nQml
     Qt6::Quick
 )

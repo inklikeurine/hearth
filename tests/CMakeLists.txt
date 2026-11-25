@@ -9,6 +9,14 @@ qt_add_executable(tst_theme cpp/tst_theme.cpp)
 target_link_libraries(tst_theme PRIVATE hearth-theme Qt6::Test)
 add_test(NAME theme COMMAND tst_theme)
 
+qt_add_executable(tst_apps cpp/tst_apps.cpp)
+target_link_libraries(tst_apps PRIVATE hearth-apps Qt6::Test)
+add_test(NAME apps COMMAND tst_apps)
+
+qt_add_executable(tst_launcher cpp/tst_launcher.cpp)
+target_link_libraries(tst_launcher PRIVATE hearth-apps Qt6::Test)
+add_test(NAME launcher COMMAND tst_launcher)
+
 qt_add_executable(tst_heldkeys cpp/tst_heldkeys.cpp)
 target_link_libraries(tst_heldkeys PRIVATE
     hearth-controls
@@ -21,6 +29,8 @@ add_test(NAME heldkeys COMMAND tst_heldkeys)
 qt_add_executable(tst_qml qml/main.cpp)
 target_compile_definitions(tst_qml PRIVATE QUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/qml")
 target_link_libraries(tst_qml PRIVATE
+    KF6::I18n
+    KF6::I18nQml
     hearth-controls
     hearth-controlsplugin
     hearth-shell-lib
@@ -30,5 +40,11 @@ target_link_libraries(tst_qml PRIVATE
 )
 add_test(NAME qml COMMAND tst_qml)
 
-# No screen needed.
-set_tests_properties(version theme heldkeys qml PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+# No screen needed, and never the developer's own settings or apps.
+set(test_environment
+    QT_QPA_PLATFORM=offscreen
+    XDG_CONFIG_HOME=${CMAKE_CURRENT_BINARY_DIR}/config
+    XDG_DATA_HOME=${CMAKE_CURRENT_BINARY_DIR}/data
+    XDG_DATA_DIRS=${CMAKE_CURRENT_SOURCE_DIR}/data/share
+)
+set_tests_properties(version theme apps launcher heldkeys qml PROPERTIES ENVIRONMENT "${test_environment}")
