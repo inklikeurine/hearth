@@ -133,7 +133,7 @@ Agreed for now (the lead, 2026-11-24); tested on a TV before 1.0.0 ships:
 - TV-safe margins: 54–60 px top and bottom, 80–96 px at the sides at 1920×1080 ([TV layout and safe area](research/B3-tv-layout-safe-area.md)).
 - Motion: about 200 ms with Material 3's standard easing as the starting point; reduced motion swaps slides and zooms for fades ([TV motion](research/B4-tv-motion.md)).
 - Focus never follows the pointer, on every screen (a drifting air mouse must not move the selection).
-- Ship the "variable" font packages (one file for all weights).
+- Ship the "variable" font packages (one file for all weights). Noto Sans has one; Fedora 45's Atkinson Hyperlegible Next is one file per weight.
 - An automatic test checks every built-in theme against WCAG AA contrast.
 
 Detail: [theming research](research/2026-11-19-theming.md), [TV design principles](research/B1-tv-design-principles.md), [TV focus and navigation](research/B2-tv-focus-navigation.md), [open-source fonts](research/B5-oss-fonts.md), what other platforms offer ([design doc detail, 9.1](research/2026-11-23-design-doc-detail.md)).

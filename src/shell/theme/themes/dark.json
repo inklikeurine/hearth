@@ -1,0 +1,29 @@
+{
+    "name": "Dark",
+    "font": "Atkinson Hyperlegible Next",
+    "colors": {
+        "background": "#101217",
+        "surface": "#1b1e25",
+        "text": "#f3f4f6",
+        "textDim": "#b4b9c3",
+        "accent": "#ffb347",
+        "textOnAccent": "#1d1405",
+        "focusRing": "#ffb347",
+        "outline": "#6b7280"
+    },
+    "sizes": {
+        "textSmall": 24,
+        "textBody": 32,
+        "textTitle": 44,
+        "safeVertical": 54,
+        "safeSide": 96,
+        "gap": 24,
+        "radius": 16,
+        "focusRing": 5,
+        "outline": 0
+    },
+    "motion": {
+        "duration": 200,
+        "focusScale": 1.08
+    }
+}

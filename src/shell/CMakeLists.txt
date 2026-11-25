@@ -7,13 +7,19 @@ qt_add_qml_module(hearth-shell-lib
     OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/qml/Hearth/Shell
     QML_FILES
         Main.qml
+    DEPENDENCIES
+        TARGET hearth-theme
     SOURCES
         version.cpp
         version.h
 )
 target_compile_definitions(hearth-shell-lib PRIVATE HEARTH_VERSION="${PROJECT_VERSION}")
 target_include_directories(hearth-shell-lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(hearth-shell-lib PUBLIC Qt6::Quick)
+target_link_libraries(hearth-shell-lib PUBLIC
+    hearth-theme
+    hearth-themeplugin
+    Qt6::Quick
+)
 
 qt_add_executable(hearth-shell main.cpp)
 target_link_libraries(hearth-shell PRIVATE

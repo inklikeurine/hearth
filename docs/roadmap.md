@@ -103,19 +103,13 @@ Tasks, by component:
 - labwc key bindings: Back, Home, Menu, Esc, Backspace, fired on release
 - Window rule that forces apps full screen
 
-**Theme and controls**
-- Theme token file and loader; the default dark theme
-- High-contrast theme
-- Fonts: Atkinson Hyperlegible Next and Noto Sans
+**Theme and controls** (done: theme tokens and loader, dark and high-contrast themes with their contrast check, fonts, focus ring, tile, tile grid, button)
 - Every string through KI18n
-- Focus ring and focus rules
-- Controls: tile and grid
-- Controls: button, toggle, slider
+- Controls: toggle, slider
 - Controls: list
 - Controls: text box
 - Controls: dialog
-- Accessible name and role on every control
-- Contrast check for every built-in theme
+- Accessible name and role on every new control
 
 **Home screen**
 - App list: desktop files and Flatpaks

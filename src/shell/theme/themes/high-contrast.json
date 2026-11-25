@@ -1,0 +1,17 @@
+{
+    "name": "High contrast",
+    "colors": {
+        "background": "#000000",
+        "surface": "#000000",
+        "text": "#ffffff",
+        "textDim": "#ffffff",
+        "accent": "#ffff00",
+        "textOnAccent": "#000000",
+        "focusRing": "#ffff00",
+        "outline": "#ffffff"
+    },
+    "sizes": {
+        "focusRing": 8,
+        "outline": 3
+    }
+}

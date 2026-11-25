@@ -12,11 +12,14 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # clang-tidy reads this list of compile commands.
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-find_package(Qt6 6.11 REQUIRED COMPONENTS Quick QuickTest Test)
+find_package(Qt6 6.11 REQUIRED COMPONENTS Quick QuickControls2 QuickTest Test)
 qt_standard_project_setup(REQUIRES 6.11)
 
 add_compile_options(-Wall -Wextra)
 
 enable_testing()
+add_subdirectory(src/shell/theme)
+add_subdirectory(src/shell/controls)
 add_subdirectory(src/shell)
 add_subdirectory(tests)
+add_subdirectory(tests/gallery)

@@ -23,7 +23,7 @@ Decision 0017 let a profile remove its own PIN and also required a PIN on every 
 
 ## Reading
 
-All accounts require a PIN at setup and users can manage their own PINs. Read together: once parental controls are on, an adult can change their PIN but not remove it, and an adult with none. Otherwise a child at the picker could open that profile. Parental Controls can not enable if all unmanaged (read: adults) profiles do not have a pin enabled.
+All accounts require a PIN at setup and users can manage their own PINs. Read together: once parental controls are on, an adult can change their PIN but not remove it, and an adult with none is required to set one. Otherwise a child at the picker could open that profile. Parental Controls can not enable if all unmanaged (read: adults) profiles do not have a pin enabled. The goal: Parental Controls checks whether any account has no security PIN; if one doesn't, it errors and warns; otherwise it turns on.
 
 ## Consequences
 

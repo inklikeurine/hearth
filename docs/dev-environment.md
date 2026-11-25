@@ -28,6 +28,7 @@ A [distrobox](https://distrobox.it/) is a container that feels like a second Lin
 | Apps the spike tests against | Firefox, Stevia (a ready-made on-screen keyboard; it doesn't run on labwc, so the spike has its own test keyboard) | Firefox 160.0, Stevia 0.57.0 |
 | Building OS images | mkosi (approved 2026-11-22; pinned to Fedora 45's build). Installing it prints a harmless grub warning: grub can't find a real disk inside a container | mkosi 26 |
 | Product code (approved 2026-11-24) | kf6-ki18n-devel, libxkbcommon-devel, qrencode-devel, hunspell-devel, hunspell-en-US | KI18n 6.32.0, libxkbcommon 1.13.1, qrencode 4.1.1, hunspell 1.7.6 |
+| Hearth's fonts | atkinson-hyperlegible-next-fonts, google-noto-sans-vf-fonts | 2.100, 20260601 |
 | Basics the container image lacks | Mesa graphics drivers, Fedora's core sans fonts | |
 
 Not in the box yet: Xwayland (the layer for old X11 apps; Firefox runs natively on Wayland).
@@ -47,6 +48,8 @@ Borrowed files approved for the spike: two Wayland protocol definitions from Ste
 ## Building and checking
 
 `tools/dev/check`, from the repo, builds Hearth in the box and runs every check: the tests, qmllint, qmlformat, clang-tidy, clang-format and gitleaks. It prints PASS or FAIL for each. `tools/dev/check --fix` also reformats the code.
+
+`build/tests/gallery/hearth-gallery` (in the box) shows every control in a window; add `high-contrast` for that theme.
 
 ## Repo guards
 
