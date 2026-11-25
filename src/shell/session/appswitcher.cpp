@@ -209,6 +209,19 @@ void AppSwitcher::open(int index)
     start(app);
 }
 
+void AppSwitcher::openById(const QString &appId)
+{
+    if (!m_apps) {
+        return;
+    }
+    const auto &apps = m_apps->apps();
+    const auto found = std::find_if(
+        apps.begin(), apps.end(), [&appId](const DesktopEntry &app) { return app.id == appId; });
+    if (found != apps.end()) {
+        open(int(found - apps.begin()));
+    }
+}
+
 void AppSwitcher::start(const DesktopEntry &app)
 {
     m_launched = app;
@@ -316,9 +329,9 @@ void AppSwitcher::appEnded(const QString &id, bool withError, bool crashed)
     }
     update();
     if (unexpected && withError && !hadWindow) {
-        Q_EMIT endedEarly(name);
+        Q_EMIT endedEarly(id, name);
     } else if (unexpected && crashed) {
-        Q_EMIT this->crashed(name);
+        Q_EMIT this->crashed(id, name);
     }
 }
 
@@ -327,5 +340,5 @@ void AppSwitcher::launchFailed(const QString &id)
     const QString name = nameOf(id);
     m_launched.reset();
     update();
-    Q_EMIT couldNotStart(name);
+    Q_EMIT couldNotStart(id, name);
 }

@@ -11,6 +11,8 @@ qt_add_qml_module(hearth-shell-lib
     DEPENDENCIES
         TARGET hearth-apps
         TARGET hearth-controls
+        TARGET hearth-failures
+        TARGET hearth-overlays
         TARGET hearth-session-lib
         TARGET hearth-theme
     SOURCES
@@ -24,6 +26,10 @@ target_link_libraries(hearth-shell-lib PUBLIC
     hearth-appsplugin
     hearth-controls
     hearth-controlsplugin
+    hearth-failures
+    hearth-failuresplugin
+    hearth-overlays
+    hearth-overlaysplugin
     hearth-session-lib
     hearth-session-libplugin
     hearth-theme

@@ -31,6 +31,14 @@ target_link_libraries(tst_commands PRIVATE hearth-session-lib Qt6::Test)
 add_dependencies(tst_commands hearth-send)
 add_test(NAME commands COMMAND tst_commands)
 
+qt_add_executable(tst_failures cpp/tst_failures.cpp)
+target_compile_definitions(tst_failures PRIVATE
+    ERROR_CODES_DOC="${PROJECT_SOURCE_DIR}/docs/error-codes.md"
+    EXPECTED_VERSION="${PROJECT_VERSION}"
+)
+target_link_libraries(tst_failures PRIVATE hearth-failures Qt6::Test)
+add_test(NAME failures COMMAND tst_failures)
+
 qt_add_executable(tst_heldkeys cpp/tst_heldkeys.cpp)
 target_link_libraries(tst_heldkeys PRIVATE
     hearth-controls
@@ -47,6 +55,8 @@ target_link_libraries(tst_qml PRIVATE
     KF6::I18nQml
     hearth-controls
     hearth-controlsplugin
+    hearth-failures
+    hearth-failuresplugin
     hearth-shell-lib
     hearth-shell-libplugin
     Qt6::Quick
@@ -61,6 +71,6 @@ set(test_environment
     XDG_DATA_HOME=${CMAKE_CURRENT_BINARY_DIR}/data
     XDG_DATA_DIRS=${CMAKE_CURRENT_SOURCE_DIR}/data/share
 )
-set_tests_properties(version theme apps launcher switcher keys commands heldkeys qml PROPERTIES ENVIRONMENT "${test_environment}")
+set_tests_properties(version theme apps launcher switcher keys commands failures heldkeys qml PROPERTIES ENVIRONMENT "${test_environment}")
 
 add_subdirectory(session)

@@ -45,7 +45,21 @@ check "an app that starts full screen" window app_id:e-fullscreen state:active
 check "  stays full screen" window app_id:e-fullscreen state:fullscreen
 key Home
 
-# A missing program is checked by the failure screens.
+tile 3
+key Return
+check "an app whose program is missing: a failure screen" state_is failure HEARTH-APP-001
+picture 10-failure
+key Right
+key Return
+check "  Try again fails again" state_is failure HEARTH-APP-001
+key XF86Back
+check "  Back closes it" state_is failure ""
+check "  and home is in front" window app_id:hearth-shell state:active
+key Return
+check "  its tile is still the focused one" state_is failure HEARTH-APP-001
+key Home
+check "  Home closes it too" state_is failure ""
+
 tile 2
 key Return
 check "the app with unsaved work opens" window app_id:c-stubborn state:active
@@ -53,11 +67,20 @@ key Home
 tile 0
 key Return
 check "asked to close, it shows its question" window "title:Save your work?"
-sleep 6
-check "  and is never ended for it" window app_id:c-stubborn
+check "after a while the shell asks what to do" state_is question True
 check "  its dialog isn't stretched over the screen" no_window "title:Save your work?" state:fullscreen
 check "  the next app isn't opened over it" no_window app_id:a-plain
+picture 10-question
+key XF86Back
+check "Back on the question goes back to the app" window app_id:c-stubborn
+check "  and the question goes" state_is question False
 picture 10-unsaved
-pkill -f "hearth-testapp c-stubborn $log"
-check "once it's gone, the next app opens" window app_id:a-plain state:active
+key Home
+tile 0
+key Return
+check "asked again, it asks again" state_is question True
+key Down
+key Return
+check "'Close it anyway' ends it" no_window app_id:c-stubborn
+check "  and the next app opens" window app_id:a-plain state:active
 key Home

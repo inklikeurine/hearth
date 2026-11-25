@@ -58,6 +58,7 @@ public:
 
     // Opens an app, or brings it back if it's the one running.
     Q_INVOKABLE void open(int index);
+    Q_INVOKABLE void openById(const QString &appId);
     Q_INVOKABLE void goHome();
     // Brings the running app back to the front.
     Q_INVOKABLE void returnToApp();
@@ -73,11 +74,11 @@ Q_SIGNALS:
     void homeShown();
 
     // The app's program couldn't be started.
-    void couldNotStart(const QString &name);
+    void couldNotStart(const QString &appId, const QString &name);
     // The app ended with an error before it showed anything.
-    void endedEarly(const QString &name);
+    void endedEarly(const QString &appId, const QString &name);
     // The app crashed while it was open.
-    void crashed(const QString &name);
+    void crashed(const QString &appId, const QString &name);
     // The app was asked to close and still has a window.
     void stillOpen(const QString &name);
 

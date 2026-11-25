@@ -278,7 +278,7 @@ private Q_SLOTS:
         QSignalSpy failed(m_switcher.get(), &AppSwitcher::couldNotStart);
         m_switcher->open(Missing);
         QTRY_COMPARE(failed.count(), 1);
-        QCOMPARE(failed.at(0).at(0).toString(), u"3missing.desktop"_s);
+        QCOMPARE(failed.at(0).at(1).toString(), u"3missing.desktop"_s);
         QCOMPARE(m_switcher->openingName(), QString());
     }
 
@@ -287,7 +287,7 @@ private Q_SLOTS:
         QSignalSpy ended(m_switcher.get(), &AppSwitcher::endedEarly);
         m_switcher->open(Failing);
         QTRY_COMPARE(ended.count(), 1);
-        QCOMPARE(ended.at(0).at(0).toString(), u"4failing.desktop"_s);
+        QCOMPARE(ended.at(0).at(1).toString(), u"4failing.desktop"_s);
     }
 
     void saysWhenAnAppCrashes()
@@ -298,7 +298,7 @@ private Q_SLOTS:
         m_windows->add(2, u"5crashing"_s);
         QTRY_COMPARE(crashed.count(), 1);
         m_windows->remove(2);
-        QCOMPARE(crashed.at(0).at(0).toString(), u"5crashing.desktop"_s);
+        QCOMPARE(crashed.at(0).at(1).toString(), u"5crashing.desktop"_s);
         QCOMPARE(ended.count(), 0);
         QVERIFY(m_switcher->homeInFront());
     }

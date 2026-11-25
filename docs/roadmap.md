@@ -100,16 +100,14 @@ Tasks, by component:
 
 **Session setup** (done: start script with a restart after a crash, labwc key bindings, apps made full screen by the shell, `hearth-session.target`, portal file). Not run yet as a real greetd session: that's the OS image milestone.
 
-**Theme and controls** (done: theme tokens and loader, dark and high-contrast themes with their contrast check, fonts, focus ring, tile, tile grid, button)
+**Theme and controls** (done: theme tokens and loader, dark and high-contrast themes with their contrast check, fonts, focus ring, tile, tile grid, button, dialog)
 - Every new string through KI18n (set up)
 - Controls: toggle, slider
 - Controls: list
 - Controls: text box
-- Controls: dialog
 - Accessible name and role on every new control
 
 **Home screen** (done: app list with each profile's order, rows of tiles with the next row peeking in, starting an app, rows and columns read from config, background picture, window switching: Home, return to a running app, one app at a time)
-- A failure screen when an app can't start (now only a warning in the log)
 - Arrange apps: the Move mode (the list can already move an app and remembers it)
 - Celebrations and particles
 
@@ -147,10 +145,7 @@ Tasks, by component:
 - Notification service (freedesktop Notifications over D-Bus)
 - Bell list and short pop-ups
 
-**Failure screens**
-- The failure-screen design and its control
-- Error code list format, and the shell's own codes
-- QR code for each code (qrencode)
+**Failure screens** (done: the screen, the [error code list](error-codes.md), QR codes; an app that can't start, ends early or crashes shows one). Still to come: the wiki pages, and error history in Settings.
 
 **Tests and docs**
 - Headless test suite, grown from the spike's checks (started: `tests/session`, run by `tools/dev/check`; each feature adds its part)

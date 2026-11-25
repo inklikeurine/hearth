@@ -214,7 +214,10 @@ Hearth ships its own notification service.
 
 ### Failure screens
 
-Does: one failure-screen design, the list of error codes, a QR code to each code's wiki page. See "When things break" above.
+Does: one failure-screen design, the list of error codes, a QR code to each code's wiki page. See "When things break" above, and the [error codes](error-codes.md).
+
+Waiting on the lead (built as a placeholder, 2026-11-24):
+- An app that won't close. Claude's placeholder: five seconds after Hearth asks it to close, a question offers "Go back to it" (the default, and what Back does) and "Close it anyway", which loses unsaved work. Hearth never ends it by itself.
 
 ## 5. Web apps
 

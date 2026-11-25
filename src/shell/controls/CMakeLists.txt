@@ -6,6 +6,7 @@ qt_add_qml_module(hearth-controls
     OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/qml/Hearth/Controls
     QML_FILES
         Button.qml
+        Dialog.qml
         FocusRing.qml
         Label.qml
         Tile.qml
