@@ -23,6 +23,9 @@ public:
     {
         return m_running.keys();
     }
+    // The app a process belongs to, or nothing. An app's programs share the
+    // session it was started in; none can join another app's.
+    [[nodiscard]] QString appOfProcess(qint64 pid) const;
     // Asks every app's program to end.
     void terminateAll();
     // Ends them at once; whatever they hadn't saved is lost.

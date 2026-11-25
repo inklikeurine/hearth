@@ -13,7 +13,10 @@ qt_add_qml_module(hearth-shell-lib
         TARGET hearth-controls
         TARGET hearth-failures
         TARGET hearth-overlays
+        TARGET hearth-panels
         TARGET hearth-session-lib
+        TARGET hearth-settings
+        TARGET hearth-system
         TARGET hearth-theme
     SOURCES
         version.cpp
@@ -30,8 +33,14 @@ target_link_libraries(hearth-shell-lib PUBLIC
     hearth-failuresplugin
     hearth-overlays
     hearth-overlaysplugin
+    hearth-panels
+    hearth-panelsplugin
     hearth-session-lib
     hearth-session-libplugin
+    hearth-settings
+    hearth-settingsplugin
+    hearth-system
+    hearth-systemplugin
     hearth-theme
     hearth-themeplugin
     Qt6::Quick

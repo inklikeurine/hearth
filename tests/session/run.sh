@@ -45,6 +45,17 @@ printf '[Desktop Entry]\nType=Application\nName=Test d-missing\nExec=/nowhere/at
 app e-fullscreen fullscreen
 app f-text text
 
+# Instead of the real one, which would change the desktop's volume.
+mkdir -p "$work/bin"
+cat >"$work/bin/wpctl" <<END
+#!/bin/sh
+echo "\$@" >>"$work/wpctl.log"
+[ "\$1" = get-volume ] && echo "Volume: 0.45"
+exit 0
+END
+chmod +x "$work/bin/wpctl"
+export PATH="$work/bin:$PATH"
+
 "$repo/src/session/hearth-session" --dev >"$work/session.log" 2>&1 &
 session=$!
 

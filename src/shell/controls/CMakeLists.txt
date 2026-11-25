@@ -6,11 +6,19 @@ qt_add_qml_module(hearth-controls
     OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/qml/Hearth/Controls
     QML_FILES
         Button.qml
+        Choice.qml
         Dialog.qml
+        FocusColumn.qml
         FocusRing.qml
+        Icon.qml
+        IconButton.qml
         Label.qml
+        ListRow.qml
+        Slider.qml
+        TextBox.qml
         Tile.qml
         TileGrid.qml
+        Toggle.qml
         TvButton.qml
     DEPENDENCIES
         TARGET hearth-theme

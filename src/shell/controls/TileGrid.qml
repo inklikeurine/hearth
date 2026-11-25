@@ -10,11 +10,16 @@ GridView {
     id: grid
 
     property int columns: 5
+    // The arrows move the focused tile instead of the focus.
+    property bool moving: false
     // How many whole rows show, before the one peeking in.
     property int rows: 1
     // Room around each tile for its ring and for growing when focused.
     readonly property int inset: Theme.tokens.sizes.gap
 
+    signal moveEnded
+    // The tile at FROM should go to TO.
+    signal moveWanted(int from, int to)
     signal tileClicked(int index)
 
     cellHeight: Math.round((cellWidth - 2 * inset) * 0.625 + Theme.tokens.sizes.textSmall * 1.5 + 3 * inset)
@@ -32,6 +37,25 @@ GridView {
     preferredHighlightBegin: 0
     preferredHighlightEnd: cellHeight * rows
 
+    Keys.onPressed: event => {
+        if (!grid.moving) {
+            return;
+        }
+        const steps = new Map([[Qt.Key_Left, -1], [Qt.Key_Right, 1], [Qt.Key_Up, -grid.columns], [Qt.Key_Down, grid.columns]]);
+        const step = steps.get(event.key);
+        if (step === undefined) {
+            return;
+        }
+        event.accepted = true;
+        let to = grid.currentIndex + step;
+        if (event.key === Qt.Key_Down && to >= grid.count && Math.floor(grid.currentIndex / grid.columns) < Math.floor((grid.count - 1) / grid.columns)) {
+            // The last row isn't full: the end of it is as far as it goes.
+            to = grid.count - 1;
+        }
+        if (to >= 0 && to < grid.count) {
+            grid.moveWanted(grid.currentIndex, to);
+        }
+    }
     // Something is always highlighted, also when the list arrives after the grid.
     onCountChanged: {
         if (currentIndex < 0 && count > 0) {
@@ -56,6 +80,7 @@ GridView {
             anchors.fill: parent
             anchors.margins: grid.inset
             focus: true
+            moving: grid.moving && cell.index === grid.currentIndex
             picture: cell.picture
             text: cell.name
 
@@ -64,7 +89,13 @@ GridView {
                     grid.currentIndex = cell.index;
                 }
             }
-            onClicked: grid.tileClicked(cell.index)
+            onClicked: {
+                if (grid.moving) {
+                    grid.moveEnded();
+                } else {
+                    grid.tileClicked(cell.index);
+                }
+            }
         }
     }
 }

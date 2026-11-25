@@ -25,6 +25,8 @@ constexpr std::array failures {
         kli18n("Try it again. If it keeps happening, restart the box.") },
     Failure { "HEARTH-APP-003", kli18n("%1 stopped working and had to close."),
         kli18n("Open it again. If it keeps happening, restart the box.") },
+    Failure { "HEARTH-POWER-001", kli18n("The box couldn't do that."),
+        kli18n("Try again. If it still can't, unplug it, wait ten seconds and plug it back in.") },
     // Last: what an unknown code shows, so a failure is never a blank screen.
     Failure { "HEARTH-SHELL-000", kli18n("Something went wrong."),
         kli18n("Try again. If it keeps happening, restart the box.") },

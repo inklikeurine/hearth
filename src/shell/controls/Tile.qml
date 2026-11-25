@@ -7,6 +7,8 @@ import Hearth.Theme
 TvButton {
     id: control
 
+    // It's being moved to another place.
+    property bool moving: false
     property url picture
 
     implicitHeight: implicitWidth * 0.625 + name.implicitHeight + Theme.tokens.sizes.gap
@@ -42,6 +44,15 @@ TvButton {
                 sourceSize: Qt.size(width, height)
                 visible: status === Image.Ready
                 width: height
+            }
+
+            Icon {
+                anchors.left: parent.left
+                anchors.margins: control.Theme.tokens.sizes.gap / 2
+                anchors.top: parent.top
+                name: "move"
+                objectName: "moveMark"
+                visible: control.moving
             }
 
             Label {

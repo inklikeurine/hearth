@@ -132,7 +132,7 @@ public:
     void setScreenHeight(int height);
 
     // The built-in themes' names, as loadBuiltin() takes them.
-    static QStringList builtinThemes();
+    Q_INVOKABLE static QStringList builtinThemes();
     // WCAG 2.2's contrast ratio, from 1 to 21.
     static qreal contrast(const QColor &a, const QColor &b);
 

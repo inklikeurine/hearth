@@ -19,6 +19,8 @@ public:
     // Windows that ask about unsaved work instead of closing.
     QSet<int> stubborn;
     QList<int> madeFullscreen;
+    // labwc takes a moment to do what it's asked: nothing changes until it has.
+    bool slow = false;
 
     [[nodiscard]] QList<WindowInfo> windows() const override
     {
@@ -26,6 +28,9 @@ public:
     }
     void bringToFront(int id) override
     {
+        if (slow) {
+            return;
+        }
         for (WindowInfo &window : list) {
             window.active = window.id == id;
             window.minimized = window.minimized && !window.active;
@@ -242,6 +247,19 @@ private Q_SLOTS:
         QTRY_VERIFY(m_launcher->running().isEmpty());
         QVERIFY(m_switcher->homeInFront());
         QCOMPARE(m_switcher->runningId(), QString());
+    }
+
+    void waitsForLabwcToShowHome()
+    {
+        m_switcher->open(Long);
+        m_windows->add(2, u"1long"_s);
+        m_windows->slow = true;
+        m_windows->remove(2);
+        QTRY_VERIFY(m_launcher->running().isEmpty());
+        QVERIFY(!m_switcher->homeInFront());
+        m_windows->slow = false;
+        m_windows->bringToFront(1);
+        QVERIFY(m_switcher->homeInFront());
     }
 
     void aProgramLeftBehindIsEnded()

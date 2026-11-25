@@ -52,7 +52,11 @@ Item {
         property var folders: []
 
         function initTestCase() {
+            // Whatever an earlier run left.
             folders = appList.folders;
+            appList.folders = [];
+            shellSettings.appOrder = [];
+            appList.folders = folders;
         }
 
         function init() {
@@ -84,6 +88,38 @@ Item {
             keyClick(Qt.Key_Up);
             compare(root.focusedName(), "Test app 3");
             shellSettings.columns = 5;
+        }
+
+        function test_7_moveMode() {
+            home.goBack();
+            compare(home.focusedApp, "Test app 0");
+            home.startMoving();
+            keyClick(Qt.Key_Right);
+            keyClick(Qt.Key_Right);
+            compare(root.focusedName(), "Test app 0");
+            keyClick(Qt.Key_Down);
+            // The second row isn't full, so it's as far as it goes.
+            compare(appList.data(appList.index(6, 0), AppList.NameRole), "Test app 0");
+            keyClick(Qt.Key_Return);
+            verify(!home.moving);
+            compare(chosen.count, 0);
+            compare(shellSettings.appOrder[6], "app0");
+            // And back, by Back.
+            home.startMoving();
+            keyClick(Qt.Key_Up);
+            keyClick(Qt.Key_Left);
+            keyClick(Qt.Key_Left);
+            home.goBack();
+            verify(!home.moving);
+            compare(shellSettings.appOrder[0], "app0");
+        }
+
+        function test_8_upGoesToTheStatusBar() {
+            home.goBack();
+            keyClick(Qt.Key_Up);
+            compare(root.Window.activeFocusItem.objectName, "bell");
+            keyClick(Qt.Key_Down);
+            compare(root.focusedName(), "Test app 0");
         }
 
         // Installing an app reloads the list. The remote must still be on a tile.

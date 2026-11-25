@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # The shell crashes. Last, so nothing after it depends on this.
 
+check "until here the shell never crashed" test "$(grep -c 'hearth-shell stopped' "$work/session.log")" = 0
+
 tile 0
 key Return
 check "an app is open" window app_id:a-plain state:active

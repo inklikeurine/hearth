@@ -1,14 +1,23 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "iconprovider.h"
+#include "labwcconfig.h"
+#include "shellsettings.h"
 #include "version.h"
 
 #include <KLocalizedQmlContext>
 #include <KLocalizedString>
+#include <QFile>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
 int main(int argc, char *argv[])
 {
+    // hearth-shell --write-labwc FOLDER, before there's a screen to draw on.
+    if (argc == 3 && qstrcmp(argv[1], "--write-labwc") == 0) {
+        const QCoreApplication app(argc, argv);
+        return LabwcConfig::write(ShellSettings(), QFile::decodeName(argv[2])) ? 0 : 1;
+    }
+
     QGuiApplication app(argc, argv);
     QGuiApplication::setApplicationName(QStringLiteral("hearth-shell"));
     QGuiApplication::setApplicationVersion(hearthVersion());

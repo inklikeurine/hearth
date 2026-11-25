@@ -23,6 +23,7 @@ class AppList : public QAbstractListModel, public QQmlParserStatus {
 
 public:
     enum Role { IdRole = Qt::UserRole + 1, NameRole, PictureRole };
+    Q_ENUM(Role)
 
     explicit AppList(QObject *parent = nullptr);
 

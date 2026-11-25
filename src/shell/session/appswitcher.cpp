@@ -109,7 +109,7 @@ void AppSwitcher::update()
         m_closeTimer.start(m_closeWait);
     }
     if (noWindows && m_openingName.isEmpty() && !m_homeInFront) {
-        goHome();
+        showHome();
     }
 }
 
@@ -235,6 +235,13 @@ void AppSwitcher::start(const DesktopEntry &app)
 void AppSwitcher::goHome()
 {
     m_next.reset();
+    showHome();
+    update();
+}
+
+// Only asks: what's in front changes when labwc says so.
+void AppSwitcher::showHome()
+{
     if (!m_windows) {
         return;
     }
@@ -245,7 +252,6 @@ void AppSwitcher::goHome()
             m_windows->minimize(window.id);
         }
     }
-    update();
 }
 
 void AppSwitcher::returnToApp()

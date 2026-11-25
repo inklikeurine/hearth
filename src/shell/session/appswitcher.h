@@ -88,6 +88,7 @@ private:
     void updateRunning(const QList<WindowInfo> &windows);
     void makeFullscreen(const QList<WindowInfo> &windows);
     void start(const DesktopEntry &app);
+    void showHome();
     void askToClose();
     void closeTimedOut();
     void appEnded(const QString &id, bool withError, bool crashed);

@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-find_package(Qt6 6.11 REQUIRED COMPONENTS Network WaylandClient)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(xkbcommon REQUIRED IMPORTED_TARGET xkbcommon)
+find_package(Qt6 6.11 REQUIRED COMPONENTS DBus Network WaylandClient)
 
 set(foreign_toplevel
     /usr/share/wlr-protocols/unstable/wlr-foreign-toplevel-management-unstable-v1.xml)
@@ -31,17 +33,32 @@ qt_add_qml_module(hearth-session-lib
         appswitcher.h
         commandserver.cpp
         commandserver.h
+        keycatcher.cpp
+        keycatcher.h
         keyrouter.cpp
         keyrouter.h
+        labwcconfig.cpp
+        labwcconfig.h
+        menucontributions.cpp
+        menucontributions.h
+        pressfilter.cpp
+        pressfilter.h
         sessionwindows.h
     DEPENDENCIES
         TARGET hearth-apps
+)
+qt_add_resources(hearth-session-lib "labwc"
+    PREFIX "/hearth/labwc"
+    BASE ${PROJECT_SOURCE_DIR}/src/session/labwc
+    FILES ${PROJECT_SOURCE_DIR}/src/session/labwc/rc.xml
 )
 target_include_directories(hearth-session-lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(hearth-session-lib PUBLIC
     hearth-apps
     hearth-appsplugin
     hearth-wayland
+    Qt6::DBus
     Qt6::Network
     Qt6::Quick
+    PkgConfig::xkbcommon
 )

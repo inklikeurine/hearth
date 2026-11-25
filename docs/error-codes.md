@@ -12,4 +12,5 @@ How it works:
 | HEARTH-APP-001 | The app's program couldn't be started at all | Try it again; if it still doesn't start, remove the app and install it again | Whether the program in the app's `.desktop` file exists |
 | HEARTH-APP-002 | The app ended with an error before it showed a window | Try it again; if it keeps happening, restart the box | The app's messages in the session's log |
 | HEARTH-APP-003 | The app crashed, or was ended by the system, while it was open | Open it again; if it keeps happening, restart the box | Free memory; the app's messages in the session's log |
+| HEARTH-POWER-001 | Sleep, restart or off was refused, or nothing answered | Try again; if it still can't, unplug it, wait ten seconds and plug it back in | The session's log for the reason; whether the profile may do it (polkit) |
 | HEARTH-SHELL-000 | A failure whose code this version doesn't know | Try again; if it keeps happening, restart the box | The session's log |

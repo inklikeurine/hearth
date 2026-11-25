@@ -2,6 +2,7 @@
 #include "applauncher.h"
 
 #include <csignal>
+#include <unistd.h>
 #include <utility>
 
 namespace {
@@ -60,6 +61,17 @@ void AppLauncher::start(const DesktopEntry &app)
         });
     m_running.insert(app.id, process);
     process->start();
+}
+
+QString AppLauncher::appOfProcess(qint64 pid) const
+{
+    const pid_t session = pid > 0 ? ::getsid(pid_t(pid)) : -1;
+    for (auto it = m_running.begin(); session > 0 && it != m_running.end(); ++it) {
+        if (it.value()->processId() == session) {
+            return it.key();
+        }
+    }
+    return { };
 }
 
 void AppLauncher::signalAll(int signal)
