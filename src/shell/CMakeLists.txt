@@ -11,6 +11,7 @@ qt_add_qml_module(hearth-shell-lib
     DEPENDENCIES
         TARGET hearth-apps
         TARGET hearth-controls
+        TARGET hearth-session-lib
         TARGET hearth-theme
     SOURCES
         version.cpp
@@ -23,6 +24,8 @@ target_link_libraries(hearth-shell-lib PUBLIC
     hearth-appsplugin
     hearth-controls
     hearth-controlsplugin
+    hearth-session-lib
+    hearth-session-libplugin
     hearth-theme
     hearth-themeplugin
     Qt6::Quick
@@ -36,3 +39,4 @@ target_link_libraries(hearth-shell PRIVATE
     KF6::I18nQml
     Qt6::Quick
 )
+install(TARGETS hearth-shell)

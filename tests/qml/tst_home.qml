@@ -95,7 +95,7 @@ Item {
 
         function test_5_noAppsSaysSo() {
             home.apps = noApps;
-            const message = Array.from(home.children).find(child => child instanceof Label);
+            const message = findChild(home, "noApps");
             verify(message.visible);
             compare(message.text, "No apps are installed yet.");
         }

@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!--
+  SPDX-License-Identifier: GPL-3.0-or-later
+  labwc's settings in a Hearth session. Having key bindings here without a
+  <default/> leaves out labwc's own desktop shortcuts (Alt-Tab and so on).
+-->
+<labwc_config>
+  <core>
+    <gap>0</gap>
+  </core>
+
+  <keyboard>
+    <!-- labwc takes these keys from every device, so no app sees them, and the
+         shell decides what each one means. All but Backspace fire when the key is
+         let go, so a held key fires once. Backspace repeats while held. -->
+    <keybind key="Home" onRelease="yes"><action name="Execute" command="hearth-send home" /></keybind>
+    <keybind key="XF86HomePage" onRelease="yes"><action name="Execute" command="hearth-send home" /></keybind>
+    <keybind key="XF86Back" onRelease="yes"><action name="Execute" command="hearth-send back" /></keybind>
+    <keybind key="Escape" onRelease="yes"><action name="Execute" command="hearth-send back" /></keybind>
+    <keybind key="BackSpace"><action name="Execute" command="hearth-send backspace" /></keybind>
+    <keybind key="Menu" onRelease="yes"><action name="Execute" command="hearth-send menu" /></keybind>
+    <keybind key="XF86MenuKB" onRelease="yes"><action name="Execute" command="hearth-send menu" /></keybind>
+    <!-- For keyboards with no Menu key. -->
+    <keybind key="F2" onRelease="yes"><action name="Execute" command="hearth-send menu" /></keybind>
+  </keyboard>
+
+  <windowRules>
+    <!-- The shell makes apps full screen. labwc's own rule for that can only
+         toggle: it would undo it for an app that starts full screen. -->
+    <windowRule identifier="*" serverDecoration="no" skipWindowSwitcher="yes" />
+  </windowRules>
+</labwc_config>

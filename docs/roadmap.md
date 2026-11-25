@@ -98,10 +98,7 @@ Done when: in the dev box, labwc in a window, with the air mouse: the home scree
 
 Tasks, by component:
 
-**Session setup**
-- Session start script: labwc, the shell and the keyboard, with the host desktop's settings stripped
-- labwc key bindings: Back, Home, Menu, Esc, Backspace, fired on release
-- Window rule that forces apps full screen
+**Session setup** (done: start script with a restart after a crash, labwc key bindings, apps made full screen by the shell, `hearth-session.target`, portal file). Not run yet as a real greetd session: that's the OS image milestone.
 
 **Theme and controls** (done: theme tokens and loader, dark and high-contrast themes with their contrast check, fonts, focus ring, tile, tile grid, button)
 - Every new string through KI18n (set up)
@@ -111,8 +108,7 @@ Tasks, by component:
 - Controls: dialog
 - Accessible name and role on every new control
 
-**Home screen** (done: app list with each profile's order, rows of tiles with the next row peeking in, starting an app, rows and columns read from config, background picture)
-- Home brings the home screen forward, return to a running app, one app at a time (window switching; the spike's `toplevels` code shows how)
+**Home screen** (done: app list with each profile's order, rows of tiles with the next row peeking in, starting an app, rows and columns read from config, background picture, window switching: Home, return to a running app, one app at a time)
 - A failure screen when an app can't start (now only a warning in the log)
 - Arrange apps: the Move mode (the list can already move an app and remembers it)
 - Celebrations and particles
@@ -124,9 +120,7 @@ Tasks, by component:
 - Volume overlay through PipeWire
 - "No internet" when something fails (AdGuard answers "server failure")
 
-**Key handling**
-- Key router: what each key means now (home screen, overlay, text box, app)
-- Held-key rules
+**Key handling** (done: key router, held-key rules)
 - Default key map for air mice
 
 **System menu**
@@ -159,7 +153,7 @@ Tasks, by component:
 - QR code for each code (qrencode)
 
 **Tests and docs**
-- Headless test suite, grown from the spike's checks
+- Headless test suite, grown from the spike's checks (started: `tests/session`, run by `tools/dev/check`; each feature adds its part)
 - Shell contributor doc
 
 ### 2. OS image and releases

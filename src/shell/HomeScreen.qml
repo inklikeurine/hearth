@@ -11,9 +11,16 @@ FocusScope {
     id: home
 
     required property AppList apps
+    // An app that's been chosen and hasn't appeared yet.
+    property string openingName
     required property ShellSettings settings
 
     signal appChosen(int index)
+
+    function goToFirstApp() {
+        grid.currentIndex = 0;
+        grid.forceActiveFocus();
+    }
 
     Image {
         id: background
@@ -67,7 +74,16 @@ FocusScope {
     }
 
     Label {
+        anchors.bottom: grid.top
+        anchors.bottomMargin: Theme.tokens.sizes.gap
+        anchors.horizontalCenter: parent.horizontalCenter
+        text: KI18n.i18n("Opening %1…", home.openingName)
+        visible: home.openingName.length > 0
+    }
+
+    Label {
         anchors.centerIn: parent
+        objectName: "noApps"
         text: KI18n.i18n("No apps are installed yet.")
         visible: home.apps.count === 0
     }

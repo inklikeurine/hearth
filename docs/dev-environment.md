@@ -51,6 +51,10 @@ Borrowed files approved for the spike: two Wayland protocol definitions from Ste
 
 `build/tests/gallery/hearth-gallery` (in the box) shows every control in a window; add `high-contrast` for that theme. `build/src/shell/hearth-shell` is the shell itself: the home screen in a window, reading its settings from the box's `~/.config/hearth/shell.ini`.
 
+`tools/dev/session` opens a whole session in a window: labwc with the shell inside, apps and remote keys included. It leaves your desktop's systemd alone.
+
+`tests/session/run.sh build` runs the session with no screen and checks it with key presses (part of `tools/dev/check`, about 15 seconds). Add a folder name to save pictures of the screen at each step. It can't reach your desktop: it has its own runtime folder, settings, apps and a message-bus address where nothing answers.
+
 ## Repo guards
 
 Set up by Claude on 2026-11-22, at the lead's request to make the repo safe for code. The lead reviews them.

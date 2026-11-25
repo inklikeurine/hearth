@@ -117,6 +117,10 @@ Decided:
 - labwc is the compositor for 1.0.0 ([labwc for 1.0.0](decisions/0015-labwc-for-1-0.md)).
 - `wlr-protocols-devel` is approved as a dependency, for the window-switching protocol.
 
+Built (Claude's technical picks, 2026-11-24):
+- The shell makes apps full screen, not a labwc window rule: labwc's rule can only toggle, so it undid full screen for apps that start that way. An app's own dialogs stay windows.
+- A crashed shell starts again, up to three times in a row; the app that was open stays open.
+
 Detail: why labwc and not KWin, Weston, cage or our own compositor; Fedora 45's labwc protocols ([design doc detail, 5.4](research/2026-11-23-design-doc-detail.md), [labwc protocols on Fedora 45](research/2026-11-22-labwc-protocols-fedora45.md)).
 
 ### Theme and controls
@@ -148,6 +152,7 @@ Talks to: the app list (desktop files, Flatpaks, web-app definitions), labwc's w
 - Arrange apps with Menu → Move, arrows, Select (long-press "jiggle" isn't reliable on NEC infrared remotes).
 - Each profile keeps its own app order; new apps go at the end; a kid profile shows only its allowed apps.
 - Still images only as backgrounds in 1.0.0.
+- Opening an app asks the running one to close first. It's never ended while it still has a window, since it may hold unsaved work.
 - Particles: no more than three flashes a second ([WCAG numbers](research/A3-wcag22-numbers.md)).
 
 ### Overlays

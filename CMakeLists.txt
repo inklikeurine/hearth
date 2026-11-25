@@ -4,11 +4,14 @@
 # tools/dev/check to build and run every check.
 
 cmake_minimum_required(VERSION 3.30)
-project(hearth VERSION 0.0.1 LANGUAGES CXX)
+# C is for the Wayland protocols' generated code.
+project(hearth VERSION 0.0.1 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+# No C++ modules here; clang-tidy can't read the flags for finding them.
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 # clang-tidy reads this list of compile commands.
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -20,9 +23,12 @@ add_compile_definitions(TRANSLATION_DOMAIN="hearth")
 add_compile_options(-Wall -Wextra)
 
 enable_testing()
+add_subdirectory(src/send)
+add_subdirectory(src/session)
 add_subdirectory(src/shell/apps)
 add_subdirectory(src/shell/theme)
 add_subdirectory(src/shell/controls)
+add_subdirectory(src/shell/session)
 add_subdirectory(src/shell)
 add_subdirectory(tests)
 add_subdirectory(tests/gallery)

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Runs a Hearth session in a window on your desktop, from the last build
+# (tools/dev/check builds). Close the window to end it.
+#   tools/dev/session
+
+set -euo pipefail
+repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+if [[ ! -f /run/.containerenv ]]; then
+    exec distrobox enter hearth-f45 -- "$repo/tools/dev/session" "$@"
+fi
+export PATH="$repo/build/src/send:$repo/build/src/shell:$repo/build/src/keyboard:$PATH"
+unset WAYLAND_DISPLAY
+# Only the box's own apps: the host's Flatpaks leak in and can't run in here.
+export XDG_DATA_DIRS=/usr/local/share:/usr/share
+exec "$repo/src/session/hearth-session" --dev

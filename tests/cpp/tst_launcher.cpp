@@ -6,44 +6,28 @@
 #include <QTemporaryDir>
 #include <QTest>
 
+#include <csignal>
+
 using namespace Qt::StringLiterals;
 
 class TestLauncher : public QObject {
     Q_OBJECT
 
 private:
-    QTemporaryDir m_dir;
-    AppList m_apps;
-
-    void write(const QString &name, const QByteArray &exec)
+    static DesktopEntry app(const QStringList &command)
     {
-        QFile file(m_dir.filePath(name));
-        if (!file.open(QIODevice::WriteOnly)
-            || file.write("[Desktop Entry]\nType=Application\nName=" + name.toUtf8()
-                   + "\nExec=" + exec + "\n")
-                < 0) {
-            qFatal("can't write the test's .desktop file");
-        }
+        return { u"app"_s, u"App"_s, { }, command, { } };
     }
 
 private Q_SLOTS:
-    void initTestCase()
-    {
-        write(u"1missing.desktop"_s, "/nowhere/at/all");
-        write(u"2quick.desktop"_s, "true");
-        write(u"3long.desktop"_s, "sleep 60");
-        m_apps.setFolders({ m_dir.path() });
-        m_apps.componentComplete();
-        QCOMPARE(m_apps.count(), 3);
-    }
-
     void saysWhenAnAppCantStart()
     {
         AppLauncher launcher;
         QSignalSpy failed(&launcher, &AppLauncher::failed);
-        launcher.launch(&m_apps, 0);
+        launcher.start(app({ u"/nowhere/at/all"_s }));
         QTRY_COMPARE(failed.count(), 1);
-        launcher.launch(&m_apps, 0);
+        QVERIFY(launcher.running().isEmpty());
+        launcher.start(app({ u"/nowhere/at/all"_s }));
         QTRY_COMPARE(failed.count(), 2);
     }
 
@@ -52,28 +36,61 @@ private Q_SLOTS:
         AppLauncher launcher;
         QSignalSpy started(&launcher, &AppLauncher::started);
         QSignalSpy finished(&launcher, &AppLauncher::finished);
-        launcher.launch(&m_apps, 1);
+        launcher.start(app({ u"true"_s }));
         QTRY_COMPARE(finished.count(), 1);
         QCOMPARE(started.count(), 1);
+        QCOMPARE(finished.at(0), (QVariantList { u"app"_s, false, false }));
+    }
+
+    void tellsErrorsFromCrashes()
+    {
+        AppLauncher launcher;
+        QSignalSpy finished(&launcher, &AppLauncher::finished);
+        launcher.start(app({ u"false"_s }));
+        QTRY_COMPARE(finished.count(), 1);
+        QCOMPARE(finished.at(0), (QVariantList { u"app"_s, true, false }));
+        launcher.start(app({ u"sh"_s, u"-c"_s, u"kill -KILL $$"_s }));
+        QTRY_COMPARE(finished.count(), 2);
+        QCOMPARE(finished.at(1), (QVariantList { u"app"_s, true, true }));
     }
 
     void aRunningAppIsntStartedTwice()
     {
         AppLauncher launcher;
         QSignalSpy started(&launcher, &AppLauncher::started);
-        launcher.launch(&m_apps, 2);
+        launcher.start(app({ u"sleep"_s, u"60"_s }));
         QTRY_COMPARE(started.count(), 1);
-        launcher.launch(&m_apps, 2);
+        launcher.start(app({ u"sleep"_s, u"60"_s }));
         QTest::qWait(100);
         QCOMPARE(started.count(), 1);
     }
 
-    void wrongIndexesDoNothing()
+    // Many apps are a script that starts the real program.
+    void endingAnAppEndsWhatItStarted()
     {
+        QTemporaryDir dir;
+        const QString file = dir.filePath(u"pid"_s);
         AppLauncher launcher;
-        launcher.launch(&m_apps, -1);
-        launcher.launch(&m_apps, 3);
-        launcher.launch(nullptr, 0);
+        launcher.start(app({ u"sh"_s, u"-c"_s, u"sleep 60 & echo $! > %1; wait"_s.arg(file) }));
+        QByteArray pid;
+        const auto readPid = [&pid, &file] {
+            QFile written(file);
+            pid = written.open(QIODevice::ReadOnly) ? written.readAll().trimmed() : QByteArray();
+            return !pid.isEmpty();
+        };
+        QTRY_VERIFY(readPid());
+        QCOMPARE(::kill(pid.toInt(), 0), 0);
+        launcher.terminateAll();
+        QTRY_VERIFY(launcher.running().isEmpty());
+        // Gone, or dead and waiting for init to clear it away.
+        QTRY_VERIFY(::kill(pid.toInt(), 0) != 0 || isZombie(pid));
+    }
+
+private:
+    static bool isZombie(const QByteArray &pid)
+    {
+        QFile stat(u"/proc/%1/stat"_s.arg(QString::fromLatin1(pid)));
+        return stat.open(QIODevice::ReadOnly) && stat.readAll().contains(") Z ");
     }
 };
 

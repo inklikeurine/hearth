@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Starts a profile's session: labwc, and inside it the on-screen keyboard and the
+# shell. greetd runs it once someone is logged in. It ends when the shell does.
+#   hearth-session         a real session
+#   hearth-session --dev   a test session: leaves systemd and the settings of the
+#                          desktop it runs on alone
+
+set -uo pipefail
+
+here="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+data="$here"
+[[ -f "$data/labwc/rc.xml" ]] || data=/usr/share/hearth/session
+
+dev=0
+[[ "${1:-}" == --dev || "${HEARTH_SESSION_DEV:-0}" == 1 ]] && dev=1
+# In the dev box systemd is the host desktop's: changing it would break the desktop.
+[[ -f /run/.containerenv ]] && dev=1
+
+start_session() {
+    export XDG_CURRENT_DESKTOP=Hearth XDG_SESSION_DESKTOP=hearth XDG_SESSION_TYPE=wayland
+    export HEARTH_SESSION_DEV="$dev"
+    # A desktop's input-method settings send text boxes past labwc, so the
+    # on-screen keyboard never hears about them.
+    unset GTK_IM_MODULE QT_IM_MODULE QT_IM_MODULES XMODIFIERS CLUTTER_IM_MODULE
+    unset SESSION_MANAGER GTK_MODULES
+    # labwc splits -S itself; printf keeps a path with spaces in one piece.
+    exec labwc -C "$data/labwc" -S "$(printf '%q' "$here/hearth-session") --inside"
+}
+
+# Runs a program again when it crashes, but not forever. The count starts over
+# when it ran for a minute.
+keep_running() {
+    local crashes=0 started status
+    while true; do
+        started=$SECONDS
+        "$@"
+        status=$?
+        ((status == 0)) && return 0
+        # labwc has gone, so nothing can run again.
+        [[ -S "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" ]] || return "$status"
+        ((SECONDS - started > 60)) && crashes=0
+        crashes=$((crashes + 1))
+        echo "hearth-session: $1 stopped with $status (crash $crashes)" >&2
+        ((crashes >= 3)) && return "$status"
+        sleep 1
+    done
+}
+
+stop_session() {
+    if [[ -n "$keyboard" ]]; then
+        pkill -P "$keyboard" 2>/dev/null
+        kill "$keyboard" 2>/dev/null
+    fi
+    ((dev)) || systemctl --user stop hearth-session.target
+}
+
+run_inside() {
+    if ((dev)); then
+        # The host desktop's own X11 screen: nothing in here may open on it.
+        unset DISPLAY
+    else
+        # Programs started by systemd (portals, the keyring) need to find labwc.
+        systemctl --user import-environment \
+            WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP XDG_SESSION_TYPE
+        systemctl --user start hearth-session.target
+    fi
+    keyboard=""
+    trap stop_session EXIT
+    if command -v hearth-keyboard >/dev/null; then
+        keep_running hearth-keyboard &
+        keyboard=$!
+    fi
+    keep_running hearth-shell --session
+}
+
+if [[ "${1:-}" == --inside ]]; then
+    run_inside
+else
+    start_session
+fi
