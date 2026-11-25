@@ -1,6 +1,6 @@
 # Decision 0015: labwc is Hearth 1.0.0's compositor
 
-Related: design doc, sections 5.4, 6.2, 6.4 and 7; [shell spike results](../research/2026-11-22-shell-spike-results.md); [Heavy accessibility in 2.0](0013-heavy-accessibility-in-2-0.md).
+Related: design doc, sections 5.4, 6.2, 6.4 and 7; [shell spike results](../research/2026-11-22-shell-spike-results.md); [Heavy accessibility in 2.0](0019-heavy-accessibility-in-2-0.md).
 
 ## Context
 
@@ -19,7 +19,7 @@ The shell spike ran on Fedora 45's labwc 0.20.2, headless in the dev box. Every 
 From the spike and the research:
 - The shell and the keyboard use only standard protocols: layer-shell (overlays), foreign-toplevel (app switching), text-input v3 and input-method v2 with its keyboard grab (typing), virtual-keyboard v1 (keys with no text). Another wlroots-based compositor that offers the same set could take the shell as it is.
 - Moving to KWin later would cost more: from memory, KWin offers keyboards only input-method v1, so the keyboard's link to the compositor would be rewritten. Not checked.
-- labwc has no screen reader, zoom or colour filters. Those are 2.0.0 features ([Heavy accessibility in 2.0.0](0013-heavy-accessibility-in-2-0.md)); 2.0 needs its own plan for them.
+- labwc has no screen reader, zoom or colour filters. Those are 2.0.0 features ([Heavy accessibility in 2.0.0](0019-heavy-accessibility-in-2-0.md)); 2.0 needs its own plan for them.
 - HDR on labwc needs its Vulkan renderer; the default renderer has no HDR.
 - The display settings protocol labwc offers has no TV colour-range setting (design doc, section 10).
 - KDE Connect can't type into apps under labwc: it types through a remote-control portal that Fedora's portal for wlroots compositors doesn't offer (design doc, section 7). Phone typing was already moved to later.

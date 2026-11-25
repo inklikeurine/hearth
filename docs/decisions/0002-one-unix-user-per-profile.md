@@ -15,7 +15,7 @@ The lead decided real separation matters more than fast switching, and accepted 
 
 - Each profile is its own Unix user.
 - One user session is active at a time; when another profile logs in, the old session ends.
-- Profiles are protected by a PIN, if that turns out to be possible (to be researched; see [Profile PINs](0017-profile-pins-and-admin-pin.md)).
+- Profiles are protected by a PIN, if that turns out to be possible (to be researched; see [Profile PINs](0018-profile-pins-self-managed.md)).
 - A profile's keyring is set up when the profile is created.
 - The user creates the default profile during installation.
 

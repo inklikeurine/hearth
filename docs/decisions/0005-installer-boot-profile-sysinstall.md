@@ -38,10 +38,10 @@ Hardware tests, not confirmed:
 - What happens at the end: the man page says it reboots, but `--reboot=` defaults to false.
 - Running it unattended from a Hearth page.
 - Fedora 45's version with our partition definitions.
-- research bootc's own install command (`bootc install to-disk`): not compared.
 
 ## Turned down
 
 - The stock sysinstall text screen.
 - Writing the whole image to the internal disk and letting `systemd-repart` grow it on first boot.
+- bootc's own install command: dropped by the lead, 2026-11-24.
 

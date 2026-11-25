@@ -27,6 +27,7 @@ A [distrobox](https://distrobox.it/) is a container that feels like a second Lin
 | Checkers | qmllint and qmlformat (from Qt), clang-tidy and clang-format (clang-tools-extra), gitleaks (secret scanner) | clang-tools-extra 23.1.5, gitleaks 8.30.1 |
 | Apps the spike tests against | Firefox, Stevia (a ready-made on-screen keyboard; it doesn't run on labwc, so the spike has its own test keyboard), KDE Connect | Firefox 160.0, Stevia 0.57.0, KDE Connect 26.08.3 |
 | Building OS images | mkosi (approved 2026-11-22; pinned to Fedora 45's build). Installing it prints a harmless grub warning: grub can't find a real disk inside a container | mkosi 26 |
+| Product code (approved 2026-11-24) | kf6-ki18n-devel, libxkbcommon-devel, qrencode-devel, hunspell-devel, hunspell-en-US | KI18n 6.32.0, libxkbcommon 1.13.1, qrencode 4.1.1, hunspell 1.7.6 |
 | Basics the container image lacks | Mesa graphics drivers, Fedora's core sans fonts | |
 
 Not in the box yet: Xwayland (the layer for old X11 apps; Firefox runs natively on Wayland).
@@ -63,7 +64,7 @@ Tested 2026-11-22 in a throwaway clone: each refusal fired, normal commits and p
 - A guard script ([.claude/hooks/git-guard.sh](../.claude/hooks/git-guard.sh)) runs before every shell command Claude makes:
   - Blocks force pushes, deleting branches on GitHub, pushing every branch at once, pushing `spikes`, skipping hooks (`--no-verify`), and pointing git's hooks anywhere but `.githooks`.
   - Asks the lead before any other push, and before GitHub commands that publish or change something: pull requests, releases, repo settings, secrets, and API calls that write.
-- Blocked outright: the GitHub connector's tools that write files or merge straight on GitHub, which would skip the git hooks entirely. Creating a branch or pull request through it asks first.
+- Blocked outright: the GitHub connector's tools that push several files, delete files or merge straight on GitHub, which would skip the git hooks entirely. Writing a single file, or creating a branch or pull request through it, asks first; a file written that way skips the git hooks' secret and personal-info checks.
 - Asks first: any edit to `.githooks/` or `.claude/`, so the guards can't be loosened without the lead.
 - Blocked: reading `.env`, `.pem` and `.key` files in the repo.
 

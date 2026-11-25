@@ -17,12 +17,12 @@ The Hearth project on claude.ai already carries this as its description. In a ch
 ```
 CONTEXT: I'm the solo lead of Hearth, an open-source TV interface ("10-foot UI") for cheap Linux home-theatre PCs. I build with AI help and am not a trained programmer, so explain plainly and show real examples.
 - Goal: a smart-TV replacement that runs like an appliance, as reliable as a basic fridge.
-- Hardware floor: 4 GB RAM, x86-64, graphics with VP9 hardware decode: Intel 7th gen or newer, AMD Raven Ridge-class APUs (2018) or newer, NVIDIA GTX 16 / RTX 20 or newer (GTX 10 is legacy until October 2028). Raspberry Pi 4 is a design goal only.
+- Hardware floor: 4 GB RAM, x86-64: Intel 7th gen or newer, AMD Raven Ridge-class APUs (2018) or newer, NVIDIA GTX 16 / RTX 20 or newer (GTX 10 is legacy until October 2028). Raspberry Pi 4 is a design goal only.
 - Optional hardware: on-board Wi-Fi, Bluetooth, USB infrared receivers, gamepads and HDMI-CEC are recommended and supported by default, but never assumed present; old laptops, desktops and mini-PCs often lack them.
-- Platform: Hearth's own Qt 6 QML shell (GPL-3.0-or-later), borrowing parts from KDE Plasma Bigscreen (no Plasma underneath). One full-screen app at a time; Hearth draws the overlays and the Menu-button system menu, and apps add menu items through a Hearth API. Compositor: labwc. Heavy accessibility features (screen reader, zoom, colour filters) come in 2.0.0. OS image built with mkosi on Fedora 45, installed from an "Installer" boot profile running systemd-sysinstall, updated with systemd-sysupdate (A/B, read-only system, automatic rollback). Boots on UEFI only. Fedora's stock kernel, Secure Boot off by default in 1.0; drivers Fedora doesn't ship (NVIDIA, some Wi-Fi) are pulled at setup time for the hardware found.
+- Platform: Hearth's own Qt 6 QML shell (GPL-3.0-or-later), borrowing parts from KDE Plasma Bigscreen (no Plasma underneath). One full-screen app at a time; Hearth draws the overlays and the Menu-button system menu, and apps add menu items through a Hearth API. Compositor: labwc. Heavy accessibility features (screen reader, color filters) come in 2.0.0. OS image built with mkosi on Fedora 45, installed from an "Installer" boot profile running systemd-sysinstall, updated with systemd-sysupdate (A/B, read-only system, automatic rollback). Boots on UEFI only. Fedora's stock kernel, Secure Boot off by default in 1.0; drivers Fedora doesn't ship (NVIDIA, some Wi-Fi) are pulled at setup time for the hardware found.
 - Hearth's own parts live in the OS image, never as Flatpaks; any other app can be a Flatpak.
 - Each profile is its own Unix user (one active session at a time, optional PIN); logins are kept in oo7, the secret store.
-- Apps: Jellyfin, Moonlight, and Firefox kiosk "web apps" (YouTube TV interface, Twitch, Dropout) with our own Firefox extension, hearth-firefox-bridge. One global key map for every app.
+- Apps: native apps and Firefox kiosk "web apps", with our own Firefox extension, hearth-web-bridge. Which apps ship isn't decided. One global key map for every app.
 - Phone companion: KDE Connect. Ad and tracker blocking on the box: AdGuard Home, pulled from AdGuard's own releases and pinned.
 - Hard rules: local only (no telemetry, no data collection; every network connection is named and switchable); security first; our own development doesn't build on Chromium or Electron (users may install anything); follow each upstream project's AI policy, and if there isn't one, assume they don't want AI-assisted contributions.
 
@@ -42,6 +42,10 @@ RULES FOR YOUR ANSWER
 | Question | Why it matters | Where it's discussed |
 |---|---|---|
 | The roadmap's part order, grid, labels and milestone 1 tasks (Claude's proposal, 2026-11-23) | Gives development an order and a definition of done for each piece | [Roadmap](roadmap.md) |
+| Build each feature and the screens that control it together (the lead's idea, 2026-11-24)? Claude's pick: yes, with the Settings app's frame moved to milestone 1 | Moves settings pages into each feature's milestone | [Roadmap](roadmap.md) |
+| Checksums for files pulled from outside Fedora (the lead asked what they add) | Claude's pick: only for those few files; Fedora signs its own packages | Design doc, Security and Image build |
+| Once parental controls are on, can an adult remove their PIN? Claude reads no | A child at the picker could open that profile | [Profile PINs](decisions/0018-profile-pins-self-managed.md) |
+| The network allowlist: dropped entirely? | The design doc still names an allowlist file, and app testing still compares against it | Design doc, Network and permission rules; [Tested with Hearth](tested-with-hearth.md) |
 | The "Waiting on the lead" lines under each component | Each one blocks a cell in the roadmap grid; milestone 0 and 1's come first | [Design doc](design.md) |
 | Boot-time target. Later (the lead) | Shapes the image and startup work | Design doc, section 2 |
 
@@ -55,7 +59,7 @@ Short hands-on tests found in design sessions. The labwc spike's software checks
 
 - Per-user DNS through the firewall: can nftables make each Unix user's lookups reach AdGuard Home from a different local address, so it sees separate clients? Fallback: one AdGuard Home per profile ([AdGuard per-profile check](research/2026-11-19-adguard-per-profile.md)).
 - Firefox shaped from outside: unsandboxed AutoConfig works in the Firefox build the image ships; which built-in keys it can rebind (Escape, Backspace, Back); what kiosk mode does to context menus and dialogs ([Firefox outside customising](research/2026-11-19-firefox-outside-customising.md)).
-- Profiles and sessions, in a test image ([how profiles run](research/2026-11-23-design-doc-detail.md), section 13.2): does Fedora's greetd login config register sessions with logind; what is Fedora's `KillUserProcesses=` default (`systemd-analyze cat-config systemd/logind.conf`); do Firefox and a Flatpak app stop after `loginctl terminate-user` (`systemd-cgls`); do `useradd` and `userdel` work with `/usr` read-only.
+- Profiles and sessions, in a test image ([how profiles run](research/2026-11-23-design-doc-detail.md), section 13.2): do greetd's sessions show up in logind (its config says they should); do Firefox and a Flatpak app stop after `loginctl terminate-user` (`systemd-cgls`); do `useradd` and `userdel` work with `/usr` read-only.
 - AdGuard Home as a service (design doc, DNS filter): AdGuard's own build runs as an unprivileged user with only the port-53 capability, next to systemd-resolved, with `--no-check-update`; record every connection it makes.
 
 ## Summarizing a chat for the design log

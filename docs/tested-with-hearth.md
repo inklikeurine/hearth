@@ -67,7 +67,7 @@ Facts shown on every entry, never used to block it:
    - an egress recording (every connection during a scripted session) compared with the allowlist
    - AppStream input declarations read in as hints
 4. Remote walkthrough (lead, on real hardware), handed over as numbered steps, expected result, what to report. 10–20 minutes per app. The adapter is written at the same time.
-5. Record. One data file per app in the repo, for example `catalog/apps/com.moonlight_stream.Moonlight.toml`, holding:
+5. Record. One data file per app in the repo, for example `catalog/apps/org.example.App.toml`, holding:
    - the app's version, Hearth version, hardware tier, date and tester
    - every checklist answer
    - notes

@@ -16,7 +16,7 @@ How to read it:
 ### Nice to haves
 The following features are classified as "nice to have".
 1. Phone pairing (as a remote and as a connected device)
-2. web apps as first-class apps
+2. web apps as first-class apps (in 1.0.0; work starts near the end, after the shell and most of the UI are settled)
 
 ## 2. Rules for every part
 
@@ -26,6 +26,9 @@ The following features are classified as "nice to have".
 - **Development:** In a Fedora 45 distrobox on the lead's machine ([dev environment](dev-environment.md)). Spike code lives on a local-only `spikes` branch that is never pushed.
 - **The repo:** uses GitHub's free features: milestones, labels, Actions, Projects, security and code-quality tools, bots.
 - **Parked**: hosted code reviewers until we're ready to code; branch protection for `main` after the code reviewers; the lighter-Firefox review closer to 1.0; a boot-time target, later.
+
+### Apps
+- The plan doesn't name specific apps or web services. Native apps are developed in their own repos, later; which apps to include isn't decided now (the lead, 2026-11-24).
 
 ### Licence, borrowing, upstreams
 
@@ -50,7 +53,7 @@ The following features are classified as "nice to have".
 - **Floor:** 4 GB RAM, x86-64: Intel 7th gen (Kaby Lake) or newer, AMD Raven Ridge-class APUs (2018) or newer, NVIDIA Turing (GTX 16 / RTX 20) or newer. NVIDIA Pascal (GTX 10) is legacy, its support ending October 2028. Raspberry Pi 4 is a design goal only.
 - **Firmware:** UEFI only; boxes in legacy (BIOS) mode are switched to UEFI first, and the install guide says how ([UEFI only](decisions/0014-uefi-only.md)).
 - **Optional hardware:** on-board Wi-Fi, Bluetooth, USB infrared receivers, gamepads and HDMI-CEC are recommended and supported by default, never assumed present. Every core path (install, setup, recovery, settings, updates) works without them; features that need one appear only when it's there, or say what's missing ([Optional hardware](decisions/0008-optional-hardware-supported-never-assumed.md)).
-- **RAM budget** on a 4 GB box: system and DNS filter 300–400 MB, compositor 80–150 MB, shell 150–250 MB, one Firefox web app 600 MB–1.2 GB, Jellyfin playback 150–300 MB. One web app open at a time; going home closes it after a short grace period; zram on.
+- **RAM budget** on a 4 GB box: system and DNS filter 300–400 MB, compositor 80–150 MB, shell 150–250 MB, one Firefox web app 600 MB–1.2 GB, native video playback 150–300 MB. One web app open at a time; going home closes it after a short grace period; zram on.
 - Test boxes: a Dell OptiPlex 3080 Micro and a Lenovo ThinkCentre M910q Tiny (at the floor) ([bifrost: test boxes and TVs](research/2026-11-22-bifrost-optiplex-and-tv.md)).
 
 ### When things break
@@ -60,8 +63,8 @@ The following features are classified as "nice to have".
 - Process rule: every piece of work has a "what it looks like when it breaks" part and isn't done until its failure screens exist.
 
 ### Accessibility
-([Heavy accessibility in 2.0.0](decisions/0013-heavy-accessibility-in-2-0.md)).
-- Heavy features are slated for 2.0.0: screen reader, zoom, colour filters, dialogue boost, a separate simple layout.
+([Heavy accessibility in 2.0.0](decisions/0019-heavy-accessibility-in-2-0.md)).
+- Heavy features are slated for 2.0.0: screen reader, color filters, dialogue boost. Zoom and a separate simple layout are dropped.
 - Cheap features slated for 1.0.0: text size, high contrast, never color as the only signal, mono audio and balance, slower key repeat and ignoring double presses, reduced motion, fewer rows and bigger tiles 
 - Every new screen is checked with the high-contrast theme before it's done.
 - Every control gets an accessible name and role (Qt's `Accessible.name`, `Accessible.role`), so the 2.0.0 screen reader doesn't reopen every screen.
@@ -77,7 +80,7 @@ Each part is a milestone in the [roadmap](roadmap.md).
 | Part | Components | Runs as |
 |---|---|---|
 | Shell | Session setup · Theme and controls · Home screen · Overlays · Key handling · System menu · On-screen keyboard · Notifications · Failure screens | The logged-in profile's Unix user |
-| Web apps | Web-app definitions · Firefox setup · `hearth-firefox-bridge` | The profile's user |
+| Web apps | Web-app definitions · Firefox setup · `hearth-web-bridge` | The profile's user |
 | OS image and releases | Repo and code checks · Image build · Boot and updates · Installer · Recovery and diagnostics · Network and permission rules · CI · Publishing | Build: GitHub Actions or the lead's machine. Box: system |
 | Profiles | Login screen · Profiles service · DNS filter · Screen-time keeper · Parental-control screens | System services, the `greeter` user, screens in the session |
 | Hardware | Hardware check · Hardware add-ons · Gamepads and HDMI-CEC · Power and sleep | System |
@@ -94,7 +97,7 @@ Session (profile's user):  labwc ── Shell ── On-screen keyboard
                               │       │  ▲
                  apps (Flatpak, Firefox web apps)   │ D-Bus
                               │                     │
-          hearth-firefox-bridge ◀─native messaging─▶ Shell
+          hearth-web-bridge ◀─native messaging─▶ Shell
                                                     │
 System: Profiles service · DNS filter · Updates (sysupdate) · Hardware check · Add-ons
          (privileged actions checked by polkit rules)
@@ -124,7 +127,7 @@ Talks to: every screen; web apps take the focus highlight and overlay colours fr
 - Fonts: Atkinson Hyperlegible Next by default, Noto Sans for wider coverage; a settings page to change fonts, designed with the settings app.
 - Theme packs are data only (tokens, wallpapers, icons, sounds), never code. Layout skins are QML, so developer mode only, after 1.0.0.
 
-Waiting on the lead:
+Agreed for now (the lead, 2026-11-24); tested on a TV before 1.0.0 ships:
 - Text sizes: smallest text 24 px at 1080p, body around 32–36 px, checked from a sofa ([TV text size](research/A4-tv-text-size.md)).
 - TV-safe margins: 54–60 px top and bottom, 80–96 px at the sides at 1920×1080 ([TV layout and safe area](research/B3-tv-layout-safe-area.md)).
 - Motion: about 200 ms with Material 3's standard easing as the starting point; reduced motion swaps slides and zooms for fades ([TV motion](research/B4-tv-motion.md)).
@@ -159,7 +162,7 @@ Decided:
 ### Key handling
 
 Does: turns Back, Home, Menu, Esc and Backspace from every device into what they mean right now; passes typing through.
-Talks to: labwc key bindings, the on-screen keyboard, `hearth-firefox-bridge`.
+Talks to: labwc key bindings, the on-screen keyboard, `hearth-web-bridge`.
 
 - Air-mouse, infrared and Bluetooth remotes are first-class and all ship with default key maps; HDMI-CEC is a bonus. None is assumed present. The "press each button" learning wizard is optional for the end user.
 - One global key map: a button means the same thing in every app; making every app obey it is Hearth's job.
@@ -172,12 +175,12 @@ Detail: Bigscreen's input handler compared, what the air mouse sends ([design do
 ### System menu
 
 Does: the overlay the Menu button opens: a system section always, an app section when the app in front has contributed items. The Menu Contribution API is how apps add items.
-Talks to: apps over D-Bus, web apps through `hearth-firefox-bridge`, MPRIS for play and pause.
+Talks to: apps over D-Bus, web apps through `hearth-web-bridge`, MPRIS for play and pause.
 
 - Hearth owns the menu. Apps add items through a Menu Contribution API, in 1.0.0, used by Hearth's own screens and by web apps. A public SDK for app makers comes after 1.0.0.
 - The lead's design notes: apps send structured data only; name and icon come from the installed manifest; Hearth enforces limits and owns presentation; the app reports state and requests changes; no toolkit or compositor dependency ([App Menu Contribution API](research/2026-11-20-app-menu-contribution-api.md)).
 
-Waiting on the lead:
+Agreed for now (the lead, 2026-11-24):
 - Borrow MPRIS so every media app gets play and pause; GTK's exported actions for request-versus-confirmed state; Qt Application Manager for ideas only.
 - Web pages never talk to the menu; the bridge contributes items per site.
 
@@ -190,9 +193,9 @@ Talks to: labwc through input-method v2 and virtual-keyboard v1; apps through te
 - Designed from scratch now the compositor is chosen. Layouts: QWERTY grid, alphabet grid, single row, gamepad wheel. Themeable.
 - Word suggestions, kept per profile, with an off switch (2026-11-22).
 - A layout per kind of field (text, email, password, number), as Gboard does; no suggestions in password fields.
-- The word-suggestion engine: a technical pick Claude can make.
+- The word-suggestion engine (a technical pick left to Claude). Claude's pick, 2026-11-24: a small one of our own that completes the word being typed and ranks by what the profile has typed before, with spelling fixes and the word list from hunspell. The usual engine, presage, isn't in Fedora 45, and Fedora's Stevia uses hunspell only (checked in the dev box). Open: how to rank words for a profile that hasn't typed anything yet.
 
-Waiting on the lead:
+Agreed for now (the lead, 2026-11-24); tested on a TV before 1.0.0 ships:
 - Build it as a Qt QML keyboard from plasma-keyboard's layouts and navigation, talking input-method v2 the way Stevia does.
 - Honour a web page's `inputmode="none"` through the bridge, since Firefox doesn't pass it on.
 
@@ -211,7 +214,7 @@ Does: one failure-screen design, the list of error codes, a QR code to each code
 
 ### Web-app definitions
 
-Does: a small file per web app: name, icon, address, user agent, extensions, adapter (normally the bridge), which profiles may use it. Built-ins: YouTube TV, YouTube Music, Twitch, Dropout.
+Does: a small file per web app: name, icon, address, user agent, extensions, adapter (normally the bridge), which profiles may use it. Which ones ship is decided later.
 
 - Definitions stay engine-neutral (only the extension list assumes Firefox).
 - Settings → Apps → "Add a web app" builds one with the remote; advanced users can add any signed extension from a URL, with a warning.
@@ -230,13 +233,13 @@ Does: builds each web app's Firefox profile: kiosk mode, prefs, `policies.json`,
 
 Detail: [Firefox outside customising](research/2026-11-19-firefox-outside-customising.md), [Leanback's Firefox findings](research/2026-11-22-leanback-firefox-learnings.md), engines compared ([design doc detail, 8.3–8.6](research/2026-11-23-design-doc-detail.md)).
 
-### `hearth-firefox-bridge`
+### `hearth-web-bridge`
 
 Does: a small Mozilla-signed Firefox extension: Back on each site (close menu, go back, leave), page reports, `inputmode="none"`, a site's own menu items. Plus its native-messaging host, installed system-wide.
 
 Decided:
 - The lead and Claude develop it together, signed by Mozilla as unlisted.
-- rename to something more fitting. like hearth-ffd (hearth firefox daemon?) or hearth-ffb (heart-firefox-bridge)
+- Named `hearth-web-bridge` (Claude's pick from the lead's two names, 2026-11-24: it carries Back and page reports as well as menu items). Research notes use its old name, `hearth-firefox-bridge`.
 Waiting on the lead:
 - Plain, unminified JavaScript with no build step; it passes Hearth's actions and page reports only, never page content or user data; force-installed through `policies.json` in the image.
 
@@ -249,9 +252,9 @@ Detail: [unlisted signing](research/M1-unlisted-extension-signing.md), [extensio
 Does: product code layout, build system, test framework, code checkers, code review, branch protection.
 
 - Hosted code reviewers parked until we're ready to code; branch protection for `main` after them.
+- Repo layout, build system, test framework, code checkers and five packages, as [proposed and tested](research/2026-11-24-product-code-setup.md) (the lead, 2026-11-24).
 
 Waiting on the lead:
-- Claude proposes the repo layout, build system, test framework and code checkers for product code. Blocks all product code.
 - Which hosted reviewers, if any, and which checks run locally ([agentic review checks](research/2026-11-19-agentic-review-checks.md)).
 
 ### Image build
@@ -273,7 +276,7 @@ Does: systemd-boot with boot counting, sysupdate's transfer files, the good-boot
 - "Healthy" means the home screen works: a Hearth unit before `boot-complete.target` holds the good mark until the shell reports in ([boot assessment and BIOS](research/2026-11-19-boot-assessment-and-bios.md)).
 - Never restart for an update during viewing.
 - "Viewing" means an idle inhibitor is held or an audio stream is running and not paused; recheck every 30 minutes; notification after 3 hours.
-- Pin the systemd version per release and test the update path in CI, since the sysupdate D-Bus interface is marked experimental.
+- Pin the systemd version per release and test the update path in CI. systemd 262 marks sysupdate experimental again and removes its D-Bus interface in 263 ([systemd 262](research/2026-11-24-systemd-262-installer-update-apis.md)).
 - Update timers catch up after a wake.
 
 ### Installer
@@ -282,6 +285,7 @@ Does: the "Installer" boot profile running `systemd-sysinstall`, and the Hearth 
 
 - No flasher of our own. The box installs from an "Installer" boot profile running `systemd-sysinstall`, driven by a Hearth page ([Installer](decisions/0005-installer-boot-profile-sysinstall.md)).
 - The default profile is made in the install flow.
+- systemd 262, in Fedora 45, gives sysinstall an API with a drive list and progress; the Hearth page can use it, with a polkit rule for the installer page only ([systemd 262](research/2026-11-24-systemd-262-installer-update-apis.md)). Claude's proposal.
 
 ### Recovery and diagnostics
 
@@ -321,19 +325,20 @@ Does: creates and deletes profiles (Unix users), the groups that grant or take a
 
 Decided:
 - One Unix user per profile; one active session at a time, and a new login ends the old session ([One Unix user per profile](decisions/0002-one-unix-user-per-profile.md)).
-- Any profile, the default one included, can have a PIN: off by default, set and removed by the profile itself, recovered by a hint where possible. An adult profile's PIN is asked for when it's selected; a kid profile can't be left without the admin PIN. Hearth checks every PIN itself ([Profile PINs and the admin PIN](decisions/0017-profile-pins-and-admin-pin.md)).
-- The admin PIN is one settable, box-wide PIN for the family's parents, not any profile's own PIN (the lead's correction, 2026-11-22). Parental controls require it, asked for once they're first used (a kid profile or a restriction). It can reset any profile's PIN. It can also guard settings, adding apps, and creating and deleting profiles, each a switch with sensible defaults. A forgotten admin PIN means a full factory reset. Its setup flow is tagged for the onboarding flow, designed later.
+- PINs: off by default. Users manage their own; accounts with parental controls enabled can't. Admins can set any profile's PIN to a new one. Once parental controls are on, every account needs a PIN to enter, except a kid profile, which needs the admin PIN to leave. Hearth checks every PIN itself ([Profile PINs](decisions/0018-profile-pins-self-managed.md)).
+- The admin PIN is one box-wide PIN for the family's parents, asked for once parental controls are first used. It can guard settings, adding apps, and creating and deleting profiles, each a switch, all on by default. A forgotten admin PIN means a factory reset.
 - Permissions come from Unix groups: a profile outside a group that grants a permission doesn't have it, and groups can also take permissions away (2026-11-22).
 - Secret store: oo7, daemon and Flatpak portal; KWallet isn't used ([Secret store: oo7](decisions/0001-keyring-oo7.md)). Each profile's keyring unlocks from a random password sealed with `systemd-creds`, made at profile creation.
 - When a keyring can't be opened: a fresh, empty keyring and one notice to sign in to apps again; no "Saved logins" page in 1.0.0 (2026-11-22).
 - Plain `useradd` for 1.0.0, not systemd-homed (an encrypted home needs the user's password, which clashes with the no-prompt boot).
-- Spike first: greetd sessions known to logind; Firefox and a Flatpak app really stop after `loginctl terminate-user`; `useradd` and `userdel` with `/usr` read-only ([greetd sessions](research/P1-greetd-sessions.md), [ending sessions](research/P2-ending-sessions.md), [creating users](research/P4-creating-users.md), [polkit rules](research/P5-polkit-admin.md)).
+- Checked in the dev box (2026-11-24): Fedora 45's greetd login config includes `system-auth`, which loads `pam_systemd`, so its sessions should register with logind; `KillUserProcesses=` is off, so a logout alone can leave programs running and Hearth has to end the user with `loginctl terminate-user`.
+- Spike first, in a test image: greetd sessions really show up in logind; Firefox and a Flatpak app really stop after `loginctl terminate-user`; `useradd` and `userdel` with `/usr` read-only ([greetd sessions](research/P1-greetd-sessions.md), [ending sessions](research/P2-ending-sessions.md), [creating users](research/P4-creating-users.md), [polkit rules](research/P5-polkit-admin.md)).
 
 ### DNS filter
 
-Does: AdGuard Home as the box's ad and tracker blocker, with each profile as its own client; safe search and YouTube restricted mode for kid profiles; Hearth's settings drive it.
+Does: AdGuard Home as the box's ad and tracker blocker, with each profile as its own client; safe search and restricted mode for kid profiles; Hearth's settings drive it.
 
-- AdGuard Home (one program, about 60–80 MB of RAM, SafeSearch and YouTube restricted mode built in); its own web page off or bound to the box.
+- AdGuard Home (one program, about 60–80 MB of RAM, safe search and restricted mode built in); its own web page off or bound to the box.
 - Per-profile clients through the firewall (nftables), fallback one AdGuard Home per profile. Needs a spike ([AdGuard per-profile check](research/2026-11-19-adguard-per-profile.md)).
 - How it runs: its own system user with only the port-53 right, `--no-check-update`, beside systemd-resolved. Needs a spike.
 
@@ -349,11 +354,11 @@ Does: allowed apps, screen time and bedtime, website limits (Firefox's policy, p
 
 ### Hardware check
 
-Does: a first-boot step that finds the hardware tier, optional hardware present, video decode (by playing a sample), the NVIDIA generation, firmware, display mode, and whether suspend and wake work.
+Does: a first-boot step, checked again for changes on every later boot ([Optional hardware](decisions/0008-optional-hardware-supported-never-assumed.md)), that finds the hardware tier, optional hardware present, video decode (by playing a sample), the NVIDIA generation, firmware, display mode, and whether suspend and wake work.
 
 - hardware flags set automatically where possible (hardware detection, agreed). Test codecs by playing them; show codec status in Settings → About (from bifrost).
 - Hardware tiers: supported (the floor and newer) and legacy (anything below that still boots), with a "Legacy hardware: fewer security guarantees" notice and a support end date in Settings → About.
-- Force H.264.
+- H.264 is set up on every box so it's available (the lead, 2026-11-24). Not forced: each site picks what it plays.
 
 Detail: [video-decode review](research/2026-11-19-hardware-video-decode-review.md).
 
@@ -363,7 +368,7 @@ Does: codecs and outside drivers (NVIDIA, Broadcom Wi-Fi) built or fetched on th
 
 - anything only some boxes need is fetched during first-boot setup for the hardware found, not shipped in every image, so Hearth never redistributes it. A failed add-on never blocks an update.
 - Each add-on is a system extension built on the box from RPM Fusion (codecs) or NVIDIA, tied to Hearth's image version; the old slot's extension stays for rollback.
-- Setup automatically accepts NVIDIA's licence then the driver is fetched.
+- Setup automatically accepts NVIDIA's licence then the driver is fetched (confirmed by the lead, 2026-11-24).
 
 Waiting on the lead:
 - Where the compiler comes from: in every image, or fetched only on boxes that need it.
@@ -372,7 +377,7 @@ Detail: [NVIDIA on image-based Fedora](research/D1-nvidia-on-image-fedora.md), [
 
 ### Gamepads and HDMI-CEC
 
-Does: the input program for devices that don't arrive as keys: gamepad buttons (SDL3) and CEC remotes (libcec) turned into Hearth actions; pass-through mode for games and Moonlight.
+Does: the input program for devices that don't arrive as keys: gamepad buttons (SDL3) and CEC remotes (libcec) turned into Hearth actions; pass-through mode for games and game streaming.
 
 Decided: one comes later for gamepads and HDMI-CEC; no separate input program for keyboards and remotes (2026-11-22).
 
@@ -397,9 +402,9 @@ Does: the settings screens, all reachable from the remote. Pages for hardware th
 | Apps | Installed apps, add a web app | Flatpak, web-app definitions |
 | Profiles and parental controls | See Profiles | Profiles service |
 | Appearance | Presets and sliders with live preview, day/night, fonts, rows and columns, background, theme packs from USB | Theme tokens |
-| Accessibility | The 1.0 set | Several |
+| Accessibility | The 1.0.0 set | Several |
 | Privacy and network activity | Every kind of connection, named, with its switch | Network rules |
-| Updates | Status, pause or delay, mirror, roll back | sysupdate's D-Bus interface |
+| Updates | Status, pause or delay, mirror, roll back | systemd-sysupdate; not its D-Bus interface, which goes away in systemd 263 |
 | Time and language | Time zone, region, language | timedated, localed |
 | Power | Sleep timer, wake on remote, the power-cut setting explained | logind |
 | Developer mode | SSH, more logs | — |
@@ -408,7 +413,7 @@ Does: the settings screens, all reachable from the remote. Pages for hardware th
 
 - Overscan is handled inside Hearth, not by the TV or the kernel.
 - Sound goes to the TV first and stays there when the screen sleeps (from bifrost).
-- HDR output in 1.0.0.; UI white at 203 nits in HDR.
+- HDR is supported in 1.0.0: everything it needs is on every box, since storage and image size aren't major concerns (the lead, 2026-11-24). UI white at 203 nits in HDR.
 - The WirePlumber rule that puts the TV's detected video output (HDMI/DisplayPort) first.
 
 Waiting on the lead:
@@ -419,7 +424,6 @@ Waiting on the lead:
 Does: network, TV fit and colour range, the default profile, building add-ons, offering apps.
 
 - first-boot wizard, yes. 
-- Moonlight and Vaccumetube offered in the wizard.
 
 ### Apps
 
@@ -440,7 +444,7 @@ Waiting on the lead:
 - Features in priority order: 1 typing and voice typing · 2 private listening · 3 photos and files · 4 cast a link · 5 screen mirroring (revisit later).
 - Private listening: a WebRTC phone page first, then Bluetooth headphones paired to the box ([Private listening](decisions/0010-private-listening-webrtc-then-bluetooth.md)).
 - Phone typing: revisit later; the core experience comes first (2026-11-22).
-- The phone in 1.0.0, or after? Typing from a phone doesn't work on labwc with KDE Connect as it stands: KDE Connect types through a portal labwc's portal backend doesn't offer ([design doc detail, 7](research/2026-11-23-design-doc-detail.md)).
+- Typing from a phone doesn't work on labwc with KDE Connect as it stands: KDE Connect types through a portal labwc's portal backend doesn't offer ([design doc detail, 7](research/2026-11-23-design-doc-detail.md)).
 - Pairing only while Settings → Phone → Pair is open, for two minutes; the verification key shown large; require KDE Connect protocol 8 and Android 1.37.0 or later ([KDE Connect 2025 security bugs](research/C1-kdeconnect-2025-bugs.md), [October 2026 advisories](research/C3-kdeconnect-oct-2026-advisories.md)).
 
 The lead's idea, not decided: KDE Connect may need forking at some point, as a standalone Hearth feature or app.
