@@ -47,6 +47,8 @@ RULES FOR YOUR ANSWER
 | App tile art: where wide art comes from, the default tile, whether art is ever fetched online. Later (the lead) | Most Linux apps ship only square icons | Design doc, Home screen; [visual references](research/V1-visual-references.md) |
 | Where the signed-in profile's picture sits on the home screen (not top left) | Round 1 mockups try two places | [Visual references](research/V1-visual-references.md) |
 | Guest profile: the rest of the details. Later (the lead) | First rules are agreed; more thought needed | Design doc, Guest profile |
+| Compositor blur behind the menu and keyboard over apps: patch labwc, change compositor, or wait. Later (the lead) | The lead wants the blurred menu everywhere; labwc has no blur | Design doc, Theme and controls |
+| Keyboard design time: single row (tvOS style) and gamepad wheel need dedicated iteration. Later (the lead) | Round 2 mockups didn't work | [Visual references](research/V1-visual-references.md) |
 
 ## Research tasks for a Sonnet chat
 

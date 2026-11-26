@@ -141,7 +141,7 @@ Agreed for now (the lead, 2026-11-24); tested on a TV before 1.0.0 ships:
 - An automatic test checks every built-in theme against WCAG AA contrast.
 
 Agreed (the lead, 2026-11-25):
-- Blur on the home screen only; the menu never blurs open apps. Qt draws Hearth's own blur, so labwc needs nothing (labwc has no compositor blur).
+- Blur behind the menu panel, including over running apps (the lead, 2026-11-26; replaces "the menu never blurs open apps", which came from a misunderstanding of what was blurred). Qt can blur Hearth's own screens; blurring what's behind the panel over an app needs compositor blur, which labwc doesn't have. To look into later.
 - The lead's likes and dislikes from 11 reference screenshots, and the round 1 mockups: [visual references](research/V1-visual-references.md).
 
 Detail: [theming research](research/2026-11-19-theming.md), [TV design principles](research/B1-tv-design-principles.md), [TV focus and navigation](research/B2-tv-focus-navigation.md), [open-source fonts](research/B5-oss-fonts.md), what other platforms offer ([design doc detail, 9.1](research/2026-11-23-design-doc-detail.md)).
@@ -210,7 +210,7 @@ Agreed for now (the lead, 2026-11-24):
 
 Agreed (the lead, 2026-11-25):
 - The menu slides in from the left edge, docked full height; a setting moves it to the right edge.
-- Two ways to show it, for now while exploring: over the home screen it's drawn inside the home screen's own window (so it can blur what's behind it); over apps it's an overlay with a solid tint. To be tried in dev.
+- Two ways to show it, for now while exploring: over the home screen it's drawn inside the home screen's own window (so it can blur what's behind it); over apps it's an overlay with a solid tint until the compositor can blur. To be tried in dev.
 
 Waiting on the lead:
 - The [Menu Contribution API draft](menu-api.md): three item types (action, toggle, choice), no submenus, 12 items, 40-character labels, 10 updates in 10 seconds. Only a program Hearth started can add items, checked by the process session it runs in. Claude's proposal.

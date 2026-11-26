@@ -26,12 +26,23 @@ Summarised from the lead's 11 reference screenshots (TV launchers, profile picke
 
 ## The lead decided (2026-11-25)
 Copied into the [design doc](../design.md) as "Agreed" lines.
-- **Blur:** home screen only; the menu never blurs open apps.
+- **Blur:** ~~home screen only; the menu never blurs open apps~~ replaced 2026-11-26, see below.
 - **Menu:** two ways to show it, for now while exploring: drawn inside the home screen's window over home (so it can blur), and as an overlay with a solid tint over apps. To be tried in dev.
 - **Accessibility page:** gets "Reduce transparency".
 - **On-screen keyboard:** the design doc's four layouts stand. Single row = the tvOS style; may need a compositor that can blur part of the background. The QWERTY grid may become an alternate layout of the alphabet grid, coming in from the side. Gamepad wheel: in scope.
 - **App tile art:** theme packs can supply app art. Fetching art online: undecided. The default tile (app icon, user-settable name in the system font, automatic background colour) is the lead's idea; tile art as a whole needs scoping later.
 - **Guest profile:** see the design doc's Guest profile section.
+
+## Round 2 review (the lead, 2026-11-26)
+- **Blur:** the lead likes the blurred menu panel and wants it over apps too. "Never blurs open apps" came from a misunderstanding: Claude meant blurring what's behind the panel, not the whole page. Over apps this needs compositor blur, which labwc lacks: a larger labwc question for later.
+- **Home tiles:** no frosted tiles without a background colour. Asked to see frosted tiles with coloured backgrounds.
+- **Grid keyboard:** alphabet and QWERTY must be the same size. Word suggestions go below the keyboard, not under the field ("I think"). The text field belongs in the keyboard panel, not on the page (Claude's reading of "the search field should be in the menu").
+- **Single-row keyboard:** needs more work. Keys bottom-aligned; word suggestions above the row; the abc / ABC / 123 / #+= buttons below it.
+- **Gamepad wheel:** needs dedicated time to iterate.
+- **Profile picture picker:** Featured is a row that can be turned off, and shows only the pictures that come with Hearth. Open: how users add pictures from USB to each category, and add their own categories.
+- **Leaving the guest profile:** centre placement. No tile highlight behind the pop-up; focus is on the buttons.
+- **Failure screen:** the user should see what actually went wrong, not just a code. The code stays, for developers.
+- **Volume overlay:** the top-edge version is a hard no. The right-edge version can work for development; neither is good yet.
 
 ## Claude's notes (proposals, not decided)
 - labwc has no compositor blur: it doesn't support the standard blur protocol, ext-background-effect-v1 [C] (https://wayland.app/protocols/ext-background-effect-v1). Blur on Hearth's own screens needs nothing from it.
