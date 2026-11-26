@@ -367,6 +367,11 @@ Decided:
 - The image blocks drivers for hardware an HTPC never has (FireWire, ISDN, old filesystems).
 - Each Hearth release keeps the source archive of the AdGuard Home version it ships (GPL-3.0).
 
+Agreed (the lead, 2026-11-25), for development builds; the test-image spike rebuilt everything each time:
+- Incremental builds (`Incremental=yes`): mkosi keeps the tree after the packages are installed, and later builds reuse it while the package list stays the same. Its cache check isn't perfect, so a changed package list gets `-ff`, which builds the cache again ([mkosi manual](https://github.com/systemd/mkosi/blob/main/mkosi/resources/man/mkosi.1.md)).
+- Development VMs start with `mkosi vm`, which shares `build/` into the VM (`RuntimeTrees=`), so shell changes run without rebuilding the image. The spike's own QEMU script is replaced.
+- Image builds and VMs stay at 4 cores and the lowest CPU and disk priority, so the desktop stays usable.
+
 ### Boot and updates
 
 Does: systemd-boot with boot counting, sysupdate's transfer files, the good-boot check, update timing, the rollback message.
