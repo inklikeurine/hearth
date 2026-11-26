@@ -28,7 +28,8 @@ A [distrobox](https://distrobox.it/) is a container that feels like a second Lin
 | Apps the spike tests against | Firefox, Stevia (a ready-made on-screen keyboard; it doesn't run on labwc, so the spike has its own test keyboard) | Firefox 160.0, Stevia 0.57.0 |
 | Building OS images | mkosi (approved 2026-11-22; pinned to Fedora 45's build). Installing it prints a harmless grub warning: grub can't find a real disk inside a container | mkosi 26 |
 | Product code (approved 2026-11-24) | kf6-ki18n-devel, libxkbcommon-devel, qrencode-devel, hunspell-devel, hunspell-en-US | KI18n 6.32.0, libxkbcommon 1.13.1, qrencode 4.1.1, hunspell 1.7.6 |
-| Faster throwaway builds (installed by the lead, 2026-11-25) | ccache (keeps compiled files), mold (a fast linker). Used only by break-on-purpose runs, never by the normal build | ccache 4.13.6, mold 2.41.0 |
+| Faster builds (installed by the lead, 2026-11-25) | ccache (keeps compiled files), mold (a fast linker). Used by `tools/dev/check` since 2026-11-25 and by break-on-purpose runs | ccache 4.13.6, mold 2.41.0 |
+| Milestone 1 tests (installed by the lead, 2026-11-25) | wayland-protocols-devel (the idle and blur protocols' definitions), dbus-daemon (a private message bus for notification tests), gtk4-devel-tools (gtk4-widget-factory, a GTK4 app with text boxes), SDL3-devel (for a small SDL text-box app of our own) | wayland-protocols 1.50, dbus 1.16.4, GTK 4.24.2, SDL 3.4.20 |
 | Hearth's fonts | atkinson-hyperlegible-next-fonts, google-noto-sans-vf-fonts | 2.100, 20260601 |
 | Basics the container image lacks | Mesa graphics drivers, Fedora's core sans fonts | |
 
@@ -48,7 +49,11 @@ Borrowed files approved for the spike: two Wayland protocol definitions from Ste
 
 ## Building and checking
 
-`tools/dev/check`, from the repo, builds Hearth in the box and runs every check: the tests, qmllint, qmlformat, clang-tidy, clang-format and gitleaks. It prints PASS or FAIL for each. `tools/dev/check --fix` also reformats the code.
+`tools/dev/check`, from the repo, builds Hearth in the box and runs every check: the tests, qmllint, qmlformat, clang-tidy, clang-format and gitleaks. It prints PASS or FAIL for each. Run it before every commit. `tools/dev/check --fix` also reformats the code.
+
+`tools/dev/check --quick` is for while you work: clang-tidy reads only the C++ files changed since the last commit, plus those that include a changed header. A change that breaks an unchanged file through a header elsewhere shows up only in the full check.
+
+Both use 6 of the 12 cores at low priority, so the desktop stays usable, and build with ccache and mold. Times on 2026-11-25, nothing changed: full check about 2 min 45 s (6 min before: clang-tidy went from 275 s on one core to about 50 s on six), quick check about 90 s, nearly all of it tests. A build from scratch takes about 15 s once ccache holds the files; the first build after a change to the compiler settings takes about 2 minutes.
 
 `build/tests/gallery/hearth-gallery` (in the box) shows every control in a window; add `high-contrast` for that theme. `build/src/shell/hearth-shell` is the shell itself: the home screen in a window, reading its settings from the box's `~/.config/hearth/shell.ini`.
 
@@ -56,7 +61,7 @@ Borrowed files approved for the spike: two Wayland protocol definitions from Ste
 
 `tools/dev/mutate BREAKS.json` breaks the code on purpose, one change at a time, in a copy outside the repo, and says whether the tests notice each one. Its builds use ccache, mold, no optimising and uncompiled QML, and build only the tests each break needs: about 5 seconds a break against 11 with a normal build (two breaks, 2026-11-25; the first run builds the copy once, about 90 seconds).
 
-`tests/session/run.sh build` runs the session with no screen and checks it with key presses (part of `tools/dev/check`, about 15 seconds). Add a folder name to save pictures of the screen at each step. It can't reach your desktop: it has its own runtime folder, settings, apps and a message-bus address where nothing answers.
+`tests/session/run.sh build` runs the session with no screen and checks it with key presses (part of `tools/dev/check`, about 48 seconds on 2026-11-25, up from 15 as the keyboard parts were added). Add a folder name to save pictures of the screen at each step. It can't reach your desktop: it has its own runtime folder, settings, apps and a message-bus address where nothing answers.
 
 ## Repo guards
 

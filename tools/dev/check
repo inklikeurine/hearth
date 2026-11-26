@@ -3,8 +3,12 @@
 #
 # Builds Hearth and runs every check: tests, QML and C++ linters, formatting and
 # the secret scan. Prints PASS or FAIL for each, and fails if any failed.
-#   tools/dev/check          check
-#   tools/dev/check --fix    also reformat the code in place
+#   tools/dev/check            check everything; run this before every commit
+#   tools/dev/check --quick    while working: clang-tidy only reads the C++ files
+#                              changed since the last commit, and those that
+#                              include a changed header
+#   tools/dev/check --fix      also reformat the code in place
+# It uses 6 cores at low priority, so the desktop stays usable.
 
 set -uo pipefail
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -12,13 +16,41 @@ if [[ ! -f /run/.containerenv ]]; then
     exec distrobox enter hearth-f45 -- "$repo/tools/dev/check" "$@"
 fi
 cd "$repo" || exit 1
+renice -n 10 $$ >/dev/null
 qt=/usr/lib64/qt6/bin
 build=build
+jobs=6
+quick=0 fix=0
+for arg in "$@"; do
+    case "$arg" in
+    --quick) quick=1 ;;
+    --fix) fix=1 ;;
+    *) echo "unknown option: $arg" >&2; exit 2 ;;
+    esac
+done
 mapfile -t cpp < <(find src tests -name '*.cpp' -o -name '*.h' | sort)
 mapfile -t units < <(find src tests -name '*.cpp' | sort)
 mapfile -t qml < <(find src tests -name '*.qml' | sort)
 
-if [[ "${1:-}" == "--fix" ]]; then
+# --quick: clang-tidy reads only the changed .cpp files, plus the .cpp files that
+# include a changed header (its warnings show up through them).
+tidy=("${units[@]}")
+if ((quick)); then
+    mapfile -t changed < <({ git diff --name-only HEAD; git ls-files --others --exclude-standard; } \
+        | grep -E '^(src|tests)/.*\.(cpp|h)$' | sort -u)
+    tidy=()
+    for file in "${changed[@]}"; do
+        [[ -f "$file" ]] || continue
+        if [[ "$file" == *.cpp ]]; then
+            tidy+=("$file")
+        else
+            mapfile -t -O "${#tidy[@]}" tidy < <(grep -lF "\"$(basename "$file")\"" "${units[@]}")
+        fi
+    done
+    mapfile -t tidy < <(printf '%s\n' "${tidy[@]}" | grep . | sort -u)
+fi
+
+if ((fix)); then
     clang-format -i "${cpp[@]}"
     "$qt/qmlformat" -i "${qml[@]}"
 fi
@@ -38,8 +70,12 @@ step() {  # name, command...: run quietly, show the output only on failure
     fi
 }
 
-configure() { cmake -S . -B "$build" -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_COMPILE_WARNING_AS_ERROR=ON; }
-compile() { cmake --build "$build"; }
+# ccache keeps compiled files, so a clean or reconfigured build reuses them; mold links faster.
+configure() {
+    cmake -S . -B "$build" -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_COMPILE_WARNING_AS_ERROR=ON \
+        -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_LINKER_TYPE=MOLD
+}
+compile() { cmake --build "$build" -j "$jobs"; }
 run_tests() { ctest --test-dir "$build" --output-on-failure --no-tests=error; }
 # Qt's own all_qmllint target passes even when it prints warnings; -W 0 doesn't.
 lint_qml() { "$qt/qmllint" -W 0 -I "$build/qml" "${qml[@]}"; }
@@ -56,7 +92,16 @@ step "build" compile
 step "tests" run_tests
 step "qmllint" lint_qml
 step "qmlformat" format_qml
-step "clang-tidy" clang-tidy -p "$build" --quiet "${units[@]}"
+# Several files at once; xargs fails if any clang-tidy run does.
+lint_cpp() {
+    ((${#tidy[@]})) || return 0
+    printf '%s\0' "${tidy[@]}" | xargs -0 -P "$jobs" -n 2 clang-tidy -p "$build" --quiet
+}
+if ((quick)); then
+    step "clang-tidy (${#tidy[@]} changed files)" lint_cpp
+else
+    step "clang-tidy" lint_cpp
+fi
 step "clang-format" clang-format --dry-run -Werror "${cpp[@]}"
 step "gitleaks" gitleaks dir --no-banner --redact --log-level warn src tests tools
 exit "$failed"
