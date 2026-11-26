@@ -36,51 +36,52 @@ Other labels: `kind:` screen, service, API, script, config, test, docs.
 | 6 | Web apps | After the shell and most of the UI are settled (the lead, 2026-11-24) | Web apps on a real box, with a remote |
 | 7 | Alpha | Release stage, not a part: everything together on real boxes | A week as the household TV box, no keyboard |
 | 8 | 1.0.0 | Release stage: signing, docs, reviews, beta | Someone else installs it from the guide |
+| — | 2.0.0 | After 1.0.0. Planned so far: phone features, heavy accessibility, niri in place of labwc | Not set yet |
 
 Cost of going part by part (raised 2026-11-22 when the lead chose it): Hearth first runs as a whole on a real box at milestone 2, and users can't use any feature until every part is done. Putting the shell first means there's something to try from milestone 1.
 
 ## The grid
 
-M0 Ready to code · M1 Shell · M2 OS image · M3 Profiles · M4 Hardware · M5 Settings · M6 Web apps · M7 Alpha · M8 1.0.0
+M0 Ready to code · M1 Shell · M2 OS image · M3 Profiles · M4 Hardware · M5 Settings · M6 Web apps · M7 Alpha · M8 1.0.0 · 2.0.0 (after 1.0.0; only what's planned so far)
 
-| Part | Component | M0 | M1 | M2 | M3 | M4 | M5 | M6 | M7 | M8 | Blocked by |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| OS image | Repo and code checks | done (empty project builds, its checks run) | | | | | | | | | Hosted reviewers |
-| Shell | Session setup | | done | + started by greetd | + per-profile sessions | | | | | | — |
-| Shell | Theme and controls | | done, with Appearance | | | | | | | + accessibility pass | — |
-| Shell | Home screen | | done | | + per-profile order | | | + web apps | | | — |
-| Shell | Overlays | | done | | + profile switcher | | | | | | — |
-| Shell | Key handling | | done, with remapping | | | + gamepads, CEC | | + bridge | | | — |
-| Shell | System menu | | done | | | | | + web-app items | | | — |
-| Shell | On-screen keyboard | | done (gamepad wheel: stub; word suggestions: not yet) | | | + gamepad wheel | | + `inputmode` | | | — |
-| Shell | Notifications | | done | | | | | | | | — |
-| Shell | Failure screens | | done (design + shell's own) | + image's | + profiles' | + hardware's | + settings' | + web apps' | | | — |
-| Web apps | Web-app definitions | | | | | | | done, with allowed profiles and "add a web app" | | | — |
-| Web apps | Firefox setup | | | stub (in the image) | | | | done, with website limits and hardware decode | | + lighter Firefox | uBlock Origin (lighter-Firefox review, parked) |
-| Web apps | `hearth-web-bridge` | | | | | | | done (signed, installed by policy) | | | Bridge rules (plain JavaScript, actions only); the lead's addons.mozilla.org account |
-| OS image | Image build | | | done | | | | | | | — |
-| OS image | Boot and updates | | | done, with the Updates page | | | | | | | — |
-| OS image | Installer | | | done | | | | | | | — |
-| OS image | Recovery and diagnostics | | | done | | | | | | | — |
-| OS image | Network and permission rules | | | done | + group rules | | | | | | What listens |
-| OS image | CI | | | done | | | | | | | — |
-| OS image | Publishing | | | done (unsigned) | | | | | | + signing | — |
-| Profiles | Login screen | | | stub (one user, logged in automatically) | done | | | | | | — |
-| Profiles | Profiles service | | stub (placeholder name) | stub (one user) | done | | | | | | — |
-| Profiles | DNS filter | | | stub (one client) | done | | | | | | — |
-| Profiles | Screen-time keeper | | | | done | | | | | | — |
-| Profiles | Parental-control screens | | | | done, inside Settings | | | | | | — |
-| Hardware | Hardware check | | | | | done | | | | | — |
-| Hardware | Hardware add-ons | | | | | done | | | | | Where the compiler comes from; spike: driver add-ons (needs hardware) |
-| Hardware | Gamepads and HDMI-CEC | | | | | done | | | | | — |
-| Hardware | Power and sleep | | | | | done | | | | | — |
-| Settings | Settings app | | frame; Appearance, Accessibility, Remotes | + Updates, Network, Time, Reset, Developer mode | + Profiles | + Display, Sound, Bluetooth, Power | done | | | | TV colour range |
-| Settings | First-boot wizard | | | | | | done | | | | — |
-| Settings | Apps | | stub (launch only) | | | | done | | | | — |
-| Docs | Help pages | | | | | | | | done | | — |
-| Docs | Install guide | | | | | | | | | done | — |
-| Docs | User and contributor docs | | + shell | + build and release | | | | + web apps | | done | — |
-| Phone | Phone features | 2.0.0 | | | | | | | | | — |
+| Part | Component | M0 | M1 | M2 | M3 | M4 | M5 | M6 | M7 | M8 | 2.0.0 | Blocked by |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| OS image | Repo and code checks | done (empty project builds, its checks run) | | | | | | | | | | Hosted reviewers |
+| Shell | Session setup | | done | + started by greetd | + per-profile sessions | | | | | | + niri | Spike: niri (for the 2.0.0 cell) |
+| Shell | Theme and controls | | done, with Appearance | | | | | | | + accessibility pass | | — |
+| Shell | Home screen | | done | | + per-profile order | | | + web apps | | | | — |
+| Shell | Overlays | | done | | + profile switcher | | | | | | | — |
+| Shell | Key handling | | done, with remapping | | | + gamepads, CEC | | + bridge | | | | — |
+| Shell | System menu | | done | | | | | + web-app items | | | | — |
+| Shell | On-screen keyboard | | done (gamepad wheel: stub; word suggestions: not yet) | | | + gamepad wheel | | + `inputmode` | | | | — |
+| Shell | Notifications | | done | | | | | | | | | — |
+| Shell | Failure screens | | done (design + shell's own) | + image's | + profiles' | + hardware's | + settings' | + web apps' | | | | — |
+| Web apps | Web-app definitions | | | | | | | done, with allowed profiles and "add a web app" | | | | — |
+| Web apps | Firefox setup | | | stub (in the image) | | | | done, with website limits and hardware decode | | + lighter Firefox | | uBlock Origin (lighter-Firefox review, parked) |
+| Web apps | `hearth-web-bridge` | | | | | | | done (signed, installed by policy) | | | | Bridge rules (plain JavaScript, actions only); the lead's addons.mozilla.org account |
+| OS image | Image build | | | done | | | | | | | | — |
+| OS image | Boot and updates | | | done, with the Updates page | | | | | | | | — |
+| OS image | Installer | | | done | | | | | | | | — |
+| OS image | Recovery and diagnostics | | | done | | | | | | | | — |
+| OS image | Network and permission rules | | | done | + group rules | | | | | | | What listens |
+| OS image | CI | | | done | | | | | | | | — |
+| OS image | Publishing | | | done (unsigned) | | | | | | + signing | | — |
+| Profiles | Login screen | | | stub (one user, logged in automatically) | done | | | | | | | — |
+| Profiles | Profiles service | | stub (placeholder name) | stub (one user) | done | | | | | | | — |
+| Profiles | DNS filter | | | stub (one client) | done | | | | | | | — |
+| Profiles | Screen-time keeper | | | | done | | | | | | | — |
+| Profiles | Parental-control screens | | | | done, inside Settings | | | | | | | — |
+| Hardware | Hardware check | | | | | done | | | | | | — |
+| Hardware | Hardware add-ons | | | | | done | | | | | | Where the compiler comes from; spike: driver add-ons (needs hardware) |
+| Hardware | Gamepads and HDMI-CEC | | | | | done | | | | | | — |
+| Hardware | Power and sleep | | | | | done | | | | | | — |
+| Settings | Settings app | | frame; Appearance, Accessibility, Remotes | + Updates, Network, Time, Reset, Developer mode | + Profiles | + Display, Sound, Bluetooth, Power | done | | | | | TV colour range |
+| Settings | First-boot wizard | | | | | | done | | | | | — |
+| Settings | Apps | | stub (launch only) | | | | done | | | | | — |
+| Docs | Help pages | | | | | | | | done | | | — |
+| Docs | Install guide | | | | | | | | | done | | — |
+| Docs | User and contributor docs | | + shell | + build and release | | | | + web apps | | done | | — |
+| Phone | Phone features | | | | | | | | | | done | — |
 
 ## Milestones
 
@@ -164,4 +165,20 @@ Done when: a week in a real living room with no keyboard, no SSH and no lost vie
 ### 8. 1.0.0
 
 Done when: signing is on; a stranger installs it from the guide and uses it as their TV box; the security review, accessibility pass and lighter-Firefox review are done; beta brought fixes only; the shell's text sizes, margins, motion and keyboard have been tested on a TV.
+
+### 2.0.0
+
+After 1.0.0. Done when: not set yet. Planned so far: phone features ([design doc, Phone](design.md#11-phone)), heavy accessibility ([Heavy accessibility in 2.0.0](decisions/0019-heavy-accessibility-in-2-0.md)), and niri in place of labwc ([niri before 2.0.0](decisions/0020-niri-before-2-0.md)).
+
+Tasks:
+
+**Spike: niri** (Claude's proposal; it blocks Session setup's 2.0.0 cell). If it fails, the lead decides again.
+- Dev box or VM: re-run the labwc shell spike's checks on niri ([shell spike results](research/2026-11-22-shell-spike-results.md)). Also check:
+  - one full-screen app at a time, through niri's window rules;
+  - app open is instant with niri's animations off;
+  - the blur area follows the menu as it slides in;
+  - going home and back: niri has no minimize, so the shell's way doesn't work there (Claude's addition, from niri's source);
+  - Back, Home and Menu fire once when held, with the bindings Fedora's niri version has (Claude's addition).
+- Real hardware (the OptiPlex, then the 4 GB box): blur behind the keyboard strip over playing 1080p video, with no dropped frames.
+- Then each row of the design doc's labwc-ties list (Session setup) gets its niri answer.
 

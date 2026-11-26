@@ -26,10 +26,10 @@ Summarised from the lead's 11 reference screenshots (TV launchers, profile picke
 
 ## The lead decided (2026-11-25)
 Copied into the [design doc](../design.md) as "Agreed" lines.
-- **Blur:** ~~home screen only; the menu never blurs open apps~~ replaced 2026-11-26, see below.
+- **Blur** (clarified 2026-11-25): only behind Hearth's menu and keyboard, never the whole screen. Over the home screen Qt draws it. Over apps it needs the compositor to blur; labwc can't, so it's a solid tint there until niri used ([niri before 2.0.0](../decisions/0020-niri-before-2-0.md)). The earlier "home screen only; the menu never blurs open apps" came from a misreading.
 - **Menu:** two ways to show it, for now while exploring: drawn inside the home screen's window over home (so it can blur), and as an overlay with a solid tint over apps. To be tried in dev.
 - **Accessibility page:** gets "Reduce transparency".
-- **On-screen keyboard:** the design doc's four layouts stand. Single row = the tvOS style; may need a compositor that can blur part of the background. The QWERTY grid may become an alternate layout of the alphabet grid, coming in from the side. Gamepad wheel: in scope.
+- **On-screen keyboard:** the design doc's four layouts stand. Single row = the tvOS style, with blur behind it as the menu has: a solid tint over apps on labwc, blur on niri (clarified 2026-11-25). The QWERTY grid may become an alternate layout of the alphabet grid, coming in from the side. Gamepad wheel: in scope.
 - **App tile art:** theme packs can supply app art. Fetching art online: undecided. The default tile (app icon, user-settable name in the system font, automatic background colour) is the lead's idea; tile art as a whole needs scoping later.
 - **Guest profile:** see the design doc's Guest profile section.
 

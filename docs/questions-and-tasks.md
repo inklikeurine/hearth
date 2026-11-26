@@ -19,7 +19,7 @@ CONTEXT: I'm the solo lead of Hearth, an open-source TV interface ("10-foot UI")
 - Goal: a smart-TV replacement that runs like an appliance, as reliable as a basic fridge.
 - Hardware floor: 4 GB RAM, x86-64: Intel 7th gen or newer, AMD Raven Ridge-class APUs (2018) or newer, NVIDIA GTX 16 / RTX 20 or newer (GTX 10 is legacy until October 2028). Raspberry Pi 4 is a design goal only.
 - Optional hardware: on-board Wi-Fi, Bluetooth, USB infrared receivers, gamepads and HDMI-CEC are recommended and supported by default, but never assumed present; old laptops, desktops and mini-PCs often lack them.
-- Platform: Hearth's own Qt 6 QML shell (GPL-3.0-or-later), borrowing parts from KDE Plasma Bigscreen (no Plasma underneath). One full-screen app at a time; Hearth draws the overlays and the Menu-button system menu, and apps add menu items through a Hearth API. Compositor: labwc. Heavy accessibility features (screen reader, color filters) come in 2.0.0. OS image built with mkosi on Fedora 45, installed from an "Installer" boot profile running systemd-sysinstall, updated with systemd-sysupdate (A/B, read-only system, automatic rollback). Boots on UEFI only. Fedora's stock kernel, Secure Boot off by default in 1.0; drivers Fedora doesn't ship (NVIDIA, some Wi-Fi) are pulled at setup time for the hardware found.
+- Platform: Hearth's own Qt 6 QML shell (GPL-3.0-or-later), borrowing parts from KDE Plasma Bigscreen (no Plasma underneath). One full-screen app at a time; Hearth draws the overlays and the Menu-button system menu, and apps add menu items through a Hearth API. Compositor: labwc for 1.0.0; niri replaces it before 2.0.0. Heavy accessibility features (screen reader, color filters) come in 2.0.0. OS image built with mkosi on Fedora 45, installed from an "Installer" boot profile running systemd-sysinstall, updated with systemd-sysupdate (A/B, read-only system, automatic rollback). Boots on UEFI only. Fedora's stock kernel, Secure Boot off by default in 1.0; drivers Fedora doesn't ship (NVIDIA, some Wi-Fi) are pulled at setup time for the hardware found.
 - Hearth's own parts live in the OS image, never as Flatpaks; any other app can be a Flatpak.
 - Each profile is its own Unix user (one active session at a time, optional PIN); logins are kept in oo7, the secret store.
 - Apps: native apps and Firefox kiosk "web apps", with our own Firefox extension, hearth-web-bridge. Which apps ship isn't decided. One global key map for every app.
@@ -46,7 +46,6 @@ RULES FOR YOUR ANSWER
 | Boot-time target. Later (the lead) | Shapes the image and startup work | Design doc, section 2 |
 | App tile art: where wide art comes from, the default tile, whether art is ever fetched online. Later (the lead) | Most Linux apps ship only square icons | Design doc, Home screen; [visual references](research/V1-visual-references.md) |
 | Guest profile: the rest of the details. Later (the lead) | First rules are agreed; more thought needed | Design doc, Guest profile |
-| Compositor blur behind the menu and keyboard over apps: patch labwc, change compositor, or wait. Later (the lead) | The lead wants the blurred menu everywhere; labwc has no blur | Design doc, Theme and controls |
 | Gamepad-wheel keyboard: needs its own design time. Later (the lead) | Round 2 mockup didn't work | Design doc, On-screen keyboard |
 | Volume overlay design. UI review round 3 (the lead) | Both round 2 versions rejected; right edge is a stand-in | [Visual references](research/V1-visual-references.md) |
 | Notifications' look, and the menu in more detail. Future UI rounds (the lead) | Neither has been mocked up | [UI guide](ui-guide.md) |
@@ -76,6 +75,8 @@ Out of scope: layouts, word suggestions, X11. Save a summary: facts confirmed, u
 ## Spikes to add
 
 The software spikes ran in a VM on 2026-11-24 ([test image results](research/2026-11-24-test-image-results.md)). Left for a VM: signed updates, SELinux enforcing, rebuilding the codec add-on after an update. Left for real hardware: labwc's Vulkan renderer and HDR, video decode, TV colour range, sound, sleep and wake, RAM on a 4 GB box, overlays over video, driver add-ons.
+
+For 2.0.0: the niri spike, in the [roadmap](roadmap.md)'s 2.0.0 milestone ([niri before 2.0.0](decisions/0020-niri-before-2-0.md)).
 
 ## Summarizing a chat for the design log
 

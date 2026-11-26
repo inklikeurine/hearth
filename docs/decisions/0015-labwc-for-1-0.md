@@ -1,6 +1,6 @@
 # Decision 0015: labwc is Hearth 1.0.0's compositor
 
-Related: design doc, sections 5.4, 6.2, 6.4 and 7; [shell spike results](../research/2026-11-22-shell-spike-results.md); [Heavy accessibility in 2.0](0019-heavy-accessibility-in-2-0.md).
+Related: design doc, sections 5.4, 6.2, 6.4 and 7; [shell spike results](../research/2026-11-22-shell-spike-results.md); [Heavy accessibility in 2.0](0019-heavy-accessibility-in-2-0.md); [niri before 2.0.0](0020-niri-before-2-0.md), which replaces labwc before 2.0.0.
 
 ## Context
 

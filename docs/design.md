@@ -115,11 +115,31 @@ Talks to: labwc, greetd's session.
 
 Decided:
 - labwc is the compositor for 1.0.0 ([labwc for 1.0.0](decisions/0015-labwc-for-1-0.md)).
+- niri replaces labwc before 2.0.0 ([niri before 2.0.0](decisions/0020-niri-before-2-0.md)).
 - `wlr-protocols-devel` is approved as a dependency, for the window-switching protocol.
 
 Built (Claude's technical picks, 2026-11-24):
 - The shell makes apps full screen, not a labwc window rule: labwc's rule can only toggle, so it undid full screen for apps that start that way. An app's own dialogs stay windows.
 - A crashed shell starts again, up to three times in a row; the app that was open stays open.
+
+Tied to labwc (Claude's proposal, asked for by the lead on 2026-11-25, so the move to niri before 2.0.0 stays cheap). Built from the code on 2026-11-25. Keep it current: a change that adds a tie adds a row. Sources for the niri column are in [niri before 2.0.0](decisions/0020-niri-before-2-0.md) and [niri's wiki](https://github.com/niri-wm/niri/wiki).
+
+| Tie | Files | What niri needs instead |
+|---|---|---|
+| Back, Home, Menu, Esc, Backspace, F2 and the volume keys bound to `hearth-send`. All but Backspace and volume fire on release, so a held key fires once | `src/session/labwc/rc.xml` | A `binds` block in niri's `config.kdl`, with `spawn "hearth-send" "back"` and so on [C]. Release bindings are marked "Since: next release", so they may not be in 26.04 [C]; `repeat=false` fires once on press [C]. Whether niri's bindings take keys before the keyboard's input-method grab, as labwc's do: not checked |
+| Each profile's extra buttons and key-repeat speed (the Remotes page), written into a copy of labwc's settings; labwc is told to reload with a signal to `LABWC_PID` | `src/shell/session/labwcconfig.cpp`, `labwcconfig.h`, `keycatcher.cpp`; `src/shell/main.cpp` (`--write-labwc`); `src/shell/Main.qml` | The same values in niri's file format (KDL): `input { keyboard { repeat-delay 600; repeat-rate 25 } }` [C]. niri reloads its config by itself when the file changes, or with `niri msg action load-config-file` [C]. The writer is rewritten for the new format |
+| The session start: `labwc -C <settings> -S "hearth-session --inside"`; the session ends when the shell does | `src/session/hearth-session` | `niri -c <config> -- <command>` runs a command at startup [C]. Whether niri ends when that command ends: not checked |
+| The crashed-shell restart | `src/session/hearth-session` (`keep_running`) | Not labwc-specific: it runs inside the startup command and only checks that the compositor's Wayland socket is still there. It moves with the row above (Claude's reading of the code) |
+| Window rules: no title bars, apps left out of labwc's own window switcher | `src/session/labwc/rc.xml` | niri draws no title bars; `prefer-no-csd` asks apps to drop their own [C]. Switching off niri's focus ring and borders: not checked |
+| Full screen: the shell asks for it through wlr foreign-toplevel, not a labwc rule | `src/shell/session/appswitcher.cpp`, `waylandwindows.cpp` | niri carries out foreign-toplevel's full-screen request [C, niri's source]. An `open-fullscreen true` window rule for every window is also available [C]. One app at a time in niri's scrolling layout: spike check |
+| Going home: the shell minimizes the app and brings home forward; bringing the app back un-minimizes it | `src/shell/session/appswitcher.cpp`, `waylandwindows.cpp`, `toplevels.cpp` | niri has no minimize: it ignores the request and never reports a window as minimized [C, niri's source]. Another way to put the app behind home: not checked. Spike check |
+| The keyboard's text-box rule counts on the compositor saying whether the app shows a cursor after each update; labwc takes Back, Esc and Backspace before the keyboard does | `src/keyboard/compositorlink.h`, `waylandlink.cpp`, `keyrules.cpp` | Not checked |
+| The screenshot and screen-sharing portals point at the wlr portal | `src/session/hearth-portals.conf` | niri's docs name `xdg-desktop-portal-gnome` for screen sharing [C]. Whether the wlr portal works on niri: not checked |
+| Headless session tests: labwc with no screen through wlroots' `WLR_BACKENDS=headless`; wlrctl for windows and the pointer, wlr-randr for the screen size, wtype for keys, grim for pictures; one check looks for a minimized app | `tests/session/run.sh`, `tests/session/CMakeLists.txt`, `tests/session/parts/10-windows.sh` (minimized), `30-settings.sh` (reads labwc's settings), `50-keyboard.sh` (wlrctl pointer) | niri isn't built on wlroots, so the `WLR_` settings don't apply [M]. Its headless backend is for niri's own tests, with no switch to start it [C], and without a screen niri gives no window focus [C]. grim works: niri has wlr-screencopy [C]. wtype needs virtual-keyboard v1, which niri is listed with [S]. wlrctl's pointer and wlr-randr: not checked |
+| Unit tests built on labwc's behaviour | `tests/cpp/tst_buttons.cpp` (labwc's settings), `tests/cpp/tst_switcher.cpp` (windows as labwc reports them, minimized included) | Rewritten with the settings writer and going home |
+| The dev box installs labwc | `tools/dev/distrobox.ini`, [dev environment](dev-environment.md) | Fedora 45 has niri 26.04-2.fc45 [C, the dev box's package cache]. Installing it needs the lead |
+
+Not ties: layer-shell (overlays and the keyboard strip, through layer-shell-qt), wlr foreign-toplevel, input-method v2, virtual-keyboard v1 and text-input v3 are standard protocols that niri 26.04 is listed with [S, wayland.app]. Planned but not built: the Display page on labwc's output settings (Settings app table).
 
 Detail: why labwc and not KWin, Weston, cage or our own compositor; Fedora 45's labwc protocols ([design doc detail, 5.4](research/2026-11-23-design-doc-detail.md), [labwc protocols on Fedora 45](research/2026-11-22-labwc-protocols-fedora45.md)).
 
@@ -141,7 +161,8 @@ Agreed for now (the lead, 2026-11-24); tested on a TV before 1.0.0 ships:
 - An automatic test checks every built-in theme against WCAG AA contrast.
 
 Agreed (the lead, 2026-11-25):
-- Blur behind the menu panel, including over running apps (the lead, 2026-11-26; replaces "the menu never blurs open apps", which came from a misunderstanding of what was blurred). Qt can blur Hearth's own screens; blurring what's behind the panel over an app needs compositor blur, which labwc doesn't have. To look into later.
+- Blur only behind Hearth's menu and keyboard, never the whole screen. Over the home screen Qt draws it. Over apps it needs the compositor to blur; labwc can't, so it's a solid tint there until niri used. (The lead clarified this on 2026-11-25. The earlier line came from a misreading. [niri before 2.0.0](decisions/0020-niri-before-2-0.md).)
+- No window open or close animations: apps open instantly. The menu and the keyboard move and scroll with animations. Qt draws those inside Hearth's own overlays, so they don't depend on the compositor ([niri before 2.0.0](decisions/0020-niri-before-2-0.md)).
 - The lead's likes and dislikes from 11 reference screenshots, and the round 1 mockups: [visual references](research/V1-visual-references.md).
 
 Design principles from UI review rounds 1 and 2, and the looks a theme may choose: [UI guide](ui-guide.md) (a draft Claude started on 2026-11-26 from principles the lead reviewed).
@@ -219,7 +240,8 @@ Agreed for now (the lead, 2026-11-24):
 
 Agreed (the lead, 2026-11-25):
 - The menu slides in from the left edge, docked full height; a setting moves it to the right edge.
-- Two ways to show it, for now while exploring: over the home screen it's drawn inside the home screen's own window (so it can blur what's behind it); over apps it's an overlay with a solid tint until the compositor can blur. To be tried in dev.
+- Two ways to show it, for now while exploring: over the home screen it's drawn inside the home screen's own window, so Qt can blur what's behind it; over apps it's an overlay. To be tried in dev.
+- Over apps, the menu and the keyboard ask the compositor for blur through the standard protocol (ext-background-effect-v1). When the compositor doesn't offer it, they fall back to a solid tint. labwc doesn't offer it, so 1.0.0 gets the tint. The tint also serves "Reduce transparency". On niri, blur appears with no shell change ([niri before 2.0.0](decisions/0020-niri-before-2-0.md)).
 
 Waiting on the lead:
 - The [Menu Contribution API draft](menu-api.md): three item types (action, toggle, choice), no submenus, 12 items, 40-character labels, 10 updates in 10 seconds. Only a program Hearth started can add items, checked by the process session it runs in. Claude's proposal.
@@ -231,7 +253,7 @@ Talks to: labwc through input-method v2 and virtual-keyboard v1; apps through te
 
 - Types into every app, including Flatpaks the user installs.
 - Designed from scratch now the compositor is chosen. Layouts: QWERTY grid, alphabet grid, single row, gamepad wheel. Themeable.
-- Layout notes (the lead, 2026-11-25): the single row is the tvOS style and may need a compositor that can blur part of the background; the QWERTY grid may end up as an alternate layout of the alphabet grid, coming in from the side as it does rather than up from the bottom; the gamepad wheel is in scope.
+- Layout notes (the lead, 2026-11-25): the single row is the tvOS style, with blur behind it as the menu has: a solid tint over apps in 1.0.0 on labwc, blur once niri comes in 2.0.0 ([niri before 2.0.0](decisions/0020-niri-before-2-0.md)); the QWERTY grid may end up as an alternate layout of the alphabet grid, coming in from the side as it does rather than up from the bottom; the gamepad wheel is in scope.
 - Word suggestions, kept per profile, with an off switch (2026-11-22).
 - A layout per kind of field (text, email, password, number), as Gboard does; no suggestions in password fields.
 - The word-suggestion engine (a technical pick left to Claude). Claude's pick, 2026-11-24: a small one of our own that completes the word being typed and ranks by what the profile has typed before, with spelling fixes and the word list from hunspell. The usual engine, presage, isn't in Fedora 45, and Fedora's Stevia uses hunspell only (checked in the dev box). Open: how to rank words for a profile that hasn't typed anything yet.
