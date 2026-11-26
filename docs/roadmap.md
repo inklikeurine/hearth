@@ -52,7 +52,7 @@ M0 Ready to code · M1 Shell · M2 OS image · M3 Profiles · M4 Hardware · M5 
 | Shell | Overlays | | done | | + profile switcher | | | | | | — |
 | Shell | Key handling | | done, with remapping | | | + gamepads, CEC | | + bridge | | | — |
 | Shell | System menu | | done | | | | | + web-app items | | | — |
-| Shell | On-screen keyboard | | done (gamepad wheel: stub) | | | + gamepad wheel | | + `inputmode` | | | — |
+| Shell | On-screen keyboard | | done (gamepad wheel: stub; word suggestions: not yet) | | | + gamepad wheel | | + `inputmode` | | | — |
 | Shell | Notifications | | done | | | | | | | | — |
 | Shell | Failure screens | | done (design + shell's own) | + image's | + profiles' | + hardware's | + settings' | + web apps' | | | — |
 | Web apps | Web-app definitions | | | | | | | done, with allowed profiles and "add a web app" | | | — |
@@ -117,15 +117,11 @@ Tasks, by component:
 - The API's format and limits wait on the lead
 - A native app using the API for real: not tried; there's no such app yet
 
-**On-screen keyboard**
-- Keyboard frame: input-method v2, virtual-keyboard, layer-shell strip
-- QWERTY grid layout
-- Alphabet grid layout
-- Single-row layout
-- Gamepad wheel: stub, driven by arrows
-- Layout per kind of field
-- Word suggestions, kept per profile, with an off switch
-- A real keyboard's letters pass through; held arrows repeat; key names through libxkbcommon
+**On-screen keyboard** (done: `hearth-keyboard` with input-method v2, virtual-keyboard v1 and a layer-shell strip; QWERTY grid, alphabet grid and single-row layouts; a layout per kind of field; a real keyboard's keys pass through; held arrows repeat; key names through libxkbcommon; follows the theme, text size and reduced motion; restarted if it crashes). Typed into the test app, a Hearth text box, Firefox and foot, headless.
+- Gamepad wheel: a stub, driven by arrows; words are cut off at 150% text size
+- Word suggestions, kept per profile, with an off switch: not built (ranking waits on the lead, see the design doc)
+- A Settings page for the keyboard: not built
+- GTK4 and SDL apps: untested, neither is in the dev box
 
 **Settings** (done: the frame; Appearance, Accessibility and Remotes pages)
 - Appearance: the font setting and day/night themes, which need a second everyday theme first

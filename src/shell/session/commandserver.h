@@ -25,6 +25,8 @@ class CommandServer : public QObject {
 
 public:
     explicit CommandServer(QObject *parent = nullptr);
+    ~CommandServer() override;
+    Q_DISABLE_COPY_MOVE(CommandServer)
 
     // Empty outside a Wayland session. hearth-send has the same rule.
     static QString socketPath();

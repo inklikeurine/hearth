@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "commandserver.h"
 
+#include <memory>
+
 #include <QFileInfo>
 #include <QLocalSocket>
 #include <QProcess>
@@ -123,6 +125,21 @@ private Q_SLOTS:
         // If it crashes, Backspace must not stay "delete".
         keyboard.abort();
         QTRY_VERIFY(!server.textBoxFocused());
+    }
+
+    // The shell closing while the keyboard is connected must not crash it.
+    void closesWithTheKeyboardConnected()
+    {
+        auto server = std::make_unique<CommandServer>();
+        QVERIFY(server->listen());
+        QLocalSocket keyboard;
+        keyboard.connectToServer(CommandServer::socketPath());
+        QVERIFY(keyboard.waitForConnected());
+        keyboard.write("keyboard\nshown 1\n");
+        keyboard.flush();
+        QTRY_VERIFY(server->keyboardShown());
+        server.reset();
+        QTRY_COMPARE(keyboard.state(), QLocalSocket::UnconnectedState);
     }
 
     void dropsEndlessLines()

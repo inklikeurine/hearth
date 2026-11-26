@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// hearth-testapp NAME LOG [fixed|fullscreen|stubborn|text]...: an app for the session test.
+// hearth-testapp NAME LOG [fixed|fullscreen|stubborn|text|boxes]...: an app for the session test.
 // Its app ID is NAME, and it writes what happens to it to the file LOG.
 //   fixed     a window that can't be resized
 //   fullscreen  starts full screen
 //   stubborn  asks about unsaved work in a dialog instead of closing
 //   text      has a text box, focused at the start
+//   boxes     has two, and something else that's focused; Down goes to the first,
+//             Enter to the next one
 #include <QFile>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>

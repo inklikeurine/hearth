@@ -89,4 +89,5 @@ set(test_environment
 )
 set_tests_properties(version theme apps launcher switcher keys commands failures system menuapi buttons heldkeys qml PROPERTIES ENVIRONMENT "${test_environment}")
 
+add_subdirectory(keyboard)
 add_subdirectory(session)

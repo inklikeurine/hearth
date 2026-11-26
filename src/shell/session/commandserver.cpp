@@ -34,6 +34,15 @@ CommandServer::CommandServer(QObject *parent)
     });
 }
 
+// The sockets close as m_server goes, after this object is half gone: they
+// mustn't call back into it.
+CommandServer::~CommandServer()
+{
+    for (QLocalSocket *socket : m_server.findChildren<QLocalSocket *>()) {
+        socket->disconnect(this);
+    }
+}
+
 QString CommandServer::socketPath()
 {
     const QString folder = qEnvironmentVariable("XDG_RUNTIME_DIR");

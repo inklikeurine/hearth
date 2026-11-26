@@ -217,8 +217,22 @@ Talks to: labwc through input-method v2 and virtual-keyboard v1; apps through te
 - A layout per kind of field (text, email, password, number), as Gboard does; no suggestions in password fields.
 - The word-suggestion engine (a technical pick left to Claude). Claude's pick, 2026-11-24: a small one of our own that completes the word being typed and ranks by what the profile has typed before, with spelling fixes and the word list from hunspell. The usual engine, presage, isn't in Fedora 45, and Fedora's Stevia uses hunspell only (checked in the dev box). Open: how to rank words for a profile that hasn't typed anything yet.
 
+Built (Claude's technical picks, 2026-11-25):
+- When a box counts as a text box: once it has shown a cursor, the keyboard follows the cursor; before that, the box's own text counts; its kind alone counts only when the compositor says nothing about cursors. The simpler rule (the box's description alone) showed the keyboard over buttons on Qt's failure screen and missed Qt boxes that take focus after their window. Risk: an app that gives neither a cursor nor its text gets no keyboard.
+- A real keyboard's keys reach the app as real key presses, not typed text: Firefox dropped letters the other way.
+- Backspace deletes one whole character; the keyboard tracks only sizes, never the text. In terminals it is sent as a key.
+- Nothing typed reaches the shell or the session log.
+- Key labels are words ("Delete", "Enter", "?123"), since the font may lack the symbols.
+- Each box starts on q (QWERTY), a (alphabet) or 1 (number pad).
+- Hiding waits 50 ms so moving between boxes doesn't flash the strip.
+
+Waiting on the lead:
+- Reopening the keyboard in the same box after Back closed it. Today: leave the box and come back; in a Qt form the next box also stays closed. Claude's pick: keep it, it's the easiest to undo. The other option: Select on a box with the keyboard closed reopens it, which costs that box's Enter.
+- The strip covers boxes in the lower 40% of the screen, since full-screen apps ignore the space it reserves. Claude's pick for later: show what's being typed above the keys, never for passwords. Other options: leave it, or move the strip to the top when the cursor is low.
+- The password note: "Password: what you type stays hidden and isn't remembered." Claude's pick: keep it.
+
 Agreed for now (the lead, 2026-11-24); tested on a TV before 1.0.0 ships:
-- Build it as a Qt QML keyboard from plasma-keyboard's layouts and navigation, talking input-method v2 the way Stevia does.
+- Build it as a Qt QML keyboard from plasma-keyboard's layouts and navigation, talking input-method v2 the way Stevia does. Not followed for the layouts: they were written fresh, because plasma-keyboard's are QML packages tied to its own key items and input-method v1, and navigation had to be in C++ to test every layout without a screen. The protocol files come from Stevia. Whether to bring in plasma-keyboard's layout data later, for other languages, is the lead's call.
 - Honour a web page's `inputmode="none"` through the bridge, since Firefox doesn't pass it on.
 
 Detail: [existing keyboards](research/K3-existing-keyboards.md), [TV keyboard layouts](research/K4-tv-keyboard-layouts.md), [Wayland keyboard protocols](research/K1-wayland-keyboard-protocols.md), [apps and text input](research/K2-apps-text-input.md), parts to borrow ([design doc detail, 6.4](research/2026-11-23-design-doc-detail.md)).
