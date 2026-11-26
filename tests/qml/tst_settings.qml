@@ -78,7 +78,7 @@ Item {
                 {
                     tag: "Accessibility",
                     page: 1,
-                    names: ["text", "contrast", "motion", "tiles", "repeat", "double"]
+                    names: ["text", "contrast", "motion", "transparency", "tiles", "repeat", "double"]
                 },
                 {
                     tag: "Remotes",
@@ -129,6 +129,11 @@ Item {
             keyClick(Qt.Key_Down);
             keyClick(Qt.Key_Return);
             compare(shellSettings.reducedMotion, true);
+            keyClick(Qt.Key_Down);
+            keyClick(Qt.Key_Return);
+            compare(shellSettings.reduceTransparency, true);
+            keyClick(Qt.Key_Return);
+            compare(shellSettings.reduceTransparency, false);
             keyClick(Qt.Key_Down);
             keyClick(Qt.Key_Return);
             compare(shellSettings.columns, 3);

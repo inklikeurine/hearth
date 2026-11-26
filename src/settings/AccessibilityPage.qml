@@ -39,6 +39,16 @@ SettingsPage {
     }
 
     Toggle {
+        detail: KI18n.i18n("Solid panels instead of see-through ones")
+        objectName: "transparency"
+        on: page.settings.reduceTransparency
+        text: KI18n.i18n("Reduce transparency")
+        width: parent.width
+
+        onSwitched: on => page.settings.reduceTransparency = on
+    }
+
+    Toggle {
         detail: KI18n.i18n("Three apps in a row, one row at a time")
         objectName: "tiles"
         on: page.settings.columns === 3 && page.settings.rows === 1

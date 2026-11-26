@@ -87,7 +87,11 @@ set(test_environment
     XDG_DATA_HOME=${CMAKE_CURRENT_BINARY_DIR}/data
     XDG_DATA_DIRS=${CMAKE_CURRENT_SOURCE_DIR}/data/share
 )
-set_tests_properties(version theme apps launcher switcher keys commands failures system menuapi buttons heldkeys qml PROPERTIES ENVIRONMENT "${test_environment}")
+set_tests_properties(version theme apps launcher switcher keys commands failures system menuapi buttons heldkeys PROPERTIES ENVIRONMENT "${test_environment}")
+# OpenGL (Mesa's software renderer when there's no GPU), not Qt's own software
+# renderer, which can't draw shader effects such as the panels' blur.
+set_tests_properties(qml PROPERTIES ENVIRONMENT
+    "${test_environment};QT_QUICK_BACKEND=rhi;QSG_RHI_BACKEND=opengl")
 
 add_subdirectory(keyboard)
 add_subdirectory(session)

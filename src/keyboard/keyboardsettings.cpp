@@ -54,10 +54,13 @@ void KeyboardSettings::read()
     const qreal textScale
         = std::clamp(shell.value(u"look/textPercent"_s, 100).toInt(), 100, 150) / 100.0;
     const bool reducedMotion = shell.value(u"look/reducedMotion"_s, false).toBool();
-    if (theme != m_theme || textScale != m_textScale || reducedMotion != m_reducedMotion) {
+    const bool reduceTransparency = shell.value(u"look/reduceTransparency"_s, false).toBool();
+    if (theme != m_theme || textScale != m_textScale || reducedMotion != m_reducedMotion
+        || reduceTransparency != m_reduceTransparency) {
         m_theme = theme;
         m_textScale = textScale;
         m_reducedMotion = reducedMotion;
+        m_reduceTransparency = reduceTransparency;
         Q_EMIT lookChanged();
     }
     const bool ignore = shell.value(u"keys/ignoreDoublePresses"_s, false).toBool();

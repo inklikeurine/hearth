@@ -73,6 +73,22 @@ public:
     QList<qreal> easing { 0.2, 0.0, 0.0, 1.0, 1.0, 1.0 };
 };
 
+// See-through panels: the menu and the keyboard. The blur only happens where
+// something can draw it (Qt over Hearth's own screens, or a compositor that
+// offers it); elsewhere a panel is solid.
+struct ThemeGlass {
+    Q_GADGET
+    QML_VALUE_TYPE(themeGlass)
+    Q_PROPERTY(qreal opacity MEMBER opacity)
+    Q_PROPERTY(int blur MEMBER blur)
+
+public:
+    // How much of the panel's own colour covers what's behind; 1 is solid.
+    qreal opacity = 1.0;
+    // The blur's reach in pixels, for a 1920x1080 screen.
+    int blur = 0;
+};
+
 // One theme, ready for screens to use. Reads a theme file, which is data only:
 // every value is checked against the tokens above, anything else is ignored, and
 // a theme whose text can't be read is refused. A theme lists only what it
@@ -83,9 +99,12 @@ class ThemeTokens : public QObject {
     Q_PROPERTY(ThemeColors colors READ colors NOTIFY changed)
     Q_PROPERTY(ThemeSizes sizes READ sizes NOTIFY changed)
     Q_PROPERTY(ThemeMotion motion READ motion NOTIFY changed)
+    Q_PROPERTY(ThemeGlass glass READ glass NOTIFY changed)
     Q_PROPERTY(QString fontFamily READ fontFamily NOTIFY changed)
     Q_PROPERTY(qreal textScale READ textScale WRITE setTextScale NOTIFY changed)
     Q_PROPERTY(bool reducedMotion READ reducedMotion WRITE setReducedMotion NOTIFY changed)
+    Q_PROPERTY(
+        bool reduceTransparency READ reduceTransparency WRITE setReduceTransparency NOTIFY changed)
     Q_PROPERTY(int screenHeight READ screenHeight WRITE setScreenHeight NOTIFY changed)
 
 public:
@@ -109,6 +128,8 @@ public:
     }
     [[nodiscard]] ThemeSizes sizes() const;
     [[nodiscard]] ThemeMotion motion() const;
+    // Solid when the user asks for less transparency.
+    [[nodiscard]] ThemeGlass glass() const;
     [[nodiscard]] QString fontFamily() const
     {
         return m_fontFamily;
@@ -125,6 +146,11 @@ public:
         return m_reducedMotion;
     }
     void setReducedMotion(bool reduced);
+    [[nodiscard]] bool reduceTransparency() const
+    {
+        return m_reduceTransparency;
+    }
+    void setReduceTransparency(bool reduce);
     [[nodiscard]] int screenHeight() const
     {
         return m_screenHeight;
@@ -142,15 +168,17 @@ Q_SIGNALS:
 private:
     bool loadJson(const QByteArray &json);
     void readInto(const QJsonObject &theme, ThemeColors &colors, ThemeSizes &sizes,
-        ThemeMotion &motion, QString &fontFamily);
+        ThemeMotion &motion, ThemeGlass &glass, QString &fontFamily);
     bool readable(const ThemeColors &colors, const ThemeSizes &sizes);
 
     ThemeColors m_colors;
     ThemeSizes m_sizes;
     ThemeMotion m_motion;
+    ThemeGlass m_glass;
     QString m_fontFamily;
     qreal m_textScale = 1.0;
     bool m_reducedMotion = false;
+    bool m_reduceTransparency = false;
     int m_screenHeight = 1080;
     QStringList m_problems;
 };

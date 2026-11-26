@@ -25,5 +25,9 @@
     "motion": {
         "duration": 200,
         "focusScale": 1.08
+    },
+    "glass": {
+        "opacity": 0.72,
+        "blur": 48
     }
 }

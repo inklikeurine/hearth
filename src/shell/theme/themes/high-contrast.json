@@ -13,5 +13,9 @@
     "sizes": {
         "focusRing": 8,
         "outline": 3
+    },
+    "glass": {
+        "opacity": 1.0,
+        "blur": 0
     }
 }

@@ -40,6 +40,9 @@ constexpr Range ranges[] = {
     { "outline", 0, 8 },
     { "duration", 0, 500 },
     { "focusScale", 1.0, 1.15 },
+    // Below 0.6, what's behind a panel could make its text hard to read.
+    { "opacity", 0.6, 1.0 },
+    { "blur", 0, 64 },
 };
 
 QString themePath(const QString &name)
@@ -164,14 +167,15 @@ bool ThemeTokens::loadJson(const QByteArray &json)
     ThemeColors colors;
     ThemeSizes sizes;
     ThemeMotion motion;
+    ThemeGlass glass;
     QString fontFamily;
     QFile dark(themePath(u"dark"_s));
     if (dark.open(QIODevice::ReadOnly)) {
-        readInto(
-            QJsonDocument::fromJson(dark.readAll()).object(), colors, sizes, motion, fontFamily);
+        readInto(QJsonDocument::fromJson(dark.readAll()).object(), colors, sizes, motion, glass,
+            fontFamily);
     }
     m_problems.clear();
-    readInto(document.object(), colors, sizes, motion, fontFamily);
+    readInto(document.object(), colors, sizes, motion, glass, fontFamily);
     if (!readable(colors, sizes)) {
         return false;
     }
@@ -179,17 +183,19 @@ bool ThemeTokens::loadJson(const QByteArray &json)
     m_colors = colors;
     m_sizes = sizes;
     m_motion = std::move(motion);
+    m_glass = glass;
     m_fontFamily = std::move(fontFamily);
     Q_EMIT changed();
     return true;
 }
 
 void ThemeTokens::readInto(const QJsonObject &theme, ThemeColors &colors, ThemeSizes &sizes,
-    ThemeMotion &motion, QString &fontFamily)
+    ThemeMotion &motion, ThemeGlass &glass, QString &fontFamily)
 {
     readGroup(theme.value("colors"_L1), colors, m_problems);
     readGroup(theme.value("sizes"_L1), sizes, m_problems);
     readGroup(theme.value("motion"_L1), motion, m_problems);
+    readGroup(theme.value("glass"_L1), glass, m_problems);
     const QString font = theme.value("font"_L1).toString();
     if (font.isEmpty()) {
         return;
@@ -265,6 +271,16 @@ ThemeMotion ThemeTokens::motion() const
     return motion;
 }
 
+ThemeGlass ThemeTokens::glass() const
+{
+    if (m_reduceTransparency) {
+        return { };
+    }
+    ThemeGlass glass = m_glass;
+    glass.blur = qRound(glass.blur * m_screenHeight / 1080.0);
+    return glass;
+}
+
 void ThemeTokens::setTextScale(qreal scale)
 {
     const qreal used = std::clamp(scale, 1.0, 1.5);
@@ -278,6 +294,14 @@ void ThemeTokens::setReducedMotion(bool reduced)
 {
     if (reduced != m_reducedMotion) {
         m_reducedMotion = reduced;
+        Q_EMIT changed();
+    }
+}
+
+void ThemeTokens::setReduceTransparency(bool reduce)
+{
+    if (reduce != m_reduceTransparency) {
+        m_reduceTransparency = reduce;
         Q_EMIT changed();
     }
 }

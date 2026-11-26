@@ -7,6 +7,9 @@ import Hearth.Theme
 FocusScope {
     id: panel
 
+    // What's under the panel in the same window, for Qt to blur. Without it the
+    // compositor is asked to, and the panel is solid where it can't.
+    property Item behind: null
     default property alias content: column.content
     property string title
 
@@ -33,11 +36,15 @@ FocusScope {
         onClicked: panel.dismissed()
     }
 
-    Rectangle {
+    Item {
         anchors.right: parent.right
-        color: Theme.tokens.colors.background
         height: parent.height
         width: Math.round(parent.height * 0.75)
+
+        PanelBackground {
+            anchors.fill: parent
+            source: panel.behind
+        }
 
         MouseArea {
             anchors.fill: parent

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+pragma ComponentBehavior: Bound
 import QtQuick
 import org.kde.ki18n
 import Hearth.Apps
@@ -20,12 +21,16 @@ Window {
     property string failedApp
     // Inside a Hearth session, rather than in a window on a desktop.
     property bool inSession: false
+    // The menu is drawn in this window over Hearth's own screens, so Qt can blur
+    // them, and in an overlay over apps.
+    property bool menuHere: false
+    property bool menuShown: false
     property bool settingsOpen: false
 
     // Every screen over what's in front goes, so the next one is alone.
     function dismiss() {
         failureOverlay.shown = false;
-        menuOverlay.shown = false;
+        window.menuShown = false;
         notificationOverlay.shown = false;
         powerOverlay.shown = false;
         question.shown = false;
@@ -107,6 +112,12 @@ Window {
         property: "reducedMotion"
         target: window.Theme.tokens
         value: shellSettings.reducedMotion
+    }
+
+    Binding {
+        property: "reduceTransparency"
+        target: window.Theme.tokens
+        value: shellSettings.reduceTransparency
     }
 
     ShellSettings {
@@ -229,7 +240,7 @@ Window {
                 failure: failureOverlay.shown ? window.failure.code : "",
                 home: switcher.homeInFront,
                 keyboard: server.keyboardShown,
-                menu: menuOverlay.shown,
+                menu: window.menuShown,
                 moving: homeScreen.moving,
                 notifications: notificationOverlay.shown,
                 opening: switcher.openingName,
@@ -251,12 +262,12 @@ Window {
 
         homeInFront: switcher.homeInFront
         keyboardShown: server.keyboardShown
-        menuOpen: menuOverlay.shown
+        menuOpen: window.menuShown
         screenOpen: failureOverlay.shown || question.shown || notificationOverlay.shown || powerOverlay.shown
         textBoxFocused: server.textBoxFocused
 
         onCloseKeyboard: server.hideKeyboard()
-        onCloseMenu: menuOverlay.shown = false
+        onCloseMenu: window.menuShown = false
         onDeleteBackward: server.sendBackspace()
         onGoHome: {
             window.dismiss();
@@ -274,7 +285,8 @@ Window {
             window.dismiss();
             homeScreen.moving = false;
             players.look();
-            menuOverlay.shown = true;
+            window.menuHere = switcher.homeInFront;
+            window.menuShown = true;
         }
         onScreenBack: {
             // Back on the question about an app that won't close: leave it be.
@@ -285,52 +297,48 @@ Window {
         }
     }
 
-    HomeScreen {
-        id: homeScreen
+    // Hearth's own screens: what the menu blurs when it's drawn over them.
+    Item {
+        id: screens
 
         anchors.fill: parent
-        apps: appList
-        enabled: !window.settingsOpen
-        focus: !window.settingsOpen
-        network: networkState.kind
-        openingName: switcher.openingName
-        resting: resting.idle
-        settings: shellSettings
-        unseen: notificationService.unseen
-        visible: !window.settingsOpen
 
-        onAppChosen: index => switcher.open(index)
-        onBellPressed: notificationOverlay.shown = true
-        onPowerPressed: powerOverlay.shown = true
-    }
-
-    SettingsScreen {
-        id: settingsScreen
-
-        anchors.fill: parent
-        enabled: window.settingsOpen
-        focus: window.settingsOpen
-        settings: shellSettings
-        visible: window.settingsOpen
-
-        onClosed: window.showHome()
-    }
-
-    Overlay {
-        id: menuOverlay
-
-        name: "menu"
-
-        onVisibleChanged: {
-            if (visible) {
-                systemMenu.show();
-            }
-        }
-
-        SystemMenu {
-            id: systemMenu
+        HomeScreen {
+            id: homeScreen
 
             anchors.fill: parent
+            apps: appList
+            enabled: !window.settingsOpen
+            focus: !window.settingsOpen
+            network: networkState.kind
+            openingName: switcher.openingName
+            resting: resting.idle
+            settings: shellSettings
+            unseen: notificationService.unseen
+            visible: !window.settingsOpen
+
+            onAppChosen: index => switcher.open(index)
+            onBellPressed: notificationOverlay.shown = true
+            onPowerPressed: powerOverlay.shown = true
+        }
+
+        SettingsScreen {
+            id: settingsScreen
+
+            anchors.fill: parent
+            enabled: window.settingsOpen
+            focus: window.settingsOpen
+            settings: shellSettings
+            visible: window.settingsOpen
+
+            onClosed: window.showHome()
+        }
+    }
+
+    Component {
+        id: menuComponent
+
+        SystemMenu {
             appItems: contributions.appId === switcher.runningId ? contributions.items : []
             appName: switcher.runningName
             atHome: switcher.homeInFront
@@ -367,6 +375,42 @@ Window {
                 powerOverlay.shown = true;
             }
             onSettingsChosen: window.openSettings()
+        }
+    }
+
+    Loader {
+        id: menuInWindow
+
+        active: window.menuShown && window.menuHere
+        anchors.fill: parent
+        focus: menuInWindow.active
+        sourceComponent: menuComponent
+
+        onActiveChanged: {
+            if (!menuInWindow.active) {
+                (window.settingsOpen ? settingsScreen : homeScreen).forceActiveFocus();
+            }
+        }
+        onLoaded: {
+            (item as SystemMenu).behind = screens;
+            (item as SystemMenu).show();
+            (item as SystemMenu).forceActiveFocus();
+        }
+    }
+
+    Overlay {
+        id: menuOverlay
+
+        name: "menu"
+        shown: window.menuShown && !window.menuHere
+
+        Loader {
+            active: menuOverlay.visible
+            anchors.fill: parent
+            focus: true
+            sourceComponent: menuComponent
+
+            onLoaded: (item as SystemMenu).show()
         }
     }
 

@@ -59,6 +59,12 @@ Window {
         value: window.keyboard.settings.reducedMotion
     }
 
+    Binding {
+        property: "reduceTransparency"
+        target: window.Theme.tokens
+        value: window.keyboard.settings.reduceTransparency
+    }
+
     KeyboardView {
         id: view
 

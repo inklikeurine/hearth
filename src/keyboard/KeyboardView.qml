@@ -54,9 +54,9 @@ Item {
         target: view.keys
     }
 
-    Rectangle {
+    // Over apps: blur where the compositor offers it, a solid tint where it doesn't.
+    PanelBackground {
         anchors.fill: parent
-        color: view.Theme.tokens.colors.background
 
         Rectangle {
             color: view.Theme.tokens.colors.outline

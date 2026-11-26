@@ -1,5 +1,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+# Asks the compositor for blur (ext-background-effect-v1), so Hearth doesn't
+# talk to Wayland itself for it.
+find_package(KF6WindowSystem 6.32 REQUIRED)
+
 qt_add_library(hearth-controls STATIC)
 qt_add_qml_module(hearth-controls
     URI Hearth.Controls
@@ -14,17 +18,23 @@ qt_add_qml_module(hearth-controls
         IconButton.qml
         Label.qml
         ListRow.qml
+        PanelBackground.qml
         Slider.qml
         TextBox.qml
         Tile.qml
         TileGrid.qml
         Toggle.qml
         TvButton.qml
+    SOURCES
+        compositorblur.cpp
+        compositorblur.h
     DEPENDENCIES
         TARGET hearth-theme
 )
-target_link_libraries(hearth-controls PUBLIC
-    hearth-theme
-    hearth-themeplugin
-    Qt6::Quick
+target_link_libraries(hearth-controls
+    PUBLIC
+        hearth-theme
+        hearth-themeplugin
+        Qt6::Quick
+    PRIVATE KF6::WindowSystem
 )

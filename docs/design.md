@@ -243,6 +243,11 @@ Agreed (the lead, 2026-11-25):
 - Two ways to show it, for now while exploring: over the home screen it's drawn inside the home screen's own window, so Qt can blur what's behind it; over apps it's an overlay. To be tried in dev.
 - Over apps, the menu and the keyboard ask the compositor for blur through the standard protocol (ext-background-effect-v1). When the compositor doesn't offer it, they fall back to a solid tint. labwc doesn't offer it, so 1.0.0 gets the tint. The tint also serves "Reduce transparency". On niri, blur appears with no shell change ([niri before 2.0.0](decisions/0020-niri-before-2-0.md)).
 
+Built (Claude's technical picks, 2026-11-26):
+- Each theme has a `glass` group: how solid panels are (at least 60%, so text stays readable over anything) and how far the blur reaches. Dark: 72% solid, 48 px. High contrast: solid. "Reduce transparency" on the Accessibility page makes every panel solid.
+- One panel background serves the menu, the notifications list and the keyboard. Over home and Settings the menu is drawn in the shell's own window and Qt blurs them. Over apps it asks the compositor through KDE's KWindowSystem, which speaks ext-background-effect-v1 and says whether the compositor really blurs; on labwc it doesn't, so the panel is solid. With Qt's software renderer (no working graphics driver) the panel is solid too: it would show what's behind it unblurred.
+- The keyboard is a program of its own, so Qt can't see the home screen behind it: it's solid over home on labwc too, and blurs only where the compositor does.
+
 Waiting on the lead:
 - The [Menu Contribution API draft](menu-api.md): three item types (action, toggle, choice), no submenus, 12 items, 40-character labels, 10 updates in 10 seconds. Only a program Hearth started can add items, checked by the process session it runs in. Claude's proposal.
 

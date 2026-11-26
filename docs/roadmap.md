@@ -101,7 +101,7 @@ Tasks, by component:
 
 **Session setup** (done: start script with a restart after a crash, labwc key bindings, apps made full screen by the shell, `hearth-session.target`, portal file). Not run yet as a real greetd session: that's the OS image milestone.
 
-**Theme and controls** (done: theme tokens and loader, dark and high-contrast themes with their contrast check, fonts, focus ring, tile, tile grid, button, dialog, list rows, toggle, slider, choice, text box, icons; every string through KI18n; accessible name and role on each)
+**Theme and controls** (done: theme tokens and loader, dark and high-contrast themes with their contrast check, glass tokens and the panel background that blurs or falls back to a solid tint, fonts, focus ring, tile, tile grid, button, dialog, list rows, toggle, slider, choice, text box, icons; every string through KI18n; accessible name and role on each)
 - High-contrast check of every screen, by eye: the automatic check covers the theme's colours, not each screen
 
 **Home screen** (done: app list with each profile's order, rows of tiles with the next row peeking in, starting an app, rows and columns read from config, background picture, window switching: Home, return to a running app, one app at a time; Move mode from the menu)
@@ -114,17 +114,19 @@ Tasks, by component:
 **Key handling** (done: key router, held-key rules, the default key map from the lead's air mouse, extra buttons for Back, Home and Menu from the Remotes page, key-repeat speed, ignoring double presses on Hearth's own screens)
 - Other air mice and infrared remotes: untested
 
-**System menu** (done: the menu with its system section, play and pause through MPRIS, the [Menu Contribution API](menu-api.md) draft and its D-Bus interface)
+**System menu** (done: the menu with its system section, play and pause through MPRIS, the [Menu Contribution API](menu-api.md) draft and its D-Bus interface; drawn in the shell's window over home and Settings, blurring them, and as an overlay over apps, solid on labwc)
+- Docked on the left and sliding in, with a setting for the right edge (agreed 2026-11-25): not built; it's on the right and doesn't slide
+- Compositor blur over apps: untested, since labwc can't; the niri spike tries it
 - The API's format and limits wait on the lead
 - A native app using the API for real: not tried; there's no such app yet
 
-**On-screen keyboard** (done: `hearth-keyboard` with input-method v2, virtual-keyboard v1 and a layer-shell strip; QWERTY grid, alphabet grid and single-row layouts; a layout per kind of field; a real keyboard's keys pass through; held arrows repeat; key names through libxkbcommon; follows the theme, text size and reduced motion; restarted if it crashes). Typed into the test app, a Hearth text box, Firefox and foot, headless.
+**On-screen keyboard** (done: `hearth-keyboard` with input-method v2, virtual-keyboard v1 and a layer-shell strip; QWERTY grid, alphabet grid and single-row layouts; a layout per kind of field; a real keyboard's keys pass through; held arrows repeat; key names through libxkbcommon; follows the theme, text size, reduced motion and reduce transparency; blurs behind it where the compositor offers it; restarted if it crashes). Typed into the test app, a Hearth text box, Firefox and foot, headless.
 - Gamepad wheel: a stub, driven by arrows; words are cut off at 150% text size
 - Word suggestions, kept per profile, with an off switch: not built (ranking waits on the lead, see the design doc)
 - A Settings page for the keyboard: not built
 - GTK4 and SDL apps: untested, neither is in the dev box
 
-**Settings** (done: the frame; Appearance, Accessibility and Remotes pages)
+**Settings** (done: the frame; Appearance, Accessibility with Reduce transparency, and Remotes pages)
 - Appearance: the font setting and day/night themes, which need a second everyday theme first
 - Accessibility: mono audio and balance belong with the Sound page (hardware milestone)
 

@@ -101,6 +101,7 @@ private Q_SLOTS:
         QCOMPARE(settings.theme(), u"dark"_s);
         QCOMPARE(settings.textScale(), 1.0);
         QVERIFY(!settings.reducedMotion());
+        QVERIFY(!settings.reduceTransparency());
         QVERIFY(!settings.ignoresDoublePresses());
         QSignalSpy look(&settings, &KeyboardSettings::lookChanged);
         QSignalSpy presses(&settings, &KeyboardSettings::ignoreDoublePressesChanged);
@@ -111,11 +112,13 @@ private Q_SLOTS:
             shell.setValue(u"look/theme"_s, u"high-contrast"_s);
             shell.setValue(u"look/textPercent"_s, 130);
             shell.setValue(u"look/reducedMotion"_s, true);
+            shell.setValue(u"look/reduceTransparency"_s, true);
             shell.setValue(u"keys/ignoreDoublePresses"_s, true);
         }
         QTRY_COMPARE(settings.theme(), u"high-contrast"_s);
         QCOMPARE(settings.textScale(), 1.3);
         QVERIFY(settings.reducedMotion());
+        QVERIFY(settings.reduceTransparency());
         QVERIFY(settings.ignoresDoublePresses());
         QVERIFY(look.count() >= 1);
         QVERIFY(presses.count() >= 1);

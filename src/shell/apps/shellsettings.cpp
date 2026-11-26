@@ -83,6 +83,16 @@ void ShellSettings::setReducedMotion(bool reduced)
     save(u"look/reducedMotion"_s, reduced);
 }
 
+bool ShellSettings::reduceTransparency() const
+{
+    return m_settings.value(u"look/reduceTransparency"_s, false).toBool();
+}
+
+void ShellSettings::setReduceTransparency(bool reduce)
+{
+    save(u"look/reduceTransparency"_s, reduce);
+}
+
 int ShellSettings::screensaverMinutes() const
 {
     return std::clamp(m_settings.value(u"screensaver/minutes"_s, 2).toInt(), 0, 60);

@@ -78,6 +78,8 @@ private Q_SLOTS:
             missing(ThemeSizes::staticMetaObject, theme["sizes"_L1].toObject()), QStringList());
         QCOMPARE(
             missing(ThemeMotion::staticMetaObject, theme["motion"_L1].toObject()), QStringList());
+        QCOMPARE(
+            missing(ThemeGlass::staticMetaObject, theme["glass"_L1].toObject()), QStringList());
     }
 
     void fontIsInstalled()
@@ -132,6 +134,39 @@ private Q_SLOTS:
         QCOMPARE(tokens.sizes().textBody, 64);
         QCOMPARE(tokens.motion().duration, 0);
         QCOMPARE(tokens.problems().size(), 3);
+    }
+
+    void glassStaysReadable()
+    {
+        ThemeTokens tokens;
+        QVERIFY(tokens.loadFile(file("{'glass': {'opacity': 0.1, 'blur': 500}}")));
+        QCOMPARE(tokens.glass().opacity, 0.6);
+        QCOMPARE(tokens.glass().blur, 64);
+        QCOMPARE(tokens.problems().size(), 2);
+    }
+
+    void reduceTransparencyMakesPanelsSolid()
+    {
+        ThemeTokens tokens;
+        QVERIFY(tokens.glass().opacity < 1.0);
+        tokens.setScreenHeight(2160);
+        QCOMPARE(tokens.glass().blur, 96);
+        QSignalSpy changed(&tokens, &ThemeTokens::changed);
+        tokens.setReduceTransparency(true);
+        QCOMPARE(changed.count(), 1);
+        QCOMPARE(tokens.glass().opacity, 1.0);
+        QCOMPARE(tokens.glass().blur, 0);
+        // A user setting: a new theme keeps it.
+        QVERIFY(tokens.loadBuiltin(u"dark"_s));
+        QCOMPARE(tokens.glass().opacity, 1.0);
+    }
+
+    void highContrastIsSolid()
+    {
+        ThemeTokens tokens;
+        QVERIFY(tokens.loadBuiltin(u"high-contrast"_s));
+        QCOMPARE(tokens.glass().opacity, 1.0);
+        QCOMPARE(tokens.glass().blur, 0);
     }
 
     void refusedThemesChangeNothing_data()

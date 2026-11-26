@@ -46,6 +46,51 @@ Item {
         }
     }
 
+    ThemeTokens {
+        id: glassTheme
+    }
+
+    // A panel over a picture, with Qt blurring it, and one with nothing to blur.
+    Item {
+        Theme.tokens: glassTheme
+        height: 200
+        width: 400
+        y: 300
+
+        // Red, with a blue stripe down the middle of the first panel.
+        Rectangle {
+            id: scenery
+
+            color: "red"
+            height: 200
+            width: 400
+
+            Rectangle {
+                color: "blue"
+                height: 200
+                width: 20
+                x: 190
+            }
+        }
+
+        PanelBackground {
+            id: overScenery
+
+            height: 200
+            source: scenery
+            width: 200
+            x: 100
+        }
+
+        PanelBackground {
+            id: overApps
+
+            height: 200
+            width: 100
+            x: 300
+        }
+    }
+
     SignalSpy {
         id: tileClicks
 
@@ -147,5 +192,42 @@ Item {
 
         name: "Controls"
         when: windowShown
+    }
+
+    TestCase {
+        name: "PanelBackground"
+        when: windowShown
+
+        function cleanup() {
+            glassTheme.reduceTransparency = false;
+            verify(glassTheme.loadBuiltin("dark"));
+        }
+
+        function test_blursWhatsBehindInTheSameWindow() {
+            verify(overScenery.frosted);
+            // Outside a compositor that blurs (here, none at all), it's solid.
+            verify(!overApps.frosted);
+        }
+
+        function test_reduceTransparencyMakesItSolid() {
+            glassTheme.reduceTransparency = true;
+            verify(!overScenery.frosted);
+        }
+
+        function test_highContrastIsSolid() {
+            verify(glassTheme.loadBuiltin("high-contrast"));
+            verify(!overScenery.frosted);
+        }
+
+        function test_theBlurShowsThePictureThrough() {
+            const image = grabImage(root);
+            // Red under see-through dark glass: redder than the solid tint beside it.
+            const frosted = image.pixel(130, 400);
+            const solid = image.pixel(350, 400);
+            verify(frosted.r > solid.r + 0.15, `frosted ${frosted} solid ${solid}`);
+            // Blurred, the blue stripe spreads into the red just beside it.
+            const beside = image.pixel(212, 400);
+            verify(beside.b > frosted.b + 0.03, `beside ${beside} red ${frosted}`);
+        }
     }
 }

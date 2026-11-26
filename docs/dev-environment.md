@@ -30,6 +30,7 @@ A [distrobox](https://distrobox.it/) is a container that feels like a second Lin
 | Product code (approved 2026-11-24) | kf6-ki18n-devel, libxkbcommon-devel, qrencode-devel, hunspell-devel, hunspell-en-US | KI18n 6.32.0, libxkbcommon 1.13.1, qrencode 4.1.1, hunspell 1.7.6 |
 | Faster builds (installed by the lead, 2026-11-25) | ccache (keeps compiled files), mold (a fast linker). Used by `tools/dev/check` since 2026-11-25 and by break-on-purpose runs | ccache 4.13.6, mold 2.41.0 |
 | Milestone 1 tests (installed by the lead, 2026-11-25) | wayland-protocols-devel (the idle and blur protocols' definitions), dbus-daemon (a private message bus for notification tests), gtk4-devel-tools (gtk4-widget-factory, a GTK4 app with text boxes), SDL3-devel (for a small SDL text-box app of our own) | wayland-protocols 1.50, dbus 1.16.4, GTK 4.24.2, SDL 3.4.20 |
+| Compositor blur (installed by the lead, 2026-11-26) | kf6-kwindowsystem-devel: KDE's KWindowSystem asks the compositor for blur behind the menu and keyboard (`ext-background-effect-v1`) | KWindowSystem 6.32.0 |
 | Hearth's fonts | atkinson-hyperlegible-next-fonts, google-noto-sans-vf-fonts | 2.100, 20260601 |
 | Basics the container image lacks | Mesa graphics drivers, Fedora's core sans fonts | |
 
@@ -53,7 +54,7 @@ Borrowed files approved for the spike: two Wayland protocol definitions from Ste
 
 `tools/dev/check --quick` is for while you work: clang-tidy reads only the C++ files changed since the last commit, plus those that include a changed header. A change that breaks an unchanged file through a header elsewhere shows up only in the full check.
 
-Both use 6 of the 12 cores at low priority, so the desktop stays usable, and build with ccache and mold. Times on 2026-11-25, nothing changed: full check about 2 min 45 s (6 min before: clang-tidy went from 275 s on one core to about 50 s on six), quick check about 90 s, nearly all of it tests. A build from scratch takes about 15 s once ccache holds the files; the first build after a change to the compiler settings takes about 2 minutes.
+Both use 6 of the 12 cores at low priority, so the desktop stays usable, and build with ccache and mold. Times on 2026-11-25, nothing changed: full check about 2 min 45 s (6 min before: clang-tidy went from 275 s on one core to about 50 s on six), quick check about 90 s, nearly all of it tests. The QML tests draw with OpenGL (Mesa's software renderer, so no graphics card is needed), because Qt's own software renderer can't draw the panels' blur. The session test keeps Qt's software renderer, so its pictures show panels solid. A build from scratch takes about 15 s once ccache holds the files; the first build after a change to the compiler settings takes about 2 minutes.
 
 `build/tests/gallery/hearth-gallery` (in the box) shows every control in a window; add `high-contrast` for that theme. `build/src/shell/hearth-shell` is the shell itself: the home screen in a window, reading its settings from the box's `~/.config/hearth/shell.ini`.
 

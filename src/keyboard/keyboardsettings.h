@@ -19,6 +19,7 @@ class KeyboardSettings : public QObject {
     Q_PROPERTY(QString theme READ theme NOTIFY lookChanged)
     Q_PROPERTY(qreal textScale READ textScale NOTIFY lookChanged)
     Q_PROPERTY(bool reducedMotion READ reducedMotion NOTIFY lookChanged)
+    Q_PROPERTY(bool reduceTransparency READ reduceTransparency NOTIFY lookChanged)
 
 public:
     explicit KeyboardSettings(QObject *parent = nullptr);
@@ -41,6 +42,10 @@ public:
     {
         return m_reducedMotion;
     }
+    [[nodiscard]] bool reduceTransparency() const
+    {
+        return m_reduceTransparency;
+    }
     [[nodiscard]] bool ignoresDoublePresses() const
     {
         return m_ignoreDoublePresses;
@@ -62,5 +67,6 @@ private:
     QString m_theme;
     qreal m_textScale = 1.0;
     bool m_reducedMotion = false;
+    bool m_reduceTransparency = false;
     bool m_ignoreDoublePresses = false;
 };

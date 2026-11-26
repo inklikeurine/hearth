@@ -19,6 +19,8 @@ class ShellSettings : public QObject {
     Q_PROPERTY(int textPercent READ textPercent WRITE setTextPercent NOTIFY changed)
     Q_PROPERTY(bool reducedMotion READ reducedMotion WRITE setReducedMotion NOTIFY changed)
     Q_PROPERTY(
+        bool reduceTransparency READ reduceTransparency WRITE setReduceTransparency NOTIFY changed)
+    Q_PROPERTY(
         int screensaverMinutes READ screensaverMinutes WRITE setScreensaverMinutes NOTIFY changed)
     // Buttons that mean Back, Home and Menu besides the usual ones, by their
     // names in xkbcommon: { back: [names], home: [names], menu: [names] }.
@@ -48,6 +50,8 @@ public:
     void setTextPercent(int percent);
     [[nodiscard]] bool reducedMotion() const;
     void setReducedMotion(bool reduced);
+    [[nodiscard]] bool reduceTransparency() const;
+    void setReduceTransparency(bool reduce);
     // 0 is off.
     [[nodiscard]] int screensaverMinutes() const;
     void setScreensaverMinutes(int minutes);
