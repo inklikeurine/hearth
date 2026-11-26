@@ -110,9 +110,9 @@ class TestLayouts : public QObject {
         QTest::addColumn<QString>("layout");
         QTest::addColumn<QString>("field");
         QTest::addColumn<QString>("page");
-        for (const QString &layout : layouts().keys()) {
-            for (const QString &field : fields().keys()) {
-                for (const QString &page : pages().keys()) {
+        for (const auto &[layout, layoutKind] : layouts().asKeyValueRange()) {
+            for (const auto &[field, fieldKind] : fields().asKeyValueRange()) {
+                for (const auto &[page, pageKind] : pages().asKeyValueRange()) {
                     QTest::addRow(
                         "%s %s %s", qPrintable(layout), qPrintable(field), qPrintable(page))
                         << layout << field << page;

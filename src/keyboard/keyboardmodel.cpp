@@ -50,7 +50,7 @@ void KeyboardModel::show(Page page)
     m_layout = Layout(m_kind, m_field, page);
     m_current = -1;
     endResetModel();
-    Q_EMIT layoutChanged();
+    Q_EMIT sizeChanged();
     setCurrent(m_layout.firstKey());
 }
 

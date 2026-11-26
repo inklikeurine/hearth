@@ -245,7 +245,7 @@ void AppSwitcher::showHome()
     if (!m_windows) {
         return;
     }
-    for (const WindowInfo &window : m_windows->windows()) {
+    for (const auto all = m_windows->windows(); const WindowInfo &window : all) {
         if (isHome(window)) {
             m_windows->bringToFront(window.id);
         } else if (!window.minimized && !window.hasParent) {
@@ -319,7 +319,7 @@ void AppSwitcher::forceClose()
         m_launcher->killAll();
     }
     // A window whose program we didn't start can only be asked.
-    for (const WindowInfo &window : appWindows()) {
+    for (const auto apps = appWindows(); const WindowInfo &window : apps) {
         m_windows->close(window.id);
     }
 }

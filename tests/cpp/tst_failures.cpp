@@ -19,7 +19,7 @@ private Q_SLOTS:
     {
         static const QRegularExpression format(u"^HEARTH-[A-Z]+-[0-9]{3}$"_s);
         QSet<QString> seen;
-        for (const QString &code : Failures::codes()) {
+        for (const QStringList codes = Failures::codes(); const QString &code : codes) {
             QVERIFY2(format.match(code).hasMatch(), qPrintable(code));
             QVERIFY2(!seen.contains(code), qPrintable(code));
             seen << code;
@@ -28,7 +28,7 @@ private Q_SLOTS:
 
     void everyCodeSaysWhatHappenedAndWhatToDo()
     {
-        for (const QString &code : Failures::codes()) {
+        for (const QStringList codes = Failures::codes(); const QString &code : codes) {
             const FailureText text = Failures::describe(code, u"The app"_s);
             QCOMPARE(text.code, code);
             // One sentence.

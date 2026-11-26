@@ -24,7 +24,7 @@ A [distrobox](https://distrobox.it/) is a container that feels like a second Lin
 | Compositor under test | labwc, plus wlrctl (switch windows from the command line), wlr-randr, wayland-info, wtype, wev, foot (a terminal) | labwc 0.20.2 |
 | Shell toolkit | Qt 6 (base, QML, Wayland, SVG, shader tools, Qt tools), layer-shell-qt (turns a Qt window into an overlay), wlr-protocols-devel (the window-switching protocol's definition) | Qt 6.11.2, layer-shell-qt 6.8.3 |
 | Building | cmake, ninja, gcc-c++, pkgconf, git | cmake 4.3.0 |
-| Checkers | qmllint and qmlformat (from Qt), clang-tidy and clang-format (clang-tools-extra), gitleaks (secret scanner) | clang-tools-extra 23.1.5, gitleaks 8.30.1 |
+| Checkers | qmllint and qmlformat (from Qt), clang-tidy and clang-format (clang-tools-extra), gitleaks (secret scanner). ShellCheck (shell scripts) and clazy (Qt-specific C++ checks) installed by the lead, 2026-11-26 | clang-tools-extra 23.1.5, gitleaks 8.30.1, ShellCheck 0.11.0, clazy 1.17 |
 | Apps the spike tests against | Firefox, Stevia (a ready-made on-screen keyboard; it doesn't run on labwc, so the spike has its own test keyboard) | Firefox 160.0, Stevia 0.57.0 |
 | Building OS images | mkosi (approved 2026-11-22; pinned to Fedora 45's build). Installing it prints a harmless grub warning: grub can't find a real disk inside a container | mkosi 26 |
 | Product code (approved 2026-11-24) | kf6-ki18n-devel, libxkbcommon-devel, qrencode-devel, hunspell-devel, hunspell-en-US | KI18n 6.32.0, libxkbcommon 1.13.1, qrencode 4.1.1, hunspell 1.7.6 |
@@ -34,7 +34,7 @@ A [distrobox](https://distrobox.it/) is a container that feels like a second Lin
 | Hearth's fonts | atkinson-hyperlegible-next-fonts, google-noto-sans-vf-fonts | 2.100, 20260601 |
 | Basics the container image lacks | Mesa graphics drivers, Fedora's core sans fonts | |
 
-Not in the box yet: Xwayland (the layer for old X11 apps; Firefox runs natively on Wayland). ShellCheck (a checker for shell scripts; Fedora 45 has 0.11.0): `tools/dev/check` skips it until the lead installs it.
+Not in the box yet: Xwayland (the layer for old X11 apps; Firefox runs natively on Wayland).
 
 ### Running labwc
 
@@ -50,7 +50,7 @@ Borrowed files approved for the spike: two Wayland protocol definitions from Ste
 
 ## Building and checking
 
-`tools/dev/check`, from the repo, builds Hearth in the box and runs every check: the tests, qmllint, qmlformat, clang-tidy, clang-format, ShellCheck, the doc check, the Claude guard's cases and gitleaks. It prints PASS or FAIL for each (SKIP for ShellCheck until it's installed). Run it before every commit. `tools/dev/check --fix` also reformats the code.
+`tools/dev/check`, from the repo, builds Hearth in the box and runs every check: the tests, qmllint, qmlformat, clang-tidy, clazy (Qt-specific C++ checks, level 1), clang-format, ShellCheck, the doc check, the Claude guard's cases and gitleaks. It prints PASS or FAIL for each (SKIP for ShellCheck in a box that doesn't have it yet). Run it before every commit. `tools/dev/check --fix` also reformats the code.
 
 `tools/dev/check --staged` runs only the fast checks, on the files staged for a commit: clang-format, qmlformat, ShellCheck, the doc check, and the guard's cases when the guard changed. The pre-commit hook runs it, about 1.5 s (2026-11-26). It reads files as they are on disk, which differs from what's staged only when part of a file was staged.
 

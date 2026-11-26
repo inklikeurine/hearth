@@ -77,7 +77,7 @@ QByteArray LabwcConfig::make(const ShellSettings &settings)
     const QVariantMap keys = settings.extraKeys();
     for (auto it = keys.begin(); it != keys.end(); ++it) {
         int count = 0;
-        for (const QString &key : it.value().toStringList()) {
+        for (const QStringList keys = it.value().toStringList(); const QString &key : keys) {
             // The file may have been changed by hand.
             if (!mayBeUsed(key) || ++count > mostKeys) {
                 continue;

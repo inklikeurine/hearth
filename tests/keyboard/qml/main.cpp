@@ -2,7 +2,7 @@
 #include <KLocalizedQmlContext>
 
 #include <QQmlEngine>
-#include <QtQuickTest>
+#include <QtQuickTest/quicktest.h>
 
 // Sets the engine up as the keyboard does.
 class Setup : public QObject {

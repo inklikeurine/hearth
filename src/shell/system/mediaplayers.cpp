@@ -55,7 +55,8 @@ void MediaPlayers::look()
         }
         const QStringList players
             = reply.value().filter(QRegularExpression(u"^org\\.mpris\\.MediaPlayer2\\."_s));
-        for (const QString &player : players.first(std::min(players.size(), mostPlayers))) {
+        for (const auto shown = players.first(std::min(players.size(), mostPlayers));
+            const QString &player : shown) {
             ask(player);
         }
     });

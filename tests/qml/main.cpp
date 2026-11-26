@@ -4,7 +4,7 @@
 #include <KLocalizedQmlContext>
 
 #include <QQmlEngine>
-#include <QtQuickTest>
+#include <QtQuickTest/quicktest.h>
 
 // Sets the engine up as the shell does.
 class Setup : public QObject {

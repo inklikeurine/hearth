@@ -14,8 +14,8 @@ class KeyboardModel : public QAbstractListModel {
     Q_PROPERTY(int currentIndex READ currentIndex NOTIFY currentIndexChanged)
     // The highlighted key's middle, in key widths.
     Q_PROPERTY(qreal currentX READ currentX NOTIFY currentIndexChanged)
-    Q_PROPERTY(QSizeF size READ size NOTIFY layoutChanged)
-    Q_PROPERTY(qreal visibleWidth READ visibleWidth NOTIFY layoutChanged)
+    Q_PROPERTY(QSizeF size READ size NOTIFY sizeChanged)
+    Q_PROPERTY(qreal visibleWidth READ visibleWidth NOTIFY sizeChanged)
     Q_PROPERTY(ShiftState shift READ shift NOTIFY shiftChanged)
 
 public:
@@ -69,7 +69,8 @@ Q_SIGNALS:
     void close();
 
     void currentIndexChanged();
-    void layoutChanged();
+    // Not layoutChanged: QAbstractItemModel already has a signal by that name.
+    void sizeChanged();
     void shiftChanged();
 
 private:

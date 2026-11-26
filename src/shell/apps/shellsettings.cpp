@@ -149,7 +149,8 @@ QStringList ShellSettings::backgroundChoices() const
     for (const QString &folder : std::as_const(folders)) {
         const QFileInfoList files = QDir(folder).entryInfoList(
             { u"*.png"_s, u"*.jpg"_s, u"*.jpeg"_s, u"*.webp"_s }, QDir::Files, QDir::Name);
-        for (const QFileInfo &file : files.first(std::min<qsizetype>(files.size(), mostPictures))) {
+        for (const auto shown = files.first(std::min<qsizetype>(files.size(), mostPictures));
+            const QFileInfo &file : shown) {
             pictures << file.filePath();
         }
     }

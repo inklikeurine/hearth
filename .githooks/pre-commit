@@ -22,7 +22,7 @@ if [ "$branch" != "spikes" ]; then
   spike_files="$(git diff --cached --name-only --diff-filter=ACMR -- 'spikes/')"
   if [ -n "$spike_files" ]; then
     say "spike code can only be committed on the local-only 'spikes' branch:"
-    printf '  %s\n' $spike_files >&2
+    printf '%s\n' "$spike_files" | sed 's/^/  /' >&2
     fail=1
   fi
 fi

@@ -16,6 +16,8 @@
 #                              part of a file was staged.
 # It uses 6 cores at low priority, so the desktop stays usable.
 
+# ShellCheck can't see that step() calls the check functions by name.
+# shellcheck disable=SC2329
 set -uo pipefail
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 if [[ ! -f /run/.containerenv ]]; then
@@ -151,10 +153,19 @@ lint_cpp() {
     ((${#tidy[@]})) || return 0
     printf '%s\0' "${tidy[@]}" | xargs -0 -P "$jobs" -n 2 clang-tidy -p "$build" --quiet
 }
+# clazy: Qt-specific C++ checks, level 1 (the ones its makers call safe for any
+# Qt code). Its warnings fail the run because the build treats warnings as errors.
+lint_qt() {
+    ((${#tidy[@]})) || return 0
+    printf '%s\0' "${tidy[@]}" | xargs -0 -P "$jobs" -n 2 clazy-standalone -p "$build" \
+        --checks=level1 --ignore-dirs="^$repo/$build/"
+}
 if ((quick)); then
     step "clang-tidy (${#tidy[@]} changed files)" lint_cpp
+    step "clazy (${#tidy[@]} changed files)" lint_qt
 else
     step "clang-tidy" lint_cpp
+    step "clazy" lint_qt
 fi
 step "clang-format" format_cpp
 shell_step

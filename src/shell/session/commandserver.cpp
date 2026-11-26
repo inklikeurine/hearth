@@ -38,7 +38,8 @@ CommandServer::CommandServer(QObject *parent)
 // mustn't call back into it.
 CommandServer::~CommandServer()
 {
-    for (QLocalSocket *socket : m_server.findChildren<QLocalSocket *>()) {
+    for (const auto sockets = m_server.findChildren<QLocalSocket *>();
+        QLocalSocket *socket : sockets) {
         socket->disconnect(this);
     }
 }
