@@ -8,6 +8,12 @@
 #                              changed since the last commit, and those that
 #                              include a changed header
 #   tools/dev/check --fix      also reformat the code in place
+#   tools/dev/check --staged   only the fast checks, on the files staged for a
+#                              commit: formatting, ShellCheck, doc links, and the
+#                              Claude guard's cases if the guard changed. The
+#                              pre-commit hook runs this. It reads the files on
+#                              disk, which differ from what's staged only when
+#                              part of a file was staged.
 # It uses 6 cores at low priority, so the desktop stays usable.
 
 set -uo pipefail
@@ -20,17 +26,36 @@ renice -n 10 $$ >/dev/null
 qt=/usr/lib64/qt6/bin
 build=build
 jobs=6
-quick=0 fix=0
+quick=0 fix=0 staged=0
 for arg in "$@"; do
     case "$arg" in
     --quick) quick=1 ;;
     --fix) fix=1 ;;
+    --staged) staged=1 ;;
     *) echo "unknown option: $arg" >&2; exit 2 ;;
     esac
 done
 mapfile -t cpp < <(find src tests -name '*.cpp' -o -name '*.h' | sort)
 mapfile -t units < <(find src tests -name '*.cpp' | sort)
 mapfile -t qml < <(find src tests -name '*.qml' | sort)
+# Shell scripts: tracked files whose first line starts a shell
+mapfile -t shells < <(git ls-files | while read -r file; do
+    [[ -f "$file" ]] && head -n 1 "$file" | grep -qE '^#!.*\b(ba)?sh\b' && echo "$file"
+done)
+
+# --staged: keep only the files staged for the commit
+if ((staged)); then
+    mapfile -t files < <(git diff --cached --name-only --diff-filter=ACMR)
+    keep() {
+        local file
+        for file in "$@"; do
+            printf '%s\n' "${files[@]}" | grep -qxF -- "$file" && echo "$file"
+        done
+    }
+    mapfile -t cpp < <(keep "${cpp[@]}")
+    mapfile -t qml < <(keep "${qml[@]}")
+    mapfile -t shells < <(keep "${shells[@]}")
+fi
 
 # --quick: clang-tidy reads only the changed .cpp files, plus the .cpp files that
 # include a changed header (its warnings show up through them).
@@ -87,6 +112,35 @@ format_qml() {
     return "$bad"
 }
 
+format_cpp() {
+    ((${#cpp[@]})) || return 0
+    clang-format --dry-run -Werror "${cpp[@]}"
+}
+lint_shell() {
+    ((${#shells[@]})) || return 0
+    shellcheck "${shells[@]}"
+}
+shell_step() {  # ShellCheck is new to the box; skip it until it's installed
+    if command -v shellcheck >/dev/null 2>&1; then
+        step "shellcheck" lint_shell
+    else
+        echo "SKIP  shellcheck (not installed in the box yet)"
+    fi
+}
+docs_step() { step "doc links and decision numbers" python3 -I tools/dev/check-docs; }
+guard_step() { step "Claude guard cases" python3 -I .claude/hooks/test-git-guard.py; }
+
+if ((staged)); then
+    step "clang-format" format_cpp
+    step "qmlformat" format_qml
+    shell_step
+    docs_step
+    if printf '%s\n' "${files[@]}" | grep -q '^\.claude/hooks/'; then
+        guard_step
+    fi
+    exit "$failed"
+fi
+
 step "configure" configure
 step "build" compile
 step "tests" run_tests
@@ -102,6 +156,9 @@ if ((quick)); then
 else
     step "clang-tidy" lint_cpp
 fi
-step "clang-format" clang-format --dry-run -Werror "${cpp[@]}"
+step "clang-format" format_cpp
+shell_step
+docs_step
+guard_step
 step "gitleaks" gitleaks dir --no-banner --redact --log-level warn src tests tools
 exit "$failed"

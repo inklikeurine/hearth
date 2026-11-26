@@ -109,7 +109,7 @@ Weston with its kiosk-shell is out (checked in Weston's source, main branch, 202
 - kiosk-shell makes every window full screen and has only background, normal and hidden layers: no overlay a system menu could use ([kiosk-shell.c](https://gitlab.freedesktop.org/wayland/weston/-/blob/main/kiosk-shell/kiosk-shell.c)). In Weston a "shell" is a C plugin inside the compositor, not a QML app like Bigscreen's "shell", so a custom Weston shell means writing compositor code in C.
 - For it: light, packaged in Fedora 45 (15.0.1), supports HDR colour management.
 
-With heavy accessibility moved to 2.0.0 ([Heavy accessibility in 2.0](../decisions/0013-heavy-accessibility-in-2-0.md)), KWin's screen-reader, zoom and colour-filter lead matters for 2.0, not 1.0. labwc does everything 1.0 needs through standard protocols ([compositor overlays](E1-compositor-overlays.md), [compositor input protocols](E2-compositor-input-protocols.md)), so the shell could later move to another compositor that speaks the same protocols. Against labwc: no screen-reader support, and it refuses AI-made contributions, bug reports included ([compositor upkeep](E5-compositor-upkeep.md)), so Hearth takes it as it is.
+With heavy accessibility moved to 2.0.0 ([Heavy accessibility in 2.0](../decisions/0019-heavy-accessibility-in-2-0.md)), KWin's screen-reader, zoom and colour-filter lead matters for 2.0, not 1.0. labwc does everything 1.0 needs through standard protocols ([compositor overlays](E1-compositor-overlays.md), [compositor input protocols](E2-compositor-input-protocols.md)), so the shell could later move to another compositor that speaks the same protocols. Against labwc: no screen-reader support, and it refuses AI-made contributions, bug reports included ([compositor upkeep](E5-compositor-upkeep.md)), so Hearth takes it as it is.
 
 Checked 2026-11-22: Fedora 45's labwc (0.20.2) offers every protocol on that list, plus display settings (output management) and screen power ([labwc protocols on Fedora 45](2026-11-22-labwc-protocols-fedora45.md)). labwc's HDR needs its Vulkan renderer ([compositor accessibility and HDR](E3-compositor-a11y-hdr.md)), the requirement that made gamescope unlikely. It only matters on HDR-capable boxes, but the spike should check that labwc's default renderer runs on floor graphics.
 
@@ -468,7 +468,7 @@ From the makers' support pages for Apple TV, Google TV, LG, Samsung, Roku, Xbox,
 | Accent colour | Xbox (system colours, sliders; hex code coming) | Theme tokens; presets plus sliders |
 | Backgrounds | Xbox (custom image, solid colour), PlayStation (images, slideshow), Roku | User-set background (section 18) |
 | Theme packs | Roku: colour, background, screensaver and sounds in one pack | Theme packs, 1.0 |
-| Colour filters, invert, greyscale | Apple, Samsung, LG, Xbox, PlayStation, SteamOS | 2.0.0 ([Heavy accessibility in 2.0](../decisions/0013-heavy-accessibility-in-2-0.md)) |
+| Colour filters, invert, greyscale | Apple, Samsung, LG, Xbox, PlayStation, SteamOS | 2.0.0 ([Heavy accessibility in 2.0](../decisions/0019-heavy-accessibility-in-2-0.md)) |
 | Zoom / magnifier | Samsung (up to 200%) | 2.0.0 |
 
 ### 9.2 Text size, fonts and HDR white (research results)
@@ -647,7 +647,7 @@ How it would run (proposed, not decided):
 
 ### 13.2 How profiles run (research results)
 
-Decided already: one Unix user per profile, one session at a time, optional PIN, a picker at boot unless there's one profile with no PIN ([One Unix user per profile](../decisions/0002-one-unix-user-per-profile.md), [Profile PINs](../decisions/0017-profile-pins-and-admin-pin.md), [Boot shows the profile picker](../decisions/0004-boot-shows-profile-picker.md)).
+Decided already: one Unix user per profile, one session at a time, optional PIN, a picker at boot unless there's one profile with no PIN ([One Unix user per profile](../decisions/0002-one-unix-user-per-profile.md), [Profile PINs](../decisions/0018-profile-pins-self-managed.md), [Boot shows the profile picker](../decisions/0004-boot-shows-profile-picker.md)).
 
 - **Starting a session** ([greetd sessions](P1-greetd-sessions.md)): greetd is a small login service (in Fedora 45). Its greeter, the picker screen, runs as its own `greeter` user and hands greetd the chosen user name. greetd checks the password through PAM, Linux's login-check system, and starts the session as that user. `initial_session` logs one user in automatically once per boot, which fits the one-profile, no-PIN case. The new session gets the screen and input through logind. Unconfirmed: whether Fedora's greetd login config registers the session with logind (`pam_systemd`); check in a test image.
   - Claude's note: under greetd, the picker is a separate small program run before any profile's session, not part of the shell.
@@ -658,7 +658,7 @@ Decided already: one Unix user per profile, one session at a time, optional PIN,
 
 ## 14. Accessibility
 
-**Agreed:** heavy features move to 2.0.0, split as in the Release column ([Heavy accessibility in 2.0](../decisions/0013-heavy-accessibility-in-2-0.md)).
+**Agreed:** heavy features move to 2.0.0, split as in the Release column ([Heavy accessibility in 2.0](../decisions/0019-heavy-accessibility-in-2-0.md)).
 
 | Need | What Hearth does | Built on | Release |
 |---|---|---|---|

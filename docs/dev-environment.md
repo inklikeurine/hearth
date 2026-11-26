@@ -34,7 +34,7 @@ A [distrobox](https://distrobox.it/) is a container that feels like a second Lin
 | Hearth's fonts | atkinson-hyperlegible-next-fonts, google-noto-sans-vf-fonts | 2.100, 20260601 |
 | Basics the container image lacks | Mesa graphics drivers, Fedora's core sans fonts | |
 
-Not in the box yet: Xwayland (the layer for old X11 apps; Firefox runs natively on Wayland).
+Not in the box yet: Xwayland (the layer for old X11 apps; Firefox runs natively on Wayland). ShellCheck (a checker for shell scripts; Fedora 45 has 0.11.0): `tools/dev/check` skips it until the lead installs it.
 
 ### Running labwc
 
@@ -50,7 +50,11 @@ Borrowed files approved for the spike: two Wayland protocol definitions from Ste
 
 ## Building and checking
 
-`tools/dev/check`, from the repo, builds Hearth in the box and runs every check: the tests, qmllint, qmlformat, clang-tidy, clang-format and gitleaks. It prints PASS or FAIL for each. Run it before every commit. `tools/dev/check --fix` also reformats the code.
+`tools/dev/check`, from the repo, builds Hearth in the box and runs every check: the tests, qmllint, qmlformat, clang-tidy, clang-format, ShellCheck, the doc check, the Claude guard's cases and gitleaks. It prints PASS or FAIL for each (SKIP for ShellCheck until it's installed). Run it before every commit. `tools/dev/check --fix` also reformats the code.
+
+`tools/dev/check --staged` runs only the fast checks, on the files staged for a commit: clang-format, qmlformat, ShellCheck, the doc check, and the guard's cases when the guard changed. The pre-commit hook runs it, about 1.5 s (2026-11-26). It reads files as they are on disk, which differs from what's staged only when part of a file was staged.
+
+The doc check, `tools/dev/check-docs`, checks that every link between repo files points at a file that exists (web links aren't checked; that needs the network). It also checks that decision records are named `NNNN-short-name.md` and that no number is used twice, counting deleted records. It found four links to replaced decision records on its first run (2026-11-26).
 
 `tools/dev/check --quick` is for while you work: clang-tidy reads only the C++ files changed since the last commit, plus those that include a changed header. A change that breaks an unchanged file through a header elsewhere shows up only in the full check.
 
@@ -74,17 +78,20 @@ Turn them on once per clone: `git config core.hooksPath .githooks` (done in the 
 
 | Hook | Refuses |
 |---|---|
-| `pre-commit` | Spike code (`spikes/`) on any branch but `spikes`; anything shaped like a secret (private keys, GitHub, AWS, Slack, Google, Anthropic and OpenAI-style tokens); your git email address or home-folder path in added lines. It also runs gitleaks, found on the path or inside `hearth-f45` |
+| `pre-commit` | Spike code (`spikes/`) on any branch but `spikes`; anything shaped like a secret (private keys, GitHub, AWS, Slack, Google, Anthropic and OpenAI-style tokens); your git email address or home-folder path in added lines. It also runs gitleaks, found on the path or inside `hearth-f45`, and the fast checks (`tools/dev/check --staged`) when the box is there |
 | `pre-push` | Pushing the `spikes` branch anywhere; deleting `main` on GitHub; rewriting `main`'s history (a force push) |
 
 Tested 2026-11-22 in a throwaway clone: each refusal fired, normal commits and pushes went through.
 
 ### Claude Code limits (`.claude/settings.json`, for AI sessions)
 
-- A guard script ([.claude/hooks/git-guard.sh](../.claude/hooks/git-guard.sh)) runs before every shell command Claude makes:
-  - Blocks force pushes, deleting branches on GitHub, pushing every branch at once, pushing `spikes`, skipping hooks (`--no-verify`), and pointing git's hooks anywhere but `.githooks`.
-  - Asks the lead before any other push, and before GitHub commands that publish or change something: pull requests, releases, repo settings, secrets, and API calls that write.
-- Blocked outright: the GitHub connector's tools that push several files, delete files or merge straight on GitHub, which would skip the git hooks entirely. Writing a single file, or creating a branch or pull request through it, asks first; a file written that way skips the git hooks' secret and personal-info checks.
+- A guard script ([.claude/hooks/git-guard.py](../.claude/hooks/git-guard.py)) runs before every shell command Claude makes:
+  - Blocks force pushes, deleting branches on GitHub, pushing many branches at once (`--all`, `--mirror`, `--prune`), pushing, deleting, renaming or resetting `spikes`, skipping hooks (`--no-verify`, `commit -n`), pointing git's hooks anywhere but `.githooks`, and deleting `.git`.
+  - Asks the lead before any other push; before git commands that throw away work (`reset --hard`, `clean -f`, checking out or restoring files over changes, `stash drop`, `branch -D`); before GitHub commands that publish or change something (pull requests, releases, repo settings, secrets, and API calls that write); and before shell commands that write to `.githooks/`, `.claude/settings*.json`, `.claude/hooks/` or `.git/config`.
+  - It splits a command into words the way a shell does, so it finds git behind `git -C <folder>`, `bash -c '…'`, `$(…)` and heredocs fed to a shell, and it doesn't read a commit message's text as flags. It catches mistakes, not someone set on dodging it: a command run through a variable (`G=git; $G push`) gets past, and the git hooks are the backstop.
+  - If the guard itself breaks, it asks rather than lets the command through.
+  - Its cases are in [git-guard-cases.txt](../.claude/hooks/git-guard-cases.txt): 150 commands with the answer each must get, run by `tools/dev/check`. Add one whenever the guard changes or lets something through. It replaced the first guard, `git-guard.sh`, on 2026-11-26, after `git -C . push --force`, `bash -c "git push -f"` and `git branch -D spikes` were found to get through it, and a commit message containing `-n` was blocked.
+- Blocked outright: the GitHub connector's tools that write a file, push several files, delete files or merge straight on GitHub, which would skip the git hooks entirely. Creating a branch or pull request through it asks first.
 - Asks first: any edit to `.githooks/` or `.claude/`, so the guards can't be loosened without the lead.
 - Blocked: reading `.env`, `.pem` and `.key` files in the repo.
 

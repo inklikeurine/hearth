@@ -5,6 +5,9 @@
 #   1. put spike code (spikes/) on any branch except the local-only "spikes" branch
 #   2. contain something that looks like a secret (keys, tokens)
 #   3. contain the committer's own email address or home-folder path
+#   4. fail the fast checks (tools/dev/check --staged): formatting, ShellCheck,
+#      doc links and decision numbers, the Claude guard's cases. The build and
+#      tests stay in the full tools/dev/check, run by hand before committing.
 # Turn the hooks on once per clone:  git config core.hooksPath .githooks
 # Never skip them with --no-verify (AGENTS.md, "Code and repo safety").
 
@@ -72,6 +75,14 @@ if [ -n "${HOME:-}" ] && [ "$HOME" != "/" ]; then
     say "staged changes contain your home-folder path ($HOME/); use a relative path or \$HOME"
     fail=1
   fi
+fi
+
+# 4. Fast checks, in the hearth-f45 box (tools/dev/check enters it by itself)
+check="$(git rev-parse --show-toplevel)/tools/dev/check"
+if [ -f /run/.containerenv ] || { command -v distrobox >/dev/null 2>&1 && podman container exists hearth-f45 2>/dev/null; }; then
+  "$check" --staged >&2 || { say "fast checks failed (tools/dev/check --staged)"; fail=1; }
+else
+  say "note: the hearth-f45 box isn't here; formatting and doc-link checks were skipped"
 fi
 
 if [ "$fail" -ne 0 ]; then

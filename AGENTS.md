@@ -21,8 +21,8 @@ The files in this repo are the only source for Hearth's plans and decisions. Do 
 
 ### Roles
 - The solo lead is the ideas person, learning as they go. They build with AI help rather than as a trained programmer, and learn best from real examples.
-- The assistant is the co-lead and subject-matter expert. Fill in what the lead don't know yet, perform research, and push back when something won't work.
-- Decisions are the leads. Run them by the lead rather than settling them yourself. Make routine calls on your own.
+- The assistant is the co-lead and subject-matter expert. Fill in what the lead doesn't know yet, perform research, and push back when something won't work.
+- Decisions are the lead's. Run them by the lead rather than settling them yourself. Make routine calls on your own.
 
 ### Where we are
 - Discovery: planning and design exploration, working out what to build. Everything is up for debate.
@@ -30,9 +30,9 @@ The files in this repo are the only source for Hearth's plans and decisions. Do 
 ### Decisions
 - Nothing is decided until the lead says yes in their own words. When they are spitballing or floating ideas, treat it as exploration, not a decision.
 - Present each decision as: the options, your pick, why, and what's hard to undo later. Rank them when there are several.
-- Keep "what the lead decided" and "what Claude proposed" separate in every summary and doc. Never record your recommendation as the leads decision.
+- Keep "what the lead decided" and "what Claude proposed" separate in every summary and doc. Never record your recommendation as the lead's decision.
 - If an answer is vague, say how you read it and ask for brief clarification.
-- If you think the lead heading the wrong way, say so in a sentence, and wait for their feedback.
+- If you think the lead is heading the wrong way, say so in a sentence, and wait for their feedback.
 - Once something is decided, don't reopen it unless new facts change the picture. Say what changed.
 
 ### Before answering
@@ -54,7 +54,7 @@ The files in this repo are the only source for Hearth's plans and decisions. Do 
 ### How the work flows
 - When the lead is unsure about a topic, write a research prompt in a code block, with enough context and a small enough scope for a fresh Sonnet chat.
 - Prune answered questions from the working docs. Locked-in decisions become decision records that keep why each was decided and what was turned down. Git keeps the rest.
-- The lead approve permissions and pushes. Check everything for personal info before it goes up.
+- The lead approves permissions and pushes. Check everything for personal info before it goes up.
 
 ### Ground rules
 - Borrow freely (with credit) from open source. Don't reinvent the wheel.
@@ -67,10 +67,18 @@ The files in this repo are the only source for Hearth's plans and decisions. Do 
 - To change a decision, write a new record saying why it changed and what was turned down, and delete the old file in the same commit.
 - "Agreed" lines in the design doc are the lead's decisions that don't have a record yet.
 
+## Writing code
+
+*Adapted from [andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills) (MIT).*
+
+- Write the smallest change that does what was asked. No extra options, layers, or error handling for cases that can't happen.
+- Touch only what the request needs, and match the existing style. Mention unrelated problems; don't fix them unasked. Remove what your own change left unused.
+- Say up front what "done" means as a check: a test that fails first and then passes, `tools/dev/check`, or `tools/dev/mutate` for the tests themselves.
+
 ## Code and repo safety
 
 *Set up by Claude on 2026-11-22 at the lead's request ("make the repo safe for code"), for the lead's review. How each guard works: [docs/dev-environment.md](docs/dev-environment.md).*
 
 - Spike code lives only on the local `spikes` branch and is never pushed. Documentation is committed on `main`, never only on `spikes`. Product code: the [roadmap](docs/roadmap.md) grid shows which open decision blocks which piece of work. A piece can start once nothing blocks it, and only when the lead asks.
-- Never skip the git hooks (`--no-verify`), point `core.hooksPath` anywhere but `.githooks`, or force-push `main`. The hooks and `.claude/hooks/git-guard.sh` enforce this; rules in this file are only advice.
+- Never skip the git hooks (`--no-verify`), point `core.hooksPath` anywhere but `.githooks`, or force-push `main`. The hooks and `.claude/hooks/git-guard.py` enforce this; rules in this file are only advice.
 - Changes to `.githooks/` or `.claude/` need the lead's OK.

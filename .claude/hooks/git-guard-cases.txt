@@ -1,0 +1,163 @@
+# Test cases for git-guard.py, run by test-git-guard.py (part of tools/dev/check).
+# Each line: the answer the guard must give (deny, ask or none), a tab, the command.
+# "deny@spikes" runs the case on the spikes branch. "\n" in a command is a new line.
+# Add a case whenever the guard changes or lets something through it shouldn't.
+
+# Pushes: every push asks; force, delete, many-branch and spikes pushes are denied
+ask	git push origin main
+ask	git push
+ask	git push -u origin HEAD
+ask	git push origin main 2>&1 | tail -3
+ask	git push origin --follow-tags
+deny	git push --force origin main
+deny	git push --force-with-lease
+deny	git push --forc origin main
+deny	git push -f
+deny	git push -uf origin main
+deny	git push origin +main
+deny	git push origin :old-branch
+deny	git push --delete origin old-branch
+deny	git push -d origin old-branch
+deny	git push --all
+deny	git push --mirror
+deny	git push --prune origin
+deny	git push origin 'refs/heads/*:refs/heads/*'
+deny	git push origin spikes
+deny	git push origin spikes:refs/heads/backup
+deny	git push origin HEAD:spikes
+deny@spikes	git push origin HEAD
+ask	git push origin HEAD:refs/heads/tmp
+# git found behind options, wrappers and nesting
+deny	git -C . push --force origin main
+deny	git -C /tmp/x push -f
+deny	git -c user.name=x push -f
+deny	GIT_DIR=.git git push --force
+deny	/usr/bin/git push -f
+deny	sudo -u nobody git push -f
+deny	timeout 30 git push -f
+deny	distrobox enter hearth-f45 -- git push -f
+deny	bash -c "git push -f origin main"
+deny	sh -lc 'cd /tmp && git push -f'
+deny	echo $(git push -f)
+deny	echo "$(git push -f)"
+deny	echo `git push -f`
+deny	eval git push -f
+deny	{ git push -f; }
+deny	cd /tmp; git push -f
+deny	true && git push -f || echo failed
+deny	echo hi # a comment\ngit push -f
+deny	bash <<'EOF'\ngit push -f\nEOF
+# Hooks: never skipped, never moved
+deny	git commit --no-verify -m x
+deny	git commit --no-veri -m x
+deny	git -C . commit --no-verify -m x
+deny	git commit -n -m x
+deny	git commit -anm x
+deny	git push --no-verify
+deny	git merge --no-verify feature
+deny	git -c core.hooksPath=/dev/null commit -m x
+deny	git config core.hooksPath /dev/null
+deny	git config --unset core.hooksPath
+deny	git config --remove-section core
+none	git config core.hooksPath .githooks
+none	git config --get core.hooksPath
+none	git -c core.hooksPath=.githooks commit -m x
+# Commit messages are text, not flags
+none	git commit -m "Docs: fix -n flag notes"
+none	git commit -am "Shell: drop --no-verify from the docs"
+none	git commit -m -n
+none	git commit -m "$(cat <<'EOF'\nShell: the lead's call, see -n and --force\n\ngit push --force is denied\nEOF\n)"
+none	git commit -F - <<'EOF'\nfix: the lead's -n note\nEOF
+# Throwing away work asks; the spikes branch is protected
+deny	git branch -D spikes
+deny	git branch -d spikes
+deny	git branch -m spikes old-spikes
+deny	git branch -f spikes main
+deny@spikes	git branch -m renamed
+deny	git checkout -B spikes
+deny	git switch -C spikes main
+deny	git update-ref -d refs/heads/spikes
+ask	git branch -D old-feature
+none	git branch -d old-feature
+none	git branch -c spikes spikes-copy
+none	git branch -vv
+ask	git reset --hard HEAD~3
+none	git reset HEAD file.txt
+none	git reset --soft HEAD~1
+ask	git clean -fdx
+ask	git clean -f
+none	git clean -n
+none	git clean -nfd
+ask	git checkout -- .
+ask	git checkout .
+ask	git checkout HEAD~1 -- src/main.cpp
+none	git checkout main
+none	git checkout -b new-feature
+none	git switch spikes
+none	git switch -
+ask	git switch -f main
+ask	git restore .
+ask	git restore src/main.cpp
+none	git restore --staged src/main.cpp
+ask	git restore --staged --worktree src/main.cpp
+ask	git stash drop
+ask	git stash clear
+none	git stash
+none	git stash pop
+ask	git reflog expire --expire=now --all
+ask	git gc --prune=now
+ask	git filter-repo --path secret.txt --invert-paths
+deny	rm -rf .git
+deny	rm -rf ./.git/
+# Reading is fine
+none	git status
+none	git log --oneline | head -5
+none	git diff --cached
+none	grep -rn "git push --force" docs
+none	echo "git push -f is denied"
+none	cat .claude/settings.json
+none	bash -n .githooks/pre-commit
+none	python3 -I .claude/hooks/test-git-guard.py
+none	ls ~/.claude/projects
+none	git log --format=%s -- .claude/
+# GitHub: publishing or changing things asks
+ask	gh pr create --title x --body y
+ask	gh -R a/b pr merge 3
+ask	gh repo delete a/b --yes
+ask	gh release create v1
+ask	gh issue comment 4 --body hi
+ask	gh api repos/a/b -X DELETE
+ask	gh api -XDELETE repos/a/b
+ask	gh api --method=POST repos/a/b/issues
+ask	gh api repos/a/b/issues -f title=x
+ask	gh api graphql -F query=@q.graphql
+none	gh pr list
+none	gh pr view 3
+none	gh api repos/a/b/rulesets
+none	gh run list
+# Writing to the guards asks
+ask	echo x > .claude/settings.json
+ask	echo x >> .githooks/pre-commit
+ask	cat <<'EOF' > .claude/hooks/git-guard.py\nprint()\nEOF
+ask	sed -i 's/a/b/' .githooks/pre-commit
+ask	chmod -x .githooks/pre-commit
+ask	rm -rf .claude
+ask	rm .claude/hooks/git-guard.py
+ask	mv .githooks /tmp/
+ask	cp /tmp/x .claude/settings.json
+ask	echo x | tee -a .githooks/pre-push
+ask	sudo tee .git/config
+ask	python3 -c "open('.claude/settings.json','w').write('{}')"
+ask	find .githooks -delete
+ask	git rm .claude/hooks/git-guard.py
+ask	git mv .githooks/pre-commit /tmp/x
+ask	git update-index --chmod=-x .githooks/pre-commit
+none	git rm src/old.cpp
+none	git add .claude/hooks/git-guard.py
+none	sed -n 1,20p .githooks/pre-commit
+none	cp .claude/settings.json /tmp/settings-copy.json
+none	echo x > /tmp/claude-1000/scratch/notes.txt
+none	echo x > ~/.claude/projects/hearth/memory/a.md
+# A command the guard can't split asks if it mentions git
+ask	git commit -m "unclosed
+none	echo "unclosed
