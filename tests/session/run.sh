@@ -44,6 +44,7 @@ printf '[Desktop Entry]\nType=Application\nName=Test d-missing\nExec=/nowhere/at
     >"$work/data/applications/d-missing.desktop"
 app e-fullscreen fullscreen
 app f-text text
+app g-boxes boxes
 
 # Instead of the real one, which would change the desktop's volume.
 mkdir -p "$work/bin"
@@ -113,7 +114,7 @@ no_window() { ! wlrctl toplevel find "$@"; }
 logged() { grep -qx "$1" "$log"; }
 logged_times() { [[ "$(grep -cx "$1" "$log")" == "$2" ]]; }
 key() { wtype -k "$1"; sleep 0.15; }
-# Goes to a tile by its place: the first five are in one row.
+# Goes to a tile by its place. Right goes on to the next row.
 tile() {
     key XF86Back
     for ((i = 0; i < $1; i++)); do key Right; done
