@@ -44,6 +44,9 @@ RULES FOR YOUR ANSWER
 | The roadmap's part order, grid, labels and milestone 1 tasks (Claude's proposal, 2026-11-23) | Gives development an order and a definition of done for each piece | [Roadmap](roadmap.md) |
 | The "Waiting on the lead" lines under each component | Each one blocks a cell in the roadmap grid; milestone 0 and 1's come first | [Design doc](design.md) |
 | Boot-time target. Later (the lead) | Shapes the image and startup work | Design doc, section 2 |
+| App tile art: where wide art comes from, the default tile, whether art is ever fetched online. Later (the lead) | Most Linux apps ship only square icons | Design doc, Home screen; [visual references](research/V1-visual-references.md) |
+| Where the signed-in profile's picture sits on the home screen (not top left) | Round 1 mockups try two places | [Visual references](research/V1-visual-references.md) |
+| Guest profile: the rest of the details. Later (the lead) | First rules are agreed; more thought needed | Design doc, Guest profile |
 
 ## Research tasks for a Sonnet chat
 

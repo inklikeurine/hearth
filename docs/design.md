@@ -66,7 +66,7 @@ The following features are classified as "nice to have".
 ### Accessibility
 ([Heavy accessibility in 2.0.0](decisions/0019-heavy-accessibility-in-2-0.md)).
 - Heavy features are slated for 2.0.0: screen reader, color filters, dialogue boost. Zoom and a separate simple layout are dropped.
-- Cheap features slated for 1.0.0: text size, high contrast, never color as the only signal, mono audio and balance, slower key repeat and ignoring double presses, reduced motion, fewer rows and bigger tiles 
+- Cheap features slated for 1.0.0: text size, high contrast, never color as the only signal, mono audio and balance, slower key repeat and ignoring double presses, reduced motion, fewer rows and bigger tiles, reduce transparency (added by the lead, 2026-11-25; no record yet)
 - Every new screen is checked with the high-contrast theme before it's done.
 - Every control gets an accessible name and role (Qt's `Accessible.name`, `Accessible.role`), so the 2.0.0 screen reader doesn't reopen every screen.
 
@@ -136,6 +136,10 @@ Agreed for now (the lead, 2026-11-24); tested on a TV before 1.0.0 ships:
 - Ship the "variable" font packages (one file for all weights). Noto Sans has one; Fedora 45's Atkinson Hyperlegible Next is one file per weight.
 - An automatic test checks every built-in theme against WCAG AA contrast.
 
+Agreed (the lead, 2026-11-25):
+- Blur on the home screen only; the menu never blurs open apps. Qt draws Hearth's own blur, so labwc needs nothing (labwc has no compositor blur).
+- The lead's likes and dislikes from 11 reference screenshots, and the round 1 mockups: [visual references](research/V1-visual-references.md).
+
 Detail: [theming research](research/2026-11-19-theming.md), [TV design principles](research/B1-tv-design-principles.md), [TV focus and navigation](research/B2-tv-focus-navigation.md), [open-source fonts](research/B5-oss-fonts.md), what other platforms offer ([design doc detail, 9.1](research/2026-11-23-design-doc-detail.md)).
 
 ### Home screen
@@ -149,6 +153,7 @@ Talks to: the app list (desktop files, Flatpaks, web-app definitions), labwc's w
 - Each profile keeps its own app order; new apps go at the end; a kid profile shows only its allowed apps.
 - Still images only as backgrounds in 1.0.0.
 - Particles: no more than three flashes a second ([WCAG numbers](research/A3-wcag22-numbers.md)).
+- Theme packs can supply art for app tiles (the lead, 2026-11-25). Tile art as a whole needs scoping, including whether art is ever fetched online (undecided) and the lead's "default tile" idea: the app's icon, a name the user can change, and a background colour picked automatically ([visual references](research/V1-visual-references.md)).
 
 ### Overlays
 
@@ -185,6 +190,10 @@ Agreed for now (the lead, 2026-11-24):
 - Borrow MPRIS so every media app gets play and pause; GTK's exported actions for request-versus-confirmed state; Qt Application Manager for ideas only.
 - Web pages never talk to the menu; the bridge contributes items per site.
 
+Agreed (the lead, 2026-11-25):
+- The menu slides in from the left edge, docked full height; a setting moves it to the right edge.
+- Two ways to show it, for now while exploring: over the home screen it's drawn inside the home screen's own window (so it can blur what's behind it); over apps it's an overlay with a solid tint. To be tried in dev.
+
 ### On-screen keyboard
 
 Does: types into every app, driven by remote, gamepad or keyboard.
@@ -192,6 +201,7 @@ Talks to: labwc through input-method v2 and virtual-keyboard v1; apps through te
 
 - Types into every app, including Flatpaks the user installs.
 - Designed from scratch now the compositor is chosen. Layouts: QWERTY grid, alphabet grid, single row, gamepad wheel. Themeable.
+- Layout notes (the lead, 2026-11-25): the single row is the tvOS style and may need a compositor that can blur part of the background; the QWERTY grid may end up as an alternate layout of the alphabet grid, coming in from the side as it does rather than up from the bottom; the gamepad wheel is in scope.
 - Word suggestions, kept per profile, with an off switch (2026-11-22).
 - A layout per kind of field (text, email, password, number), as Gboard does; no suggestions in password fields.
 - The word-suggestion engine (a technical pick left to Claude). Claude's pick, 2026-11-24: a small one of our own that completes the word being typed and ranks by what the profile has typed before, with spelling fixes and the word list from hunspell. The usual engine, presage, isn't in Fedora 45, and Fedora's Stevia uses hunspell only (checked in the dev box). Open: how to rank words for a profile that hasn't typed anything yet.
@@ -337,6 +347,16 @@ Decided:
 - Checked in the dev box (2026-11-24): Fedora 45's greetd login config includes `system-auth`, which loads `pam_systemd`, so its sessions should register with logind; `KillUserProcesses=` is off, so a logout alone can leave programs running and Hearth has to end the user with `loginctl terminate-user`.
 - Tested in a VM ([test image results](research/2026-11-24-test-image-results.md)): greetd sessions register with logind; `loginctl terminate-user` ended Firefox, a Flatpak and a detached program in 0.6 seconds; `useradd` and `userdel` work with `/usr` read-only; the oo7 keyring opens with no prompt. Before deleting a user, Hearth ends every program it runs; Hearth checks for itself that the keyring opened.
 
+### Guest profile
+
+Agreed (the lead, 2026-11-25); needs more thought later:
+- A Unix profile the admin can turn on or off, with its own PIN to give to guests.
+- A guest can open apps, change accessibility settings and join a network, but can't forget saved networks or see saved Wi-Fi passwords.
+- Parental controls apply; the guest can be set as managed or unmanaged.
+- Leaving asks "Clear saved logins?" Yes deletes the guest's whole home folder and makes a fresh empty one (web-app logins live in Firefox profiles and app folders, not only the keyring). No keeps everything. If nobody answers (another profile logs in, sleep, power cut), the logins are cleared.
+
+Claude's note: with the guest turned on there are always two profiles, so boot always shows the profile picker ([Boot shows the profile picker](decisions/0004-boot-shows-profile-picker.md)).
+
 ### DNS filter
 
 Does: AdGuard Home as the box's ad and tracker blocker, with each profile as its own client; safe search and restricted mode for kid profiles; Hearth's settings drive it.
@@ -403,7 +423,7 @@ Does: the settings screens, all reachable from the remote. The frame comes with 
 | Remotes | "Press the button you want for Back", reset to defaults, key-repeat speed | Key handling |
 | Apps | Installed apps, add a web app | Flatpak, web-app definitions |
 | Profiles and parental controls | See Profiles | Profiles service |
-| Appearance | Presets and sliders with live preview, day/night, fonts, rows and columns, background, theme packs from USB | Theme tokens |
+| Appearance | Presets and sliders with live preview, day/night, fonts, rows and columns, background, menu side, theme packs from USB | Theme tokens |
 | Accessibility | The 1.0.0 set | Several |
 | Privacy and network activity | Every kind of connection, named, with its switch | Network rules |
 | Updates | Status, pause or delay, mirror, roll back | systemd-sysupdate; not its D-Bus interface, which goes away in systemd 263 |
