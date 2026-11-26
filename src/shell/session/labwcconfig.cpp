@@ -13,7 +13,8 @@ using namespace Qt::StringLiterals;
 
 namespace {
 
-constexpr auto place = "    <!-- The profile's own buttons go here; the shell writes them. -->\n"_L1;
+constexpr auto place
+    = "    <!-- The profile's own buttons go here; the shell writes them. -->\n"_L1;
 constexpr int mostKeys = 8;
 
 struct Repeat {

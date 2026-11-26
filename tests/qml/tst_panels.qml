@@ -5,7 +5,6 @@ import QtTest
 import Hearth.Controls
 import Hearth.Panels
 import Hearth.System
-import Hearth.Theme
 
 Item {
     id: root

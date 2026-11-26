@@ -55,7 +55,7 @@ std::optional<QVariantMap> item(const QJsonObject &from)
             return std::nullopt;
         }
         QStringList labels;
-        for (const QJsonValue &option : options) {
+        for (const auto &option : options) {
             labels << label(option);
         }
         item.insert(u"options"_s, labels);
@@ -105,7 +105,7 @@ std::optional<QVariantList> MenuContributions::parse(const QByteArray &json)
     }
     QVariantList items;
     QSet<QString> ids;
-    for (const QJsonValue &value : from) {
+    for (const auto &value : from) {
         // One bad item, or one from a later version, doesn't lose the others.
         const auto read = item(value.toObject());
         if (!read) {

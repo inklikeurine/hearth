@@ -3,7 +3,6 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import org.kde.ki18n
 import Hearth.Controls
-import Hearth.Theme
 
 // What the Menu button opens: what the app in front added, then what's always
 // there.

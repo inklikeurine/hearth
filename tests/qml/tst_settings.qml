@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtTest
 import Hearth.Apps
+import Hearth.Controls
 import Hearth.Settings
 import Hearth.Theme
 
@@ -56,10 +57,10 @@ Item {
             verify(control("AppearancePage").activeFocus);
             keyClick(Qt.Key_Down);
             keyClick(Qt.Key_Return);
-            compare(control("heading").text, "Accessibility");
+            compare((control("heading") as Label).text, "Accessibility");
             verify(control("text").activeFocus);
             screen.goBack();
-            compare(control("heading").text, "Settings");
+            compare((control("heading") as Label).text, "Settings");
             // Where it was, not back at the top.
             verify(control("AccessibilityPage").activeFocus);
             compare(closed.count, 0);
@@ -138,12 +139,12 @@ Item {
         function test_remotes() {
             screen.openPage(2);
             keyClick(Qt.Key_Return);
-            verify(control("message").text.includes("Back"));
+            verify((control("message") as Label).text.includes("Back"));
             // Back cancels, and stays on the page.
             screen.goBack();
-            compare(control("heading").text, "Remotes");
+            compare((control("heading") as Label).text, "Remotes");
             screen.goBack();
-            compare(control("heading").text, "Settings");
+            compare((control("heading") as Label).text, "Settings");
         }
 
         function test_aButtonMeansOneThing() {

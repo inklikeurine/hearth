@@ -11,7 +11,7 @@ GridView {
 
     property int columns: 5
     // The arrows move the focused tile instead of the focus.
-    property bool moving: false
+    property bool arranging: false
     // How many whole rows show, before the one peeking in.
     property int rows: 1
     // Room around each tile for its ring and for growing when focused.
@@ -38,7 +38,7 @@ GridView {
     preferredHighlightEnd: cellHeight * rows
 
     Keys.onPressed: event => {
-        if (!grid.moving) {
+        if (!grid.arranging) {
             return;
         }
         const steps = new Map([[Qt.Key_Left, -1], [Qt.Key_Right, 1], [Qt.Key_Up, -grid.columns], [Qt.Key_Down, grid.columns]]);
@@ -54,6 +54,8 @@ GridView {
         }
         if (to >= 0 && to < grid.count) {
             grid.moveWanted(grid.currentIndex, to);
+            // The view keeps its place in the list, not the tile: it follows.
+            grid.currentIndex = to;
         }
     }
     // Something is always highlighted, also when the list arrives after the grid.
@@ -80,7 +82,7 @@ GridView {
             anchors.fill: parent
             anchors.margins: grid.inset
             focus: true
-            moving: grid.moving && cell.index === grid.currentIndex
+            moving: grid.arranging && cell.index === grid.currentIndex
             picture: cell.picture
             text: cell.name
 
@@ -90,7 +92,7 @@ GridView {
                 }
             }
             onClicked: {
-                if (grid.moving) {
+                if (grid.arranging) {
                     grid.moveEnded();
                 } else {
                     grid.tileClicked(cell.index);

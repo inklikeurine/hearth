@@ -37,8 +37,7 @@ class TestButtons : public QObject {
 private:
     static void press(QWindow &window, int key, quint32 symbol, bool repeat = false)
     {
-        QKeyEvent event(
-            QEvent::KeyPress, key, Qt::NoModifier, 0, symbol, 0, { }, repeat);
+        QKeyEvent event(QEvent::KeyPress, key, Qt::NoModifier, 0, symbol, 0, { }, repeat);
         QCoreApplication::sendEvent(&window, &event);
     }
 

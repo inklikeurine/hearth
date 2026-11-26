@@ -98,9 +98,10 @@ uint Notifications::add(const QString &sender, const QString &app, uint replaces
     entry.time = QDateTime::currentDateTime();
 
     // An app can only replace its own.
-    const auto old = std::find_if(m_list.begin(), m_list.end(), [replaces, &sender](const Entry &e) {
-        return replaces != 0 && e.id == replaces && e.sender == sender;
-    });
+    const auto old
+        = std::find_if(m_list.begin(), m_list.end(), [replaces, &sender](const Entry &e) {
+              return replaces != 0 && e.id == replaces && e.sender == sender;
+          });
     if (old != m_list.end()) {
         entry.id = old->id;
         const auto row = int(old - m_list.begin());
@@ -227,11 +228,11 @@ QString NotificationsAdaptor::GetServerInformation(
 }
 
 uint NotificationsAdaptor::Notify(const QString &appName, uint replaces, const QString &,
-    const QString &summary, const QString &body, const QStringList &, const QVariantMap &hints,
-    int, const QDBusMessage &message)
+    const QString &summary, const QString &body, const QStringList &, const QVariantMap &hints, int,
+    const QDBusMessage &message)
 {
-    return m_notifications->add(message.service(), appName, replaces, summary, body,
-        hints.value(u"transient"_s).toBool());
+    return m_notifications->add(
+        message.service(), appName, replaces, summary, body, hints.value(u"transient"_s).toBool());
 }
 
 void NotificationsAdaptor::CloseNotification(uint id, const QDBusMessage &message)

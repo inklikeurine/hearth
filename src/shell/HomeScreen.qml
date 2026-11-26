@@ -19,7 +19,7 @@ FocusScope {
         return grid.currentIndex >= 0 && grid.currentIndex < home.apps.count ? home.apps.data(index, AppList.NameRole) : "";
     }
     // The arrows move the focused app.
-    property alias moving: grid.moving
+    property alias moving: grid.arranging
     property alias network: status.network
     property alias profileName: status.profileName
     property bool resting: false

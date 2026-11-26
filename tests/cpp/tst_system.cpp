@@ -63,8 +63,7 @@ public:
         QObject::connect(
             &m_server, &QDBusServer::newConnection, &m_server, [this](const QDBusConnection &bus) {
                 theirs = std::make_unique<QDBusConnection>(bus);
-                theirs->registerVirtualObject(
-                    u"/"_s, &services, QDBusConnection::SubPath);
+                theirs->registerVirtualObject(u"/"_s, &services, QDBusConnection::SubPath);
             });
         static int number = 0;
         m_name = u"pretend%1"_s.arg(++number);
@@ -107,9 +106,8 @@ private:
     static uint notify(QDBusConnection &bus, const QString &summary, const QString &body = { },
         uint replaces = 0, const QVariantMap &hints = { })
     {
-        QDBusMessage call
-            = QDBusMessage::createMethodCall(u""_s, u"/org/freedesktop/Notifications"_s,
-                u"org.freedesktop.Notifications"_s, u"Notify"_s);
+        QDBusMessage call = QDBusMessage::createMethodCall(u""_s,
+            u"/org/freedesktop/Notifications"_s, u"org.freedesktop.Notifications"_s, u"Notify"_s);
         call << u"An app"_s << replaces << u"icon"_s << summary << body << QStringList() << hints
              << -1;
         const QDBusReply<uint> reply = bus.call(call, QDBus::BlockWithGui);
@@ -138,7 +136,8 @@ private Q_SLOTS:
         power.sleep();
         power.restart();
         power.turnOff();
-        QTRY_COMPARE(bus.services.calls, (QStringList { u"Suspend"_s, u"Reboot"_s, u"PowerOff"_s }));
+        QTRY_COMPARE(
+            bus.services.calls, (QStringList { u"Suspend"_s, u"Reboot"_s, u"PowerOff"_s }));
         QTest::qWait(50);
         QCOMPARE(failed.count(), 0);
     }
@@ -266,8 +265,7 @@ private Q_SLOTS:
         const uint id = notify(*bus.theirs, u"50%"_s);
         QCOMPARE(notify(*bus.theirs, u"100%"_s, { }, id), id);
         QCOMPARE(notifications.count(), 1);
-        QCOMPARE(
-            notifications.data(notifications.index(0), Notifications::SummaryRole), u"100%"_s);
+        QCOMPARE(notifications.data(notifications.index(0), Notifications::SummaryRole), u"100%"_s);
         // One that isn't there is a new one.
         QVERIFY(notify(*bus.theirs, u"New"_s, { }, 999) != 999);
     }
@@ -365,11 +363,10 @@ private Q_SLOTS:
                 u"org.freedesktop.Notifications"_s, u"GetCapabilities"_s);
         const QDBusReply<QStringList> reply = bus.theirs->call(call, QDBus::BlockWithGui);
         QCOMPARE(reply.value(), (QStringList { u"body"_s, u"persistence"_s }));
-        const QDBusMessage about
-            = bus.theirs->call(QDBusMessage::createMethodCall(u""_s,
-                                   u"/org/freedesktop/Notifications"_s,
-                                   u"org.freedesktop.Notifications"_s, u"GetServerInformation"_s),
-                QDBus::BlockWithGui);
+        const QDBusMessage about = bus.theirs->call(
+            QDBusMessage::createMethodCall(u""_s, u"/org/freedesktop/Notifications"_s,
+                u"org.freedesktop.Notifications"_s, u"GetServerInformation"_s),
+            QDBus::BlockWithGui);
         QCOMPARE(about.arguments().size(), 4);
         QCOMPARE(about.arguments().at(3).toString(), u"1.2"_s);
     }

@@ -99,9 +99,9 @@ Q_SIGNALS:
 public Q_SLOTS:
     QStringList GetCapabilities();
     QString GetServerInformation(QString &vendor, QString &version, QString &specVersion);
-    uint Notify(const QString &appName, uint replaces, const QString &icon,
-        const QString &summary, const QString &body, const QStringList &actions,
-        const QVariantMap &hints, int timeout, const QDBusMessage &message);
+    uint Notify(const QString &appName, uint replaces, const QString &icon, const QString &summary,
+        const QString &body, const QStringList &actions, const QVariantMap &hints, int timeout,
+        const QDBusMessage &message);
     void CloseNotification(uint id, const QDBusMessage &message);
 
 private:

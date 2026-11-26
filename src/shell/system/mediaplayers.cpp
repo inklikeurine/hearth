@@ -66,6 +66,8 @@ void MediaPlayers::ask(const QString &player)
     QDBusMessage call = QDBusMessage::createMethodCall(
         player, path, u"org.freedesktop.DBus.Properties"_s, u"GetAll"_s);
     call << QString(interface);
+    // Owned by this, and deleted when the answer comes; the checker can't follow it.
+    // NOLINTBEGIN(clang-analyzer-cplusplus.NewDeleteLeaks)
     auto *watcher = new QDBusPendingCallWatcher(m_bus.asyncCall(call, waitMs), this);
     connect(watcher, &QDBusPendingCallWatcher::finished, this, [this, watcher, player] {
         const QDBusPendingReply<QVariantMap> reply = *watcher;
@@ -79,6 +81,7 @@ void MediaPlayers::ask(const QString &player)
         }
     });
 }
+// NOLINTEND(clang-analyzer-cplusplus.NewDeleteLeaks)
 
 void MediaPlayers::use(const QString &player, bool playing)
 {

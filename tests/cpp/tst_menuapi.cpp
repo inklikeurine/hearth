@@ -101,8 +101,8 @@ private Q_SLOTS:
 
     void labelsAreOneShortLine()
     {
-        const auto items = MenuContributions::parse(menu(
-            "{'id':'a','type':'action','label':'One\\ntwo " + QByteArray(100, 'x') + "'}"));
+        const auto items = MenuContributions::parse(
+            menu("{'id':'a','type':'action','label':'One\\ntwo " + QByteArray(100, 'x') + "'}"));
         QVERIFY(items);
         const QString label = items->at(0).toMap().value(u"label"_s).toString();
         QCOMPARE(label.size(), 40);

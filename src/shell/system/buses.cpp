@@ -20,8 +20,7 @@ QDBusConnection session()
 
 QDBusConnection system()
 {
-    return isTestSession() ? QDBusConnection(QStringLiteral("none"))
-                           : QDBusConnection::systemBus();
+    return isTestSession() ? QDBusConnection(QStringLiteral("none")) : QDBusConnection::systemBus();
 }
 
 } // namespace Buses

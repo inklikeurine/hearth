@@ -18,8 +18,8 @@ class ShellSettings : public QObject {
     Q_PROPERTY(QString theme READ theme WRITE setTheme NOTIFY changed)
     Q_PROPERTY(int textPercent READ textPercent WRITE setTextPercent NOTIFY changed)
     Q_PROPERTY(bool reducedMotion READ reducedMotion WRITE setReducedMotion NOTIFY changed)
-    Q_PROPERTY(int screensaverMinutes READ screensaverMinutes WRITE setScreensaverMinutes NOTIFY
-            changed)
+    Q_PROPERTY(
+        int screensaverMinutes READ screensaverMinutes WRITE setScreensaverMinutes NOTIFY changed)
     // Buttons that mean Back, Home and Menu besides the usual ones, by their
     // names in xkbcommon: { back: [names], home: [names], menu: [names] }.
     Q_PROPERTY(QVariantMap extraKeys READ extraKeys WRITE setExtraKeys NOTIFY changed)

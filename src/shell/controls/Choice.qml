@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import QtQuick
-import Hearth.Theme
 
 // One of a few named values, changed with left and right. Select goes to the
 // next one, and from the last back to the first.
