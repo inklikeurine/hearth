@@ -1,0 +1,97 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+"""Breaks the code on purpose, one change at a time, and says whether the tests notice.
+
+    tools/dev/mutate BREAKS.json
+
+BREAKS.json is a list of [file, text, replacement, tests]: in FILE, TEXT becomes
+REPLACEMENT, and TESTS (a ctest name pattern, such as "system|qml") should then
+fail. Each break prints "caught" or "MISSED".
+
+It works on a copy outside the repo (in $TMPDIR, or /tmp), so the repo is never
+changed. The copy builds fast: no optimising, ccache, the mold linker, QML left
+uncompiled, and only the test programs each break needs.
+"""
+
+import json
+import os
+import pathlib
+import shlex
+import subprocess
+import sys
+
+REPO = pathlib.Path(__file__).resolve().parents[2]
+COPY = pathlib.Path(os.environ.get("TMPDIR", "/tmp")) / "hearth-mutate"
+CONFIGURE = [
+    "-G", "Ninja",
+    "-DCMAKE_BUILD_TYPE=Debug",
+    "-DCMAKE_CXX_FLAGS_DEBUG=-O0",
+    "-DCMAKE_C_FLAGS_DEBUG=-O0",
+    "-DCMAKE_CXX_COMPILER_LAUNCHER=ccache",
+    "-DCMAKE_C_COMPILER_LAUNCHER=ccache",
+    "-DCMAKE_LINKER_TYPE=MOLD",
+    "-DQT_QML_NO_CACHEGEN=ON",
+]
+# The session test runs the real programs.
+SESSION_TARGETS = ["hearth-shell", "hearth-send", "hearth-testapp", "hearth-keyboard"]
+
+
+def box(command):
+    """Runs a shell command in the dev box, throttled: it's the developer's desktop."""
+    return subprocess.run(
+        ["distrobox", "enter", "hearth-f45", "--", "taskset", "-c", "0-3", "nice", "-n", "19",
+         "ionice", "-c", "3", "bash", "-c", command],
+        capture_output=True, text=True, check=False)
+
+
+def targets(tests):
+    """The programs to build for a ctest pattern such as "system|session"."""
+    names = []
+    for test in tests.split("|"):
+        names += SESSION_TARGETS if test == "session" else ["tst_" + test]
+    known = box(f"cd {COPY} && cmake --build build --target help").stdout
+    return [name for name in names if f"{name}:" in known]
+
+
+def build(names):
+    result = box(f"cd {COPY} && cmake --build build --target {' '.join(names)} 2>&1 | tail -15;"
+                 " exit ${PIPESTATUS[0]}")
+    return result.returncode == 0, result.stdout
+
+
+def main():
+    if len(sys.argv) != 2:
+        sys.exit(__doc__)
+    breaks = json.loads(pathlib.Path(sys.argv[1]).read_text())
+    subprocess.run(["rsync", "-a", "--delete", "--exclude", ".git", "--exclude", "build",
+                    "--exclude", "spikes", f"{REPO}/", f"{COPY}/"], check=True)
+    configured = box(f"cd {COPY} && cmake -S . -B build {shlex.join(CONFIGURE)} >/dev/null")
+    if configured.returncode != 0:
+        sys.exit("configure failed:\n" + configured.stderr)
+    for file, text, replacement, tests in breaks:
+        path = COPY / file
+        original = path.read_text()
+        label = f"{file} | {' '.join(text.split())[:60]}"
+        if text not in original:
+            print("NOT FOUND", label, flush=True)
+            continue
+        names = targets(tests)
+        built, _ = build(names)
+        if not built:
+            print("BASE BUILD FAILS", label, flush=True)
+            continue
+        path.write_text(original.replace(text, replacement, 1))
+        try:
+            built, output = build(names)
+            if not built:
+                print("DOESN'T BUILD", label, output[-300:], flush=True)
+                continue
+            run = box(f"cd {COPY} && ctest --test-dir build -R {shlex.quote(tests)}"
+                      " --no-tests=error 2>&1 | tail -3")
+            print("MISSED " if "100% tests passed" in run.stdout else "caught ", label, flush=True)
+        finally:
+            path.write_text(original)
+
+
+if __name__ == "__main__":
+    main()
