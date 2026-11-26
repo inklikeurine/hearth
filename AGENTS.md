@@ -3,6 +3,7 @@
 Hearth is an open-source TV interface ("10-foot UI") for cheap Linux home-theater PCs, meant to replace a smart TV and run like an appliance.
 
 - Plan, agreed lines, open questions: [docs/design.md](docs/design.md)
+- UI principles to design against (draft): [docs/ui-guide.md](docs/ui-guide.md)
 - Decisions in force: [docs/decisions/](docs/decisions/)
 - Open questions, research prompts, tasks: [docs/questions-and-tasks.md](docs/questions-and-tasks.md)
 - Research results: [docs/research/](docs/research/)

@@ -43,6 +43,7 @@ Copied into the [design doc](../design.md) as "Agreed" lines.
 - **Leaving the guest profile:** centre placement. No tile highlight behind the pop-up; focus is on the buttons.
 - **Failure screen:** the user should see what actually went wrong, not just a code. The code stays, for developers.
 - **Volume overlay:** the top-edge version is a hard no. The right-edge version can work for development; neither is good yet.
+- **Later in round 2:** the lead's sticky-note calls (keyboard Shift, single-row keyboard, profile pictures, failure screen details, Settings sub-pages, Guest PIN) went straight into the design doc as 2026-11-26 "Agreed" lines, and the principles into the [UI guide](../ui-guide.md).
 
 ## Claude's notes (proposals, not decided)
 - labwc has no compositor blur: it doesn't support the standard blur protocol, ext-background-effect-v1 [C] (https://wayland.app/protocols/ext-background-effect-v1). Blur on Hearth's own screens needs nothing from it.

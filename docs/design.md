@@ -144,6 +144,12 @@ Agreed (the lead, 2026-11-25):
 - Blur behind the menu panel, including over running apps (the lead, 2026-11-26; replaces "the menu never blurs open apps", which came from a misunderstanding of what was blurred). Qt can blur Hearth's own screens; blurring what's behind the panel over an app needs compositor blur, which labwc doesn't have. To look into later.
 - The lead's likes and dislikes from 11 reference screenshots, and the round 1 mockups: [visual references](research/V1-visual-references.md).
 
+Design principles from UI review rounds 1 and 2, and the looks a theme may choose: [UI guide](ui-guide.md) (a draft Claude started on 2026-11-26 from principles the lead reviewed).
+
+Agreed (the lead, 2026-11-26):
+- No colour is fixed yet: every colour in the mockups is a development placeholder.
+- App tiles are frosted glass tinted with the app's own colour by default. Colourless frosted tiles and the other tile styles tried are good options for themes.
+
 Detail: [theming research](research/2026-11-19-theming.md), [TV design principles](research/B1-tv-design-principles.md), [TV focus and navigation](research/B2-tv-focus-navigation.md), [open-source fonts](research/B5-oss-fonts.md), what other platforms offer ([design doc detail, 9.1](research/2026-11-23-design-doc-detail.md)).
 
 ### Home screen
@@ -159,6 +165,9 @@ Talks to: the app list (desktop files, Flatpaks, web-app definitions), labwc's w
 - Opening an app asks the running one to close first. It's never ended while it still has a window, since it may hold unsaved work.
 - Particles: no more than three flashes a second ([WCAG numbers](research/A3-wcag22-numbers.md)).
 - Theme packs can supply art for app tiles (the lead, 2026-11-25). Tile art as a whole needs scoping, including whether art is ever fetched online (undecided) and the lead's "default tile" idea: the app's icon, a name the user can change, and a background colour picked automatically ([visual references](research/V1-visual-references.md)).
+
+Agreed (the lead, 2026-11-26):
+- Status sits in one row at the top right: the status icons and the profile's picture, then the clock and date at the far right. The profile shows as its picture only, never its name.
 
 Waiting on the lead:
 - Celebrations and particles: what they are. Claude's questions: which occasions (birthdays from profiles, holidays from the region, or the user's own dates), what particles look like, and whether they're on by default. Not built.
@@ -238,12 +247,19 @@ Built (Claude's technical picks, 2026-11-25):
 
 Waiting on the lead:
 - Reopening the keyboard in the same box after Back closed it. Today: leave the box and come back; in a Qt form the next box also stays closed. Claude's pick: keep it, it's the easiest to undo. The other option: Select on a box with the keyboard closed reopens it, which costs that box's Enter.
-- The strip covers boxes in the lower 40% of the screen, since full-screen apps ignore the space it reserves. Claude's pick for later: show what's being typed above the keys, never for passwords. Other options: leave it, or move the strip to the top when the cursor is low.
+- The strip covers boxes in the lower 40% of the screen, since full-screen apps ignore the space it reserves. Claude's pick for later: show what's being typed above the keys, never for passwords. Other options: leave it, or move the strip to the top when the cursor is low. The lead (2026-11-26, from the mockups): what's being typed shows inside the keyboard panel. How the keyboard gets the app's text, and passwords: research prompt in [questions and tasks](questions-and-tasks.md).
 - The password note: "Password: what you type stays hidden and isn't remembered." Claude's pick: keep it.
 
 Agreed for now (the lead, 2026-11-24); tested on a TV before 1.0.0 ships:
 - Build it as a Qt QML keyboard from plasma-keyboard's layouts and navigation, talking input-method v2 the way Stevia does. Not followed for the layouts: they were written fresh, because plasma-keyboard's are QML packages tied to its own key items and input-method v1, and navigation had to be in C++ to test every layout without a screen. The protocol files come from Stevia. Whether to bring in plasma-keyboard's layout data later, for other languages, is the lead's call.
 - Honour a web page's `inputmode="none"` through the bridge, since Firefox doesn't pass it on.
+
+Agreed (the lead, 2026-11-26, from UI review round 2):
+- Shift: one press shifts the next character only (digits become symbols); two quick presses lock it; one more press from either turns it off.
+- The alphabet and QWERTY grids use the same key size and panel; the number pad sits centred in the panel.
+- The text being typed shows in the keyboard panel; in the grid layouts word suggestions sit below the keys.
+- Single row: the highlight moves along a fixed row (not a scrolling row), is round, and wraps from the last key to the first; a held arrow repeats one key at a time. The keys sit at the bottom of the screen, word suggestions above them, the abc / ABC / 123 / #+= buttons below ([single-row keyboard](research/K5-single-row-keyboard.md)).
+- The gamepad wheel needs its own design time.
 
 Detail: [existing keyboards](research/K3-existing-keyboards.md), [TV keyboard layouts](research/K4-tv-keyboard-layouts.md), [Wayland keyboard protocols](research/K1-wayland-keyboard-protocols.md), [apps and text input](research/K2-apps-text-input.md), parts to borrow ([design doc detail, 6.4](research/2026-11-23-design-doc-detail.md)).
 
@@ -260,6 +276,13 @@ Built (Claude's technical picks, 2026-11-25):
 ### Failure screens
 
 Does: one failure-screen design, the list of error codes, a QR code to each code's wiki page. See "When things break" above, and the [error codes](error-codes.md).
+
+Agreed (the lead, 2026-11-26, from UI review round 2):
+- Each failure screen tells the user what happened, what still works and what to do. The error code stays, small, for support.
+- The bottom line shows the Hearth version, build and platform details (such as graphics chip and memory).
+- Review the QR code's privacy wording at alpha and at each release candidate: it depends on how much diagnostic data the code ends up carrying.
+
+Claude's note: for apps, "what happened" can only be what Hearth sees from outside: the app stopped answering, crashed, was closed for running out of memory, or quit with an error.
 
 Waiting on the lead (built as a placeholder, 2026-11-24):
 - An app that won't close. Claude's placeholder: five seconds after Hearth asks it to close, a question offers "Go back to it" (the default, and what Back does) and "Close it anyway", which loses unsaved work. Hearth never ends it by itself.
@@ -398,7 +421,21 @@ Agreed (the lead, 2026-11-25); needs more thought later:
 - Parental controls apply; the guest can be set as managed or unmanaged.
 - Leaving asks "Clear saved logins?" Yes deletes the guest's whole home folder and makes a fresh empty one (web-app logins live in Firefox profiles and app folders, not only the keyring). No keeps everything. If nobody answers (another profile logs in, sleep, power cut), the logins are cleared.
 
+- Settings › Profiles and parental controls has a Guest PIN setting, like Admin PIN (the lead, 2026-11-26).
+
 Claude's note: with the guest turned on there are always two profiles, so boot always shows the profile picker ([Boot shows the profile picker](decisions/0004-boot-shows-profile-picker.md)).
+
+### Profile pictures
+
+Agreed (the lead, 2026-11-26):
+- Pictures are shared by every profile on the box.
+- A "Featured" row shows only the pictures that come with Hearth, and can be switched off in Settings › Profiles and parental controls.
+- Imported pictures go in one shared folder on the box's writable data area, saved already cropped to a circle at a fixed size (about 512 × 512); the original isn't kept (Claude's proposal, agreed).
+- Bulk import from a USB stick: pick several, step through them with a centred crop, arrows to nudge or zoom, Select to accept, "Accept all" for the rest (Claude's proposal, agreed).
+- To consider: only the admin can import pictures.
+- Later: a mock-up and flow for the crop controls.
+
+Claude's proposal (not decided): each category the user made ends with an "Add from USB" circle; a "New category" button under the last row; "Edit category" renames, reorders or deletes.
 
 ### DNS filter
 
@@ -461,7 +498,7 @@ Does: the settings screens, all reachable from the remote. The frame comes with 
 |---|---|---|
 | Network | Ethernet, Wi-Fi if present, password entry, box name | NetworkManager |
 | Bluetooth | Only on boxes with Bluetooth: remotes, controllers, headphones | BlueZ |
-| Display | Resolution, refresh rate, screen fit, TV colour range, HDR where possible | labwc's output settings; colour range needs a helper of our own |
+| Display | Resolution, refresh rate, screen fit, TV colour range, HDR where possible. Options a box can't use are shown greyed out with a one-line reason (the lead's ask, 2026-11-26) | labwc's output settings; colour range needs a helper of our own |
 | Sound | Outputs with the TV's own name; volume limit, mono, balance | PipeWire / WirePlumber |
 | Remotes | "Press the button you want for Back", reset to defaults, key-repeat speed | Key handling |
 | Apps | Installed apps, add a web app | Flatpak, web-app definitions |

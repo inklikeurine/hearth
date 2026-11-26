@@ -45,14 +45,33 @@ RULES FOR YOUR ANSWER
 | The "Waiting on the lead" lines under each component | Each one blocks a cell in the roadmap grid; milestone 0 and 1's come first | [Design doc](design.md) |
 | Boot-time target. Later (the lead) | Shapes the image and startup work | Design doc, section 2 |
 | App tile art: where wide art comes from, the default tile, whether art is ever fetched online. Later (the lead) | Most Linux apps ship only square icons | Design doc, Home screen; [visual references](research/V1-visual-references.md) |
-| Where the signed-in profile's picture sits on the home screen (not top left) | Round 1 mockups try two places | [Visual references](research/V1-visual-references.md) |
 | Guest profile: the rest of the details. Later (the lead) | First rules are agreed; more thought needed | Design doc, Guest profile |
 | Compositor blur behind the menu and keyboard over apps: patch labwc, change compositor, or wait. Later (the lead) | The lead wants the blurred menu everywhere; labwc has no blur | Design doc, Theme and controls |
-| Keyboard design time: single row (tvOS style) and gamepad wheel need dedicated iteration. Later (the lead) | Round 2 mockups didn't work | [Visual references](research/V1-visual-references.md) |
+| Gamepad-wheel keyboard: needs its own design time. Later (the lead) | Round 2 mockup didn't work | Design doc, On-screen keyboard |
+| Volume overlay design. UI review round 3 (the lead) | Both round 2 versions rejected; right edge is a stand-in | [Visual references](research/V1-visual-references.md) |
+| Notifications' look, and the menu in more detail. Future UI rounds (the lead) | Neither has been mocked up | [UI guide](ui-guide.md) |
+| Profile picture crop controls: mock-up and flow. Later (the lead) | Needed before import can be built | Design doc, Profile pictures |
+| Is importing profile pictures admin-only? To consider (the lead) | Pictures are shared by every profile | Design doc, Profile pictures |
+| Review the failure screen's QR-code privacy wording. At alpha and each release candidate (the lead) | Depends on what diagnostic data the code carries | Design doc, Failure screens |
 
 ## Research tasks for a Sonnet chat
 
-None waiting. New prompts go here, written for a fresh chat with the context block above.
+New prompts go here, written for a fresh chat with the context block above.
+
+### Keyboard: its own copy of the text field (2026-11-26)
+
+```
+Hearth's on-screen keyboard talks to labwc through input-method-unstable-v2; apps use text-input-unstable-v3. The keyboard panel can cover the app's own text field, and the lead wants the text being typed shown inside the keyboard panel.
+
+Research, with primary sources (protocol XML, toolkit source, official platform docs), tagging each claim [C] [S] [M]:
+1. Which messages in text-input v3 and input-method v2 carry the field's current text (surrounding text), the cursor's screen position (cursor rectangle) and the field type (password, number, email)? Link the XML.
+2. Do Firefox on Wayland (GTK3 input method), GTK4, Qt 6 and SDL3 (Moonlight) send surrounding text, cursor rectangle and content type? Link source lines; say what's missing.
+3. Does labwc (or wlroots) pass surrounding text and cursor rectangle from text-input v3 to the input-method v2 client? Link source.
+4. Do tvOS, Android TV (Gboard for TV) and Fire TV keyboards show their own copy of the field? Official docs only.
+5. Options for Hearth (always copy / copy only when covered / move the keyboard away from the field / none) and what each needs from 1-3. Passwords: dots, or nothing?
+
+Out of scope: layouts, word suggestions, X11. Save a summary: facts confirmed, unconfirmed, open questions, conflicts with labwc, local-only, no Chromium/Electron. Under 500 words.
+```
 
 ## Spikes to add
 
