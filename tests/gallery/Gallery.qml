@@ -64,28 +64,102 @@ Window {
         Row {
             spacing: Theme.tokens.sizes.gap * 2
 
-            Button {
-                id: ok
+            Column {
+                spacing: Theme.tokens.sizes.gap
 
-                KeyNavigation.right: cancel
-                KeyNavigation.up: tiles
-                primary: true
-                text: "Apply"
+                Row {
+                    spacing: Theme.tokens.sizes.gap * 2
+
+                    Button {
+                        id: ok
+
+                        KeyNavigation.down: list
+                        KeyNavigation.right: cancel
+                        KeyNavigation.up: tiles
+                        primary: true
+                        text: "Apply"
+                    }
+
+                    Button {
+                        id: cancel
+
+                        KeyNavigation.down: list
+                        KeyNavigation.left: ok
+                        KeyNavigation.right: bell
+                        KeyNavigation.up: tiles
+                        text: "Cancel"
+                    }
+
+                    IconButton {
+                        id: bell
+
+                        KeyNavigation.down: list
+                        KeyNavigation.left: cancel
+                        KeyNavigation.up: tiles
+                        badge: 3
+                        iconName: "bell"
+                        text: "Notifications"
+                    }
+                }
+
+                TextBox {
+                    KeyNavigation.up: ok
+                    label: "A text box"
+                    placeholderText: "Type here"
+                    width: 640
+                }
             }
 
-            Button {
-                id: cancel
+            FocusColumn {
+                id: list
 
                 KeyNavigation.left: ok
-                KeyNavigation.up: tiles
-                text: "Cancel"
+                height: 520
+                width: 760
+
+                ListRow {
+                    detail: "Smaller text under the name"
+                    iconName: "settings"
+                    text: "A list row"
+                    width: parent.width
+                }
+
+                Toggle {
+                    id: toggle
+
+                    text: "A toggle"
+                    width: parent.width
+
+                    onSwitched: on => toggle.on = on
+                }
+
+                Slider {
+                    id: slider
+
+                    text: "A slider"
+                    value: 40
+                    valueText: value + "%"
+                    width: parent.width
+
+                    onMoved: value => slider.value = value
+                }
+
+                Choice {
+                    id: choice
+
+                    options: ["First", "Second", "Third"]
+                    text: "A choice"
+                    width: parent.width
+
+                    onChosen: index => choice.current = index
+                }
             }
         }
 
         Label {
             color: Theme.tokens.colors.textDim
             font.pixelSize: Theme.tokens.sizes.textSmall
-            text: "Arrows move, Enter presses."
+            text: "Arrows move, Enter presses. The list on the right moves with up and down."
         }
     }
 }

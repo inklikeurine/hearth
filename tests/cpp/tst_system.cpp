@@ -25,6 +25,7 @@ class PretendServices : public QDBusVirtualObject {
 
 public:
     QStringList calls;
+    QList<QVariantList> arguments;
     QVariantMap network;
     // In the order they're listed in and asked.
     QStringList players;
@@ -38,6 +39,7 @@ public:
     bool handleMessage(const QDBusMessage &message, const QDBusConnection &bus) override
     {
         calls << message.member();
+        arguments << message.arguments();
         if (refuse) {
             bus.send(message.createErrorReply(QDBusError::AccessDenied, u"no"_s));
         } else if (message.member() == "ListNames"_L1) {
@@ -128,6 +130,14 @@ private Q_SLOTS:
         QCOMPARE(failed.count(), 1);
     }
 
+    void onlyARealSessionUsesTheBuses()
+    {
+        QVERIFY(Buses::isTestSession({ }, false));
+        QVERIFY(Buses::isTestSession(u"1"_s, false));
+        QVERIFY(Buses::isTestSession(u"0"_s, true));
+        QVERIFY(!Buses::isTestSession(u"0"_s, false));
+    }
+
     void powerAsksLogind()
     {
         PretendBus bus;
@@ -138,6 +148,10 @@ private Q_SLOTS:
         power.turnOff();
         QTRY_COMPARE(
             bus.services.calls, (QStringList { u"Suspend"_s, u"Reboot"_s, u"PowerOff"_s }));
+        // "interactive": false. There's nothing to show a password prompt.
+        for (const QVariantList &arguments : std::as_const(bus.services.arguments)) {
+            QCOMPARE(arguments, QVariantList { false });
+        }
         QTest::qWait(50);
         QCOMPARE(failed.count(), 0);
     }

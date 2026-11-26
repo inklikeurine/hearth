@@ -9,6 +9,8 @@
 namespace Buses {
 
 bool isTestSession();
+// The rule itself: SESSION_DEV is HEARTH_SESSION_DEV, empty when it isn't set.
+bool isTestSession(const QString &sessionDev, bool inContainer);
 QDBusConnection session();
 QDBusConnection system();
 

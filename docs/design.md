@@ -155,6 +155,9 @@ Talks to: the app list (desktop files, Flatpaks, web-app definitions), labwc's w
 - Opening an app asks the running one to close first. It's never ended while it still has a window, since it may hold unsaved work.
 - Particles: no more than three flashes a second ([WCAG numbers](research/A3-wcag22-numbers.md)).
 
+Waiting on the lead:
+- Celebrations and particles: what they are. Claude's questions: which occasions (birthdays from profiles, holidays from the region, or the user's own dates), what particles look like, and whether they're on by default. Not built.
+
 ### Overlays
 
 Does: the status overlay (clock, battery if any, profile, notification bell, network state, profile switcher and power) and the volume overlay; burn-in protection; the screensaver.
@@ -164,6 +167,12 @@ Decided:
 - The clock and other fixed elements get burn-in protection: they dim or shift a few pixels over time, and a screensaver starts when the screen sits idle.
 - Internet status shows the network state (wired, Wi-Fi, none). "No internet" shows only when something actually fails; no new connection is added to check (2026-11-22). How: AdGuard Home answers "server failure" when the connection is down (tested, 2026-11-24).
 - Screensaver delay is user settable with a 2 minute default ([OLED burn-in](research/A6-oled-burn-in.md)).
+
+Built (Claude's technical picks, 2026-11-25):
+- The status bar moves a few pixels each minute and dims after a minute with no press. The screensaver is a black screen with a dim clock that moves every 30 seconds; any press ends it and does nothing else.
+- The screensaver covers Hearth's own screens only, so it never covers a film. Covering an idle app needs the idle protocol; see the roadmap.
+- Pointer movement doesn't count as a press: an air mouse on a sofa cushion is never quite still.
+- Power asks logind without a password prompt; in the dev box, power buttons only show a failure screen, so a test can't switch the computer off.
 
 ### Key handling
 
@@ -175,6 +184,10 @@ Talks to: labwc key bindings, the on-screen keyboard, `hearth-web-bridge`.
 - Keys are handled by what they are, not by which device sent them. labwc's key bindings catch Back, Home, Menu, Esc and Backspace from every device and the shell decides what each means. Esc is Back. Backspace deletes in a text box and is Back anywhere else. Arrows and Select drive the on-screen keyboard while it's shown. Anything that types goes into the text box (2026-11-22).
 - Held keys: Back, Esc, Home and Menu fire once, on release; only Backspace in a text box and arrows in the on-screen keyboard repeat (2026-11-22).
 - Back in native apps (app adapters): later.
+
+Built (Claude's technical picks, 2026-11-25):
+- Remotes page: up to eight extra buttons each for Back, Home and Menu. Buttons that type, move or select can't be given a meaning, so a remote can't lock its owner out. "Forget the buttons added here" goes back to the usual ones, which always work.
+- Key-repeat speed (slow, normal, fast) is labwc's own setting, so it reaches apps too. "Ignore double presses" covers Hearth's screens and the buttons labwc catches, not keys inside apps.
 
 Detail: Bigscreen's input handler compared, what the air mouse sends ([design doc detail, 6–6.2](research/2026-11-23-design-doc-detail.md)).
 
@@ -189,6 +202,9 @@ Talks to: apps over D-Bus, web apps through `hearth-web-bridge`, MPRIS for play 
 Agreed for now (the lead, 2026-11-24):
 - Borrow MPRIS so every media app gets play and pause; GTK's exported actions for request-versus-confirmed state; Qt Application Manager for ideas only.
 - Web pages never talk to the menu; the bridge contributes items per site.
+
+Waiting on the lead:
+- The [Menu Contribution API draft](menu-api.md): three item types (action, toggle, choice), no submenus, 12 items, 40-character labels, 10 updates in 10 seconds. Only a program Hearth started can add items, checked by the process session it runs in. Claude's proposal.
 
 ### On-screen keyboard
 
@@ -211,6 +227,11 @@ Detail: [existing keyboards](research/K3-existing-keyboards.md), [TV keyboard la
 
 Does: Hearth's own notification service (apps can freeze without one), the bell, short pop-ups.
 Hearth ships its own notification service.
+
+Built (Claude's technical picks, 2026-11-25):
+- Text only: apps' pictures, sounds, buttons and markup are left out. Up to 50 kept, newest first, in memory only; nothing is written to disk.
+- An app can replace or close only its own notifications. More than ten in ten seconds from one app are refused.
+- "Transient" ones (such as "now playing") pop up and aren't kept.
 
 ### Failure screens
 

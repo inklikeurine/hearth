@@ -100,32 +100,22 @@ Tasks, by component:
 
 **Session setup** (done: start script with a restart after a crash, labwc key bindings, apps made full screen by the shell, `hearth-session.target`, portal file). Not run yet as a real greetd session: that's the OS image milestone.
 
-**Theme and controls** (done: theme tokens and loader, dark and high-contrast themes with their contrast check, fonts, focus ring, tile, tile grid, button, dialog)
-- Every new string through KI18n (set up)
-- Controls: toggle, slider
-- Controls: list
-- Controls: text box
-- Accessible name and role on every new control
+**Theme and controls** (done: theme tokens and loader, dark and high-contrast themes with their contrast check, fonts, focus ring, tile, tile grid, button, dialog, list rows, toggle, slider, choice, text box, icons; every string through KI18n; accessible name and role on each)
+- High-contrast check of every screen, by eye: the automatic check covers the theme's colours, not each screen
 
-**Home screen** (done: app list with each profile's order, rows of tiles with the next row peeking in, starting an app, rows and columns read from config, background picture, window switching: Home, return to a running app, one app at a time)
-- Arrange apps: the Move mode (the list can already move an app and remembers it)
-- Celebrations and particles
+**Home screen** (done: app list with each profile's order, rows of tiles with the next row peeking in, starting an app, rows and columns read from config, background picture, window switching: Home, return to a running app, one app at a time; Move mode from the menu)
+- Celebrations and particles: waiting on the lead (what they are, below)
 
-**Overlays**
-- Status overlay: clock, network state, placeholder profile name, bell, power (sleep, restart, off)
-- Burn-in protection: dim and shift
-- Screensaver (2-minute default, user settable)
-- Volume overlay through PipeWire
-- "No internet" when something fails (AdGuard answers "server failure")
+**Overlays** (done: status bar with clock, network state, profile name when there is one, bell and power; burn-in protection; screensaver; volume through WirePlumber's `wpctl`)
+- The screensaver covers Hearth's own screens only. Over apps it needs the idle protocol (`ext-idle-notify-v1`), whose definition comes in `wayland-protocols-devel`, not yet in the dev box
+- "No internet" when something fails: needs the DNS filter, so it moves to the OS image milestone
 
-**Key handling** (done: key router, held-key rules)
-- Default key map for air mice
+**Key handling** (done: key router, held-key rules, the default key map from the lead's air mouse, extra buttons for Back, Home and Menu from the Remotes page, key-repeat speed, ignoring double presses on Hearth's own screens)
+- Other air mice and infrared remotes: untested
 
-**System menu**
-- Menu overlay with its system section: go home, close app, power
-- Menu Contribution API, version 1: format and limits, written as a spec
-- D-Bus interface for native apps
-- Play and pause for any media app through MPRIS
+**System menu** (done: the menu with its system section, play and pause through MPRIS, the [Menu Contribution API](menu-api.md) draft and its D-Bus interface)
+- The API's format and limits wait on the lead
+- A native app using the API for real: not tried; there's no such app yet
 
 **On-screen keyboard**
 - Keyboard frame: input-method v2, virtual-keyboard, layer-shell strip
@@ -137,19 +127,17 @@ Tasks, by component:
 - Word suggestions, kept per profile, with an off switch
 - A real keyboard's letters pass through; held arrows repeat; key names through libxkbcommon
 
-**Settings**
-- Settings frame: the page list, opening a page, Back
-- Appearance, Accessibility and Remotes pages
+**Settings** (done: the frame; Appearance, Accessibility and Remotes pages)
+- Appearance: the font setting and day/night themes, which need a second everyday theme first
+- Accessibility: mono audio and balance belong with the Sound page (hardware milestone)
 
-**Notifications**
-- Notification service (freedesktop Notifications over D-Bus)
-- Bell list and short pop-ups
+**Notifications** (done: the service, the bell's list and short pop-ups). Not tried with a real app: the dev box can't run a private message bus without `dbus-daemon`, and the host's must not be touched.
 
 **Failure screens** (done: the screen, the [error code list](error-codes.md), QR codes; an app that can't start, ends early or crashes shows one). Still to come: the wiki pages, and error history in Settings.
 
 **Tests and docs**
 - Headless test suite, grown from the spike's checks (started: `tests/session`, run by `tools/dev/check`; each feature adds its part)
-- Shell contributor doc
+- Shell contributor doc (started: [shell.md](shell.md))
 
 ### 2. OS image and releases
 
